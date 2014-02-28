@@ -1,0 +1,7 @@
+before_script:
+    - uname -a
+    - vim --version
+language: ruby
+rvm:
+  - 1.9.3
+script: rake ci

@@ -1,6 +1,8 @@
 vim-operator-furround
 =====================
 
+[![Build Status](https://travis-ci.org/syngan/vim-operator-furround.png?branch=master)](https://travis-ci.org/syngan/vim-operator-furround)
+
 Required: 
 - kana/vim-operator-user
     - https://github.com/kana/vim-operator-user
