@@ -5,6 +5,11 @@ let s:block = {
 \ '(' : ')',
 \ '[' : ']',
 \ '<' : '>',
+\ '{' : '}',
+\ '|' : '|',
+\ '"' : '"',
+\ '''' : '''',
+\ '$' : '$',
 \}
 
 function! operator#furround#append(motion)
