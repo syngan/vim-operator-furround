@@ -16,3 +16,7 @@ mapping:
 - original text is `tako`
 - yank `hoge` and do `Hiw` then `hoge(tako)`
 - yank `hoge[` and do `Hiw` then `hoge[tako]`
+
+## blog
+
+- [hoge() で囲みたい症候群](http://d.hatena.ne.jp/syngan/20140301/1393676442)
