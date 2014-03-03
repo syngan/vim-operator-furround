@@ -14,14 +14,19 @@ let s:block = {
 \ '$' : '$',
 \} "}}}
 
+function! s:get_val(key, val) " {{{
+  return get(b:, a:key, get(g:, a:key, a:val))
+endfunction " }}}
+
 function! s:get_block(str) " {{{
   let len = len(a:str)
 
   if has_key(s:block, a:str[len - 1])
     return [a:str, s:block[a:str[len - 1]]]
-  else
-    return [a:str . '(', ')']
   endif
+
+  let pair = s:get_val('operator_furround_default_block', ['(', ')'])
+  return [a:str . pair[0], pair[1]]
 endfunction " }}}
 
 function! operator#furround#append(motion) " {{{

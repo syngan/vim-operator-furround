@@ -32,6 +32,41 @@ describe '<Plug>(operator-furround-append)'
     Expect getline(3) ==# g:str
   end
 
+  it 'hoge g:'
+    normal! 1Gft
+    let @" = 'hoge'
+    let g:operator_furround_default_block = ['<', '>']
+    execute 'normal' "\<Plug>(operator-furround-append)iw"
+    let ans = substitute(g:str, "tako", "hoge<tako>", "")
+    Expect getline(1) ==# ans
+    Expect getline(2) ==# g:str
+    Expect getline(3) ==# g:str
+  end
+
+  it 'hoge b:'
+    normal! 1Gft
+    let @" = 'hoge'
+    let b:operator_furround_default_block = ['<', '>']
+    execute 'normal' "\<Plug>(operator-furround-append)iw"
+    let ans = substitute(g:str, "tako", "hoge<tako>", "")
+    Expect getline(1) ==# ans
+    Expect getline(2) ==# g:str
+    Expect getline(3) ==# g:str
+  end
+
+  it 'hoge b: && g:'
+    normal! 1Gft
+    let @" = 'hoge'
+    let g:operator_furround_default_block = ['[', ']']
+    let b:operator_furround_default_block = ['<', '>']
+    execute 'normal' "\<Plug>(operator-furround-append)iw"
+    let ans = substitute(g:str, "tako", "hoge<tako>", "")
+    Expect getline(1) ==# ans
+    Expect getline(2) ==# g:str
+    Expect getline(3) ==# g:str
+  end
+
+
 
   it 'hoge('
     normal! 1Gft
