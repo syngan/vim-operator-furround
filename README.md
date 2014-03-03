@@ -17,6 +17,20 @@ mapping:
 - yank `hoge` and do `Hiw` then `hoge(tako)`
 - yank `hoge[` and do `Hiw` then `hoge[tako]`
 
+
+### [bg]:operator_furround_latex
+
+- default 1
+- original text is `tako`
+- yank `\begin{center}` and do `Hiw` then `\begin{center}tako\end{center}`
+
+### [bg]:operator_furround_xml
+
+- default 0
+- original text is `tako`
+- yank `<p>` and do `Hiw` then `<p>tako</p>`
+- yank `<p><q>` and do `Hiw` then `<p><q>tako</q></p>`
+
 ## blog
 
 - [hoge() で囲みたい症候群](http://d.hatena.ne.jp/syngan/20140301/1393676442)
