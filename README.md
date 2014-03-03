@@ -16,7 +16,11 @@ mapping:
 - original text is `tako`
 - yank `hoge` and do `Hiw` then `hoge(tako)`
 - yank `hoge[` and do `Hiw` then `hoge[tako]`
+- yank `hoge<` and do `Hiw` then `hoge<tako>`
+- yank `hoge|` and do `Hiw` then `hoge|tako|`
+- yank `hoge"` and do `Hiw` then `hoge"tako"`
 
+- pair: `[]`, `()`, `{}`, `<>`, `||`, `""`, `''`
 
 ### [bg]:operator_furround_latex
 
@@ -34,4 +38,4 @@ mapping:
 ## blog
 
 - [hoge() で囲みたい症候群](http://d.hatena.ne.jp/syngan/20140301/1393676442)
-- [vim-operator-furround で LaTeX/XML 編集](http://d.hatena.ne.jp/syngan/20140304/1393871552)
+- [vim-operator-furround で LaTeX/XML 編集](http://d.hatena.ne.jp/syngan/20140304/1393876531)
