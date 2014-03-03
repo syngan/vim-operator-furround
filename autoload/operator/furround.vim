@@ -15,17 +15,69 @@ let s:block = {
 \} "}}}
 
 function! s:get_val(key, val) " {{{
+  " default 値付きの値取得.
+  " b: があったらそれ, なければ g: をみる.
   return get(b:, a:key, get(g:, a:key, a:val))
 endfunction " }}}
 
-function! s:get_block(str) " {{{
+function! s:get_block_latex(motion, str) " {{{
+  " latex 形式の対応
+  " \begin{xxx} \begin{yyy} ... が yank されていたら,
+  " \end{yyy} \end{xxx} とのペアを作る
+  let p = []
+  let s = 0
+  while 1
+    let idx = match(a:str, '\\\(begin\|end\)\s*{\s*\([^}]\+\)\s*}', s)
+    if idx < 0
+      break
+    endif
+
+    let key = matchstr(a:str, '\\\(begin\|end\)\s*{\s*\([^}]\+\)\s*}', s)
+    let key = substitute(key, '\\\(begin\|end\)\s*{\s*', '', '')
+    let key = substitute(key, '\s*}$', '', '')
+    let t = match(a:str, '\\begin\s*{\s*\([^}]\+\)\s*}', s)
+    if t == idx
+      let p += [key]
+    elseif p[-1] ==# key
+      call remove(p, -1)
+    endif
+
+    let s = idx + 6
+  endwhile
+
+  if len(p) == 0
+    return []
+  endif
+
+  let end = ""
+  while len(p) > 0
+    let t = remove(p, -1)
+    if a:motion ==# "line"
+      let end .= "\n\\end{" . t . "}"
+    else
+      let end .= "\\end{" . t . "}"
+    endif
+  endwhile
+
+  return ['', end]
+endfunction " }}}
+
+function! s:get_block(motion, str) " {{{
   let len = len(a:str)
 
   if has_key(s:block, a:str[len - 1])
     return [a:str, s:block[a:str[len - 1]]]
   endif
 
-  let pair = s:get_val('operator_furround_default_block', ['(', ')'])
+  let pair = []
+  if s:get_val('operator_furround_latex', 0)
+    let pair = s:get_block_latex(a:motion, a:str)
+  endif
+
+  if len(pair) == 0 
+    let pair = s:get_val('operator_furround_default_block', ['(', ')'])
+  endif
+
   return [a:str . pair[0], pair[1]]
 endfunction " }}}
 
@@ -54,7 +106,7 @@ function! operator#furround#append(motion) " {{{
     return 0
   endif
 
-  let [func, right] = s:get_block(str)
+  let [func, right] = s:get_block(a:motion, str)
 
   call s:append_block(a:motion, func, right)
   return
