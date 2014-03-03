@@ -27,13 +27,24 @@ describe '<Plug>(operator-furround-append) tex-mode'
     normal! 1Gft
     let @" = "\\begin{center}"
     execute 'normal' "\<Plug>(operator-furround-append)iw"
+    let ans = substitute(g:str, "tako", '\\begin{center}tako\\end{center}', "")
+    Expect getline(1) ==# ans
+    Expect getline(2) ==# g:str
+    Expect getline(3) ==# g:str
+  end
+
+  it 'begin-defualt b:=0'
+    normal! 1Gft
+    let @" = "\\begin{center}"
+    let b:operator_furround_latex = 0
+    execute 'normal' "\<Plug>(operator-furround-append)iw"
     let ans = substitute(g:str, "tako", '\\begin{center}(tako)', "")
     Expect getline(1) ==# ans
     Expect getline(2) ==# g:str
     Expect getline(3) ==# g:str
   end
 
-  it 'begin-defualt b:'
+  it 'begin-defualt b:=1'
     normal! 1Gft
     let @" = "\\begin{center}"
     let b:operator_furround_latex = 1
@@ -44,12 +55,23 @@ describe '<Plug>(operator-furround-append) tex-mode'
     Expect getline(3) ==# g:str
   end
 
-  it 'begin-defualt g:'
+  it 'begin-defualt g:=1'
     normal! 1Gft
     let @" = "\\begin{center}"
     let g:operator_furround_latex = 1
     execute 'normal' "\<Plug>(operator-furround-append)iw"
     let ans = substitute(g:str, "tako", '\\begin{center}tako\\end{center}', "")
+    Expect getline(1) ==# ans
+    Expect getline(2) ==# g:str
+    Expect getline(3) ==# g:str
+  end
+
+  it 'begin-defualt g:=0'
+    normal! 1Gft
+    let @" = "\\begin{center}"
+    let g:operator_furround_latex = 0
+    execute 'normal' "\<Plug>(operator-furround-append)iw"
+    let ans = substitute(g:str, "tako", '\\begin{center}(tako)', "")
     Expect getline(1) ==# ans
     Expect getline(2) ==# g:str
     Expect getline(3) ==# g:str
@@ -79,6 +101,17 @@ describe '<Plug>(operator-furround-append) tex-mode'
     Expect getline(3) ==# g:str
   end
 
+  it 'begin-defualt b:=1&g:=0'
+    normal! 1Gft
+    let @" = "\\begin{center}"
+    let g:operator_furround_latex = 0
+    let b:operator_furround_latex = 1
+    execute 'normal' "\<Plug>(operator-furround-append)iw"
+    let ans = substitute(g:str, "tako", '\\begin{center}tako\\end{center}', "")
+    Expect getline(1) ==# ans
+    Expect getline(2) ==# g:str
+    Expect getline(3) ==# g:str
+  end
 
   it 'begin/begin'
     normal! 1Gft

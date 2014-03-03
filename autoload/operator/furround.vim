@@ -70,7 +70,7 @@ function! s:get_block(motion, str) " {{{
   endif
 
   let pair = []
-  if s:get_val('operator_furround_latex', 0)
+  if s:get_val('operator_furround_latex', 1)
     let pair = s:get_block_latex(a:motion, a:str)
   endif
 
