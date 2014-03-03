@@ -31,18 +31,18 @@ function! s:get_block_latex(motion, str) " {{{
     if idx < 0
       break
     endif
+    let s = idx + 6
 
-    let key = matchstr(a:str, '\\\(begin\|end\)\s*{\s*\([^}]\+\)\s*}', s)
+    let key = matchstr(a:str, '\\\(begin\|end\)\s*{\s*\([^}]\+\)\s*}', idx)
     let key = substitute(key, '\\\(begin\|end\)\s*{\s*', '', '')
     let key = substitute(key, '\s*}$', '', '')
-    let t = match(a:str, '\\begin\s*{\s*\([^}]\+\)\s*}', s)
+    let t = match(a:str, '\\begin\s*{\s*\([^}]\+\)\s*}', idx)
     if t == idx
       let p += [key]
-    elseif p[-1] ==# key
+    elseif len(p) > 0 && p[-1] ==# key
       call remove(p, -1)
     endif
 
-    let s = idx + 6
   endwhile
 
   if len(p) == 0
