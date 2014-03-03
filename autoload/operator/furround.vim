@@ -29,6 +29,17 @@ function! s:get_block(str) " {{{
   return [a:str . pair[0], pair[1]]
 endfunction " }}}
 
+function! s:append_block(motion, left, right) " {{{
+  if a:motion ==# 'char' 
+    execute 'keepjumps' 'silent' 'normal!' "`[v`]\<Esc>"
+    execute 'keepjumps' 'silent' 'normal!' printf("`>a%s\<Esc>`<i%s\<Esc>", 
+      \ a:right, a:left)
+  else
+    execute 'keepjumps' 'silent' 'normal!' printf("%dG$a%s\<Esc>%dG0i%s\<Esc>",
+          \ getpos("'[")[1], a:right, getpos("']")[1], a:left)
+  endif
+endfunction " }}}
+
 function! operator#furround#append(motion) " {{{
   " motion is char/line/block
   if a:motion ==# "block"
@@ -45,8 +56,7 @@ function! operator#furround#append(motion) " {{{
 
   let [func, right] = s:get_block(str)
 
-  execute 'keepjumps' 'silent' 'normal!' "`[v`]\<Esc>"
-  execute 'keepjumps' 'silent' 'normal!' printf("`>a%s\<Esc>`<i%s\<Esc>", right, func)
+  call s:append_block(a:motion, func, right)
   return
 endfunction " }}}
 
