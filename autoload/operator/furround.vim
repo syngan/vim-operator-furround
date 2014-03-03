@@ -1,6 +1,7 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
+" default block {{{
 let s:block = {
 \ '(' : ')',
 \ '[' : ']',
@@ -11,9 +12,19 @@ let s:block = {
 \ '''' : '''',
 \ '`' : '`',
 \ '$' : '$',
-\}
+\} "}}}
 
-function! operator#furround#append(motion)
+function! s:get_block(str) " {{{
+  let len = len(a:str)
+
+  if has_key(s:block, a:str[len - 1])
+    return [a:str, s:block[a:str[len - 1]]]
+  else
+    return [a:str . '(', ')']
+  endif
+endfunction " }}}
+
+function! operator#furround#append(motion) " {{{
   " motion is char/line/block
   if a:motion ==# "block"
     return 0
@@ -27,18 +38,12 @@ function! operator#furround#append(motion)
     return 0
   endif
 
-  if has_key(s:block, str[len(str) - 1])
-    let right = s:block[str[len(str) - 1]]
-    let func = str
-  else
-    let right = ')'
-    let func = str . '('
-  endif
+  let [func, right] = s:get_block(str)
 
   execute 'keepjumps' 'silent' 'normal!' "`[v`]\<Esc>"
   execute 'keepjumps' 'silent' 'normal!' printf("`>a%s\<Esc>`<i%s\<Esc>", right, func)
   return
-endfunction
+endfunction " }}}
 
 let &cpo = s:save_cpo
 unlet s:save_cpo
