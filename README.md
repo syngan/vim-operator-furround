@@ -34,3 +34,4 @@ mapping:
 ## blog
 
 - [hoge() で囲みたい症候群](http://d.hatena.ne.jp/syngan/20140301/1393676442)
+- [vim-operator-furround で LaTeX/XML 編集](http://d.hatena.ne.jp/syngan/20140304/1393871552)
