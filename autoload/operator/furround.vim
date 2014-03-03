@@ -62,6 +62,47 @@ function! s:get_block_latex(motion, str) " {{{
   return ['', end]
 endfunction " }}}
 
+function! s:get_block_xml(motion, str) " {{{
+  " xml 形式の対応
+  " <xxx xxxx><yyy yyyyy> ... が yank されていたら,
+  " </yyy></xxx> とのペアを作る
+  let p = []
+  let s = 0
+  while 1
+    let idx = match(a:str, '<\(/\)\=[^[:space:]>][^>]*>', s)
+    if idx < 0
+      break
+    endif
+
+    let s = idx + 3
+    let key = matchstr(a:str, '<\(/\)\=[^[:space:]>][^>]*>', idx)
+    let tag = substitute(key, '\s.*', '', '')
+    let tag = substitute(tag, '>', '', '')
+    if tag[len(tag) - 1] == '/'
+      continue
+    endif
+    let tag = substitute(tag, '<\(/\)\=', '', '')
+    if key[1] != '/'
+      let p += [tag]
+    elseif len(p) > 0 && p[-1] ==# tag
+      call remove(p, -1)
+    endif
+
+  endwhile
+
+  if len(p) == 0
+    return []
+  endif
+
+  let end = ""
+  while len(p) > 0
+    let t = remove(p, -1)
+    let end .= "</" . t . ">"
+  endwhile
+
+  return ['', end]
+endfunction " }}}
+
 function! s:get_block(motion, str) " {{{
   let len = len(a:str)
 
@@ -72,6 +113,9 @@ function! s:get_block(motion, str) " {{{
   let pair = []
   if s:get_val('operator_furround_latex', 1)
     let pair = s:get_block_latex(a:motion, a:str)
+  endif
+  if len(pair) == 0 && s:get_val('operator_furround_xml', 0)
+    let pair = s:get_block_xml(a:motion, a:str)
   endif
 
   if len(pair) == 0 
