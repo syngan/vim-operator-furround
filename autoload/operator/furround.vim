@@ -125,6 +125,7 @@ function! s:get_block(motion, str) " {{{
   return [a:str . pair[0], pair[1]]
 endfunction " }}}
 
+" @vimlint(EVL102, 1, l:_)
 function! s:append_block(motion, left, right) " {{{
   if a:motion ==# 'char' 
     execute 'keepjumps' 'silent' 'normal!' "`[v`]\<Esc>"
@@ -133,17 +134,19 @@ function! s:append_block(motion, left, right) " {{{
   elseif a:motion ==# 'line'
     execute 'keepjumps' 'silent' 'normal!' printf("%dGA%s\<Esc>%dGgI%s\<Esc>",
           \ getpos("'[")[1], a:right, getpos("']")[1], a:left)
+  elseif a:motion ==# 'block'
+    let [_, l1, c1, _] = getpos("'[")
+    let [_, l2, c2, _] = getpos("']")
+    for lnum in range(l1, l2)
+      execute 'keepjumps' 'silent' 'normal!'
+      \ printf("%dG%d|a%s\<Esc>%d|i%s\<Esc>",
+      \ lnum, c2, a:right, c1, a:left)
+    endfor
   endif
 endfunction " }}}
 
 function! operator#furround#append(motion) " {{{
-  " motion is char/line/block
-  if a:motion ==# "block"
-    return 0
-  endif
-
   let reg = v:register == '' ? '"' : v:register
-  
   let str = ""
   execute "let str = @" . reg
   if str ==# ""
