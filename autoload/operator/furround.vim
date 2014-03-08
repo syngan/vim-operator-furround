@@ -130,8 +130,8 @@ function! s:append_block(motion, left, right) " {{{
     execute 'keepjumps' 'silent' 'normal!' "`[v`]\<Esc>"
     execute 'keepjumps' 'silent' 'normal!' printf("`>a%s\<Esc>`<i%s\<Esc>", 
       \ a:right, a:left)
-  else
-    execute 'keepjumps' 'silent' 'normal!' printf("%dG$a%s\<Esc>%dG0i%s\<Esc>",
+  elseif a:motion ==# 'line'
+    execute 'keepjumps' 'silent' 'normal!' printf("%dGA%s\<Esc>%dGgI%s\<Esc>",
           \ getpos("'[")[1], a:right, getpos("']")[1], a:left)
   endif
 endfunction " }}}
