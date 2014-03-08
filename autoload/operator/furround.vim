@@ -129,24 +129,27 @@ function! s:input() " {{{
   return input('furround-block: ')
 endfunction " }}}
 
+let s:append_block = {} " {{{
+function! s:append_block.char(left, right)
+  execute 'keepjumps' 'silent' 'normal!' "`[v`]\<Esc>"
+  execute 'keepjumps' 'silent' 'normal!' printf("`>a%s\<Esc>`<i%s\<Esc>", 
+    \ a:right, a:left)
+endfunction " }}}
+
+function! s:append_block.line(left, right) " {{{
+  execute 'keepjumps' 'silent' 'normal!' printf("%dGA%s\<Esc>%dGgI%s\<Esc>",
+        \ getpos("'[")[1], a:right, getpos("']")[1], a:left)
+endfunction " }}}
+
 " @vimlint(EVL102, 1, l:_)
-function! s:append_block(motion, left, right) " {{{
-  if a:motion ==# 'char' 
-    execute 'keepjumps' 'silent' 'normal!' "`[v`]\<Esc>"
-    execute 'keepjumps' 'silent' 'normal!' printf("`>a%s\<Esc>`<i%s\<Esc>", 
-      \ a:right, a:left)
-  elseif a:motion ==# 'line'
-    execute 'keepjumps' 'silent' 'normal!' printf("%dGA%s\<Esc>%dGgI%s\<Esc>",
-          \ getpos("'[")[1], a:right, getpos("']")[1], a:left)
-  elseif a:motion ==# 'block'
-    let [_, l1, c1, _] = getpos("'[")
-    let [_, l2, c2, _] = getpos("']")
-    for lnum in range(l1, l2)
-      execute 'keepjumps' 'silent' 'normal!'
-      \ printf("%dG%d|a%s\<Esc>%d|i%s\<Esc>",
-      \ lnum, c2, a:right, c1, a:left)
-    endfor
-  endif
+function! s:append_block.block(left, right) " {{{
+  let [_, l1, c1, _] = getpos("'[")
+  let [_, l2, c2, _] = getpos("']")
+  for lnum in range(l1, l2)
+    execute 'keepjumps' 'silent' 'normal!'
+    \ printf("%dG%d|a%s\<Esc>%d|i%s\<Esc>",
+    \ lnum, c2, a:right, c1, a:left)
+  endfor
 endfunction " }}}
 
 function! operator#furround#append(motion) " {{{
@@ -167,7 +170,7 @@ function! operator#furround#append(motion) " {{{
 
   let [func, right] = s:get_block(a:motion, str)
 
-  call s:append_block(a:motion, func, right)
+  call s:append_block[a:motion](func, right)
 
   if use_input
     call s:repeat_set(str)
