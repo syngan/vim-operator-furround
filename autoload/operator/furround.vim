@@ -125,6 +125,10 @@ function! s:get_block(motion, str) " {{{
   return [a:str . pair[0], pair[1]]
 endfunction " }}}
 
+function! s:input() " {{{
+  return input('furround-block: ')
+endfunction " }}}
+
 " @vimlint(EVL102, 1, l:_)
 function! s:append_block(motion, left, right) " {{{
   if a:motion ==# 'char' 
@@ -146,9 +150,15 @@ function! s:append_block(motion, left, right) " {{{
 endfunction " }}}
 
 function! operator#furround#append(motion) " {{{
-  let reg = v:register == '' ? '"' : v:register
-  let str = ""
-  execute "let str = @" . reg
+  if (v:register == '' || v:register == '"') && s:get_val('operator_furround_use_input', 0)
+    let str = s:input()
+  else
+    let str = ''
+  endif
+  if str == ''
+    let reg = v:register == '' ? '"' : v:register
+    execute "let str = @" . reg
+  endif
   if str ==# ""
     return 0
   endif
