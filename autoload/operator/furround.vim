@@ -150,6 +150,7 @@ function! s:append_block(motion, left, right) " {{{
 endfunction " }}}
 
 function! operator#furround#append(motion) " {{{
+  let use_input = 1
   if (v:register == '' || v:register == '"') && s:get_val('operator_furround_use_input', 0)
     let str = s:input()
   else
@@ -158,6 +159,7 @@ function! operator#furround#append(motion) " {{{
   if str == ''
     let reg = v:register == '' ? '"' : v:register
     execute "let str = @" . reg
+    let use_input = 0
   endif
   if str ==# ""
     return 0
@@ -166,7 +168,14 @@ function! operator#furround#append(motion) " {{{
   let [func, right] = s:get_block(a:motion, str)
 
   call s:append_block(a:motion, func, right)
-  return
+
+  if use_input
+    call s:repeat_set(str)
+  endif
+endfunction " }}}
+
+function! s:repeat_set(str) " {{{
+  silent! call repeat#set("\<Plug>(operator-furround-repeat)".a:str."\<CR>", 1)
 endfunction " }}}
 
 let &cpo = s:save_cpo
