@@ -14,6 +14,19 @@ let s:block = {
 \ '$' : '$',
 \} "}}}
 
+function! s:create_block_tbl(dic)  " {{{
+  let s:block_d = {}
+
+  for k in keys(a:dic)
+    if k != a:dic[k]
+      let s:block_d[a:dic[k]] = k
+    endif
+  endfor
+endfunction " }}}
+
+" initialize.
+call s:create_block_tbl(s:block)
+
 function! s:get_val(key, val) " {{{
   " default 値付きの値取得.
   " b: があったらそれ, なければ g: をみる.
@@ -62,6 +75,7 @@ function! s:get_block_latex(motion, str) " {{{
   return ['', end]
 endfunction " }}}
 
+" @vimlint(EVL103, 1, a:motion)
 function! s:get_block_xml(motion, str) " {{{
   " xml 形式の対応
   " <xxx xxxx><yyy yyyyy> ... が yank されていたら,
@@ -102,12 +116,47 @@ function! s:get_block_xml(motion, str) " {{{
 
   return ['', end]
 endfunction " }}}
+" @vimlint(EVL103, 0, a:motion)
+
+function! s:get_pair(str) " {{{
+  let stack = []
+  let l = len(a:str)
+  for l in range(len(a:str))
+    let s = a:str[l]
+    if has_key(s:block, s)
+        " 開括弧
+      let r = s:block[s]
+      if r == s && len(stack) > 0
+        let pair = stack[-1]
+        if pair[0] == r
+          call remove(stack, -1)
+        else
+          let stack += [[s, r]]
+        endif
+      else
+        let stack += [[s, r]]
+      endif
+    elseif has_key(s:block_d, s)
+      " 閉じ括弧
+      if len(stack) > 0 && stack[-1][1] == s
+        call remove(stack, -1)
+      else
+        " 対応するペアがいない. 壊れているからわかめ
+        return [a:str, s:block[a:str[len(a:str) - 1]]]
+      endif
+    endif
+  endfor
+  let r = ''
+  for i in range(len(stack)-1, 0, -1)
+    let r .= stack[i][1]
+  endfor
+  return [a:str, r]
+endfunction " }}}
 
 function! s:get_block(motion, str) " {{{
-  let len = len(a:str)
 
-  if has_key(s:block, a:str[len - 1])
-    return [a:str, s:block[a:str[len - 1]]]
+  if has_key(s:block, a:str[len(a:str)- 1])
+    return s:get_pair(a:str)
   endif
 
   let pair = []
