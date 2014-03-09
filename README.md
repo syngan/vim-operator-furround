@@ -22,6 +22,10 @@ mapping:
 - yank `hoge|` and do `Hiw` then `hoge|tako|`
 - yank `hoge"` and do `Hiw` then `hoge"tako"`
 
+- yank `hoge["` and do `Hiw` then `hoge["tako"]`
+- yank `hoge(["` and do `Hiw` then `hoge(["tako"])`
+- yank `hoge()["` and do `Hiw` then `hoge()["tako"]`
+
 - pair: `[]`, `()`, `{}`, `<>`, `||`, `""`, `''`
 
 ### [bg]:operator_furround_latex
