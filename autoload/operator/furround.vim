@@ -75,8 +75,7 @@ function! s:get_block_latex(motion, str) " {{{
   return ['', end]
 endfunction " }}}
 
-" @vimlint(EVL103, 1, a:motion)
-function! s:get_block_xml(motion, str) " {{{
+function! s:get_block_xml(str) " {{{
   " xml 形式の対応
   " <xxx xxxx><yyy yyyyy> ... が yank されていたら,
   " </yyy></xxx> とのペアを作る
@@ -116,7 +115,6 @@ function! s:get_block_xml(motion, str) " {{{
 
   return ['', end]
 endfunction " }}}
-" @vimlint(EVL103, 0, a:motion)
 
 function! s:get_pair(str) " {{{
   let stack = []
@@ -164,7 +162,7 @@ function! s:get_block(motion, str) " {{{
     let pair = s:get_block_latex(a:motion, a:str)
   endif
   if len(pair) == 0 && s:get_val('operator_furround_xml', 0)
-    let pair = s:get_block_xml(a:motion, a:str)
+    let pair = s:get_block_xml(a:str)
   endif
 
   if len(pair) == 0 
@@ -203,7 +201,8 @@ endfunction " }}}
 
 function! operator#furround#append(motion) " {{{
   let use_input = 1
-  if (v:register == '' || v:register == '"') && s:get_val('operator_furround_use_input', 0)
+  if (v:register == '' || v:register == '"') &&
+  \   s:get_val('operator_furround_use_input', 0)
     let str = s:input()
   else
     let str = ''
