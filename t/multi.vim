@@ -62,6 +62,18 @@ describe 'multi'
     Expect getline(3) ==# g:str
   end
 
+  it 'hoge("foo")<["'
+    normal! 1Gft
+    let @" = 'hoge("foo")<["'
+    execute 'normal' "\<Plug>(operator-furround-append)iw"
+    let ans = substitute(g:str, "tako", 'hoge("foo")<["tako"]>', "")
+    Expect getline(1) ==# ans
+    Expect getline(2) ==# g:str
+    Expect getline(3) ==# g:str
+  end
+
+
+
   it 'hoge(<)[" :: has a broken pair'
     normal! 1Gft
     let @" = 'hoge(<)["'
