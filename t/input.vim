@@ -14,7 +14,7 @@ function! s:paste_code()
   1 delete _
 endfunction
 
-describe 'motion'
+describe 'input'
   before
     new
     call s:paste_code()
@@ -87,4 +87,49 @@ describe 'motion'
     Expect getline(4) ==# g:str
     Expect getline(5) ==# g:str
   end
+
+  it 'g=1,b=0'
+    normal! 2Gft
+    let @" = 'hoge('
+    let b:operator_furround_use_input = 0
+    let g:operator_furround_use_input = 1
+    execute 'normal' "\<Plug>(operator-furround-append)iwiaaa\<CR>"
+    let ans = substitute(g:str, "tako.*", "hogeaaa", "")
+	let ans2 = "(tako) desu ka."
+    Expect getline(1) ==# g:str
+    Expect getline(2) ==# ans
+    Expect getline(3) ==# ans2
+    Expect getline(4) ==# g:str
+    Expect getline(5) ==# g:str
+    Expect getline(6) ==# g:str
+  end
+
+  it 'g=1,b=1'
+    normal! 2Gft
+    let @" = 'hoge('
+    let b:operator_furround_use_input = 1
+    let g:operator_furround_use_input = 1
+    execute 'normal' "\<Plug>(operator-furround-append)iwiaaa\<CR>"
+    let ans = substitute(g:str, "tako", "iaaa(tako)", "")
+    Expect getline(1) ==# g:str
+    Expect getline(2) ==# ans
+    Expect getline(3) ==# g:str
+    Expect getline(4) ==# g:str
+    Expect getline(5) ==# g:str
+  end
+
+  it 'g=0,b=1'
+    normal! 2Gft
+    let @" = 'hoge('
+    let b:operator_furround_use_input = 1
+    let g:operator_furround_use_input = 0
+    execute 'normal' "\<Plug>(operator-furround-append)iwiaaa\<CR>"
+    let ans = substitute(g:str, "tako", "iaaa(tako)", "")
+    Expect getline(1) ==# g:str
+    Expect getline(2) ==# ans
+    Expect getline(3) ==# g:str
+    Expect getline(4) ==# g:str
+    Expect getline(5) ==# g:str
+  end
+
 end
