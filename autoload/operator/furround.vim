@@ -2,7 +2,7 @@ let s:save_cpo = &cpo
 set cpo&vim
 
 function! s:log(s) " {{{
-  call vimconsole#log(a:s)
+"  call vimconsole#log(a:s)
 endfunction " }}}
 
 " default block {{{
@@ -261,9 +261,6 @@ function! s:get_block_del(str) " {{{
       endif
     endif
   endfor
-  call s:log("stack=" . string(stack))
-  call s:log("last=" . string(last))
-  call s:log("l=" . l . ", str=" . a:str[l])
 
   " 最後のスペースどうすんべ.
   while l >= 0
@@ -272,8 +269,6 @@ function! s:get_block_del(str) " {{{
     endif
     let l -= l
   endwhile
-
-  call s:log("l=" . l . ", str=" . a:str[l])
 
   if len(last) > 0 && last[1] == a:str[l]
     return last + [l]
