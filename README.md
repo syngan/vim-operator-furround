@@ -45,11 +45,11 @@ mapping:
 
 - default 0
 - original text is `tako`
-- do `Hiw` and type `hoge(` then `hoge(tako)
+- do `Hiw` and type `hoge(` then `hoge(tako)`
 - do `Hiw` and type `` then use register `"`
 - do `"fHiw` then use register `f`
 
-## blog
+## Blog in Japanese
 
 - [hoge() で囲みたい症候群](http://d.hatena.ne.jp/syngan/20140301/1393676442)
 - [vim-operator-furround で LaTeX/XML 編集](http://d.hatena.ne.jp/syngan/20140304/1393876531)
