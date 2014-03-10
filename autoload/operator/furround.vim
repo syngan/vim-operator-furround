@@ -11,7 +11,6 @@ let s:block = {
 \ '"' : '"',
 \ '''' : '''',
 \ '`' : '`',
-\ '$' : '$',
 \} "}}}
 
 function! s:create_block_tbl(dic)  " {{{
