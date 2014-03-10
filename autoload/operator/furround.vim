@@ -1,8 +1,9 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
-function! s:log(s) " {{{
-"  call vimconsole#log(a:s)
+" @vimlint(EVL102, 1, a:_)
+function! s:log(_) " {{{
+"  call vimconsole#log(a:_)
 endfunction " }}}
 
 " default block {{{
@@ -179,16 +180,19 @@ function! s:input() " {{{
   return input('furround-block: ')
 endfunction " }}}
 
+function! s:knormal(s) " {{{
+  execute 'keepjumps' 'silent' 'normal!' a:s
+endfunction " }}}
+
 let s:append_block = {} " {{{
 function! s:append_block.char(left, right)
-  execute 'keepjumps' 'silent' 'normal!' "`[v`]\<Esc>"
-  execute 'keepjumps' 'silent' 'normal!' printf("`>a%s\<Esc>`<i%s\<Esc>", 
-    \ a:right, a:left)
+  call s:knormal("`[v`]\<Esc>")
+  call s:knormal(printf("`>a%s\<Esc>`<i%s\<Esc>", a:right, a:left))
 endfunction " }}}
 
 function! s:append_block.line(left, right) " {{{
-  execute 'keepjumps' 'silent' 'normal!' printf("%dGA%s\<Esc>%dGgI%s\<Esc>",
-        \ getpos("'[")[1], a:right, getpos("']")[1], a:left)
+  call s:knormal(printf("%dGA%s\<Esc>%dGgI%s\<Esc>",
+        \ getpos("'[")[1], a:right, getpos("']")[1], a:left))
 endfunction " }}}
 
 " @vimlint(EVL102, 1, l:_)
@@ -196,9 +200,8 @@ function! s:append_block.block(left, right) " {{{
   let [_, l1, c1, _] = getpos("'[")
   let [_, l2, c2, _] = getpos("']")
   for lnum in range(l1, l2)
-    execute 'keepjumps' 'silent' 'normal!'
-    \ printf("%dG%d|a%s\<Esc>%d|i%s\<Esc>",
-    \ lnum, c2, a:right, c1, a:left)
+    call s:knormal(printf("%dG%d|a%s\<Esc>%d|i%s\<Esc>",
+    \ lnum, c2, a:right, c1, a:left))
   endfor
 endfunction " }}}
 
@@ -286,7 +289,7 @@ function! operator#furround#delete(motion) " {{{
   let save_regtype = getregtype('f')
   let pos = getpos(".")
   try
-    execute 'keepjumps' 'silent' 'normal!' '`[v`]"fy'
+    call s:knormal('`[v`]"fy')
     let str = getreg('f')
 
     call s:log("count=" . v:count1 . "," . v:count)
@@ -301,7 +304,7 @@ function! operator#furround#delete(motion) " {{{
     endfor
 
     if through
-      execute 'keepjumps' 'silent' 'normal!' printf('`[v`]"fda%s', str)
+      call s:knormal(printf('`[v`]"fda%s', str))
     endif
   finally
     call setreg('f', save_reg, save_regtype)
