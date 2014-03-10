@@ -304,7 +304,7 @@ function! operator#furround#delete(motion) " {{{
     endfor
 
     if through
-      call s:knormal(printf('`[v`]"fda%s', str))
+      call s:knormal(printf('`[v`]"fdi%s', str))
     endif
   finally
     call setreg('f', save_reg, save_regtype)
