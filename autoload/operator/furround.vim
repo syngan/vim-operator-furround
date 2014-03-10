@@ -289,16 +289,20 @@ function! operator#furround#delete(motion) " {{{
     execute 'keepjumps' 'silent' 'normal!' '`[v`]"fy'
     let str = getreg('f')
 
-    call s:log("count=" . v:count)
-    for _ in range(v:count == 0 ? 1 : v:count)
+    call s:log("count=" . v:count1 . "," . v:count)
+    let through = 0
+    for _ in range(v:count1)
       let block = s:get_block_del(str)
       if len(block) == 0
-        return
+        break
       endif
       let str = str[block[2]+1 : block[3]-1] . str[block[3]+1 :]
+      let through = 1
     endfor
 
-    execute 'keepjumps' 'silent' 'normal!' printf('`[v`]"fda%s', str)
+    if through
+      execute 'keepjumps' 'silent' 'normal!' printf('`[v`]"fda%s', str)
+    endif
   finally
     call setreg('f', save_reg, save_regtype)
     call setpos(".", pos)
