@@ -1,6 +1,10 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
+function! s:log(s) " {{{
+  call vimconsole#log(a:s)
+endfunction " }}}
+
 " default block {{{
 let s:block = {
 \ '(' : ')',
@@ -222,6 +226,88 @@ function! operator#furround#append(motion) " {{{
   if use_input
     call s:repeat_set(str)
   endif
+endfunction " }}}
+
+" 文字列の末尾が ( だったら, textobj の外まで探しに行く?
+" insert の場合とちがって, 消したいのは一番外側のみな気がする.
+" hoge[tako]('foo')
+" hoge[tako](<foo>)
+" v:count は考慮すべきかも.
+function! s:get_block_del(str) " {{{
+  let stack = []
+  let l = len(a:str)
+  let last = []
+  for l in range(len(a:str))
+    let s = a:str[l]
+    if has_key(s:block, s)
+        " 開括弧
+      let r = s:block[s]
+      if r == s && len(stack) > 0
+        if stack[-1][0] == r
+          " 閉じた
+          let last = remove(stack, -1)
+        else
+          let stack += [[s, r, l]]
+        endif
+      else
+        let stack += [[s, r, l]]
+      endif
+    elseif has_key(s:block_d, s)
+      " 閉じ括弧
+      if len(stack) > 0 && stack[-1][1] == s
+        let last = remove(stack, -1)
+      else
+        " 対応するペアがいない. 壊れているからわかめ
+      endif
+    endif
+  endfor
+  call s:log("stack=" . string(stack))
+  call s:log("last=" . string(last))
+  call s:log("l=" . l . ", str=" . a:str[l])
+
+  " 最後のスペースどうすんべ.
+  while l >= 0
+    if a:str[l] !~ '[[:blank:]\n]'
+      break
+    endif
+    let l -= l
+  endwhile
+
+  call s:log("l=" . l . ", str=" . a:str[l])
+
+  if len(last) > 0 && last[1] == a:str[l]
+    return last + [l]
+  else
+    return []
+  endif
+endfunction " }}}
+
+function! operator#furround#delete(motion) " {{{
+  if a:motion != 'char'
+    return
+  endif
+
+  let save_reg = getreg('f')
+  let save_regtype = getregtype('f')
+  let pos = getpos(".")
+  try
+    execute 'keepjumps' 'silent' 'normal!' '`[v`]"fy'
+    let str = getreg('f')
+
+    call s:log("count=" . v:count)
+    for _ in range(v:count == 0 ? 1 : v:count)
+      let block = s:get_block_del(str)
+      if len(block) == 0
+        return
+      endif
+      let str = str[block[2]+1 : block[3]-1] . str[block[3]+1 :]
+    endfor
+
+    execute 'keepjumps' 'silent' 'normal!' printf('`[v`]"fda%s', str)
+  finally
+    call setreg('f', save_reg, save_regtype)
+    call setpos(".", pos)
+  endtry
 endfunction " }}}
 
 function! s:repeat_set(str) " {{{
