@@ -215,7 +215,7 @@ function! operator#furround#append(motion) " {{{
   endif
   if str == ''
     let reg = v:register == '' ? '"' : v:register
-    execute "let str = @" . reg
+    let str = getreg(reg)
     let use_input = 0
   endif
   if str ==# ""
