@@ -39,6 +39,13 @@ mapping:
 - text is `hoge(tako(foo))` and do `Df)` then `foo)`
 - text is `hoge(tako(foo))` and do `D2f)` then `tako(foo)`
 
+## vim-textobj-postexpr
+
+- syngan/vim-textobj-postexpr
+    - https://github.com/syngan/vim-textobj-postexpr
+
+- `omap iv <Plug>(textobj-postexpr-i)`
+- text is `hoge(tako(foo))` and do `Div` then `tako(foo)`
 
 # Customize
 
@@ -60,7 +67,7 @@ mapping:
 - default `0`
 - original text is `tako`
 - do `Hiw` and type `hoge(` then `hoge(tako)`
-- do `Hiw` and type `` then use register `"`
+- do `Hiw` and type `<CR>` (an empty string) then use register `"`
 - do `"fHiw` then use register `f`
 
 # Blog in Japanese
