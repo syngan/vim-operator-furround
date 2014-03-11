@@ -5,15 +5,15 @@ vim-operator-furround
 
 This plugin is a Vim operator to surround a text by register content.
 
-Required: 
+Required:
 - kana/vim-operator-user
     - https://github.com/kana/vim-operator-user
 
 mapping:
 - `<Plug>(operator-furround-append)`
+- `<Plug>(operator-furround-delete)`
 
 # Example
-
 
 ## <Plug>(opeartor-furround-append)`
 
@@ -31,24 +31,33 @@ mapping:
 
 - pair: `[]`, `()`, `{}`, `<>`, `||`, `""`, `''`
 
+## <Plug>(opeartor-furround-delete)`
+
+- `map D <Plug>(opeartor-furround-delete)`
+- text is `hoge(tako)` and do `Df)` then `tako`
+- text is `hoge[tako]` and do `Df]` then `tako`
+- text is `hoge(tako(foo))` and do `Df)` then `foo)`
+- text is `hoge(tako(foo))` and do `D2f)` then `tako(foo)`
+
+
 # Customize
 
 ## [bg]:operator_furround_latex
 
-- default 1
+- default `1`
 - original text is `tako`
 - yank `\begin{center}` and do `Hiw` then `\begin{center}tako\end{center}`
 
 ## [bg]:operator_furround_xml
 
-- default 0
+- default `0`
 - original text is `tako`
 - yank `<p>` and do `Hiw` then `<p>tako</p>`
 - yank `<p><q>` and do `Hiw` then `<p><q>tako</q></p>`
 
 ## [bg]:operator_furround_use_input
 
-- default 0
+- default `0`
 - original text is `tako`
 - do `Hiw` and type `hoge(` then `hoge(tako)`
 - do `Hiw` and type `` then use register `"`
