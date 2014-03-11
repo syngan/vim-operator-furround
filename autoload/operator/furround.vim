@@ -289,6 +289,7 @@ function! operator#furround#delete(motion) " {{{
   if a:motion != 'char'
     return
   endif
+"  call s:log("count=" . v:count1 . "," . v:count)
 
   let save_reg = getreg('f')
   let save_regtype = getregtype('f')
@@ -297,9 +298,8 @@ function! operator#furround#delete(motion) " {{{
     call s:knormal('`[v`]"fy')
     let str = getreg('f')
 
-    call s:log("count=" . v:count1 . "," . v:count)
     let through = 0
-    for _ in range(v:count1)
+    for _ in range(1)
       let block = s:get_block_del(str)
       if len(block) == 0
         break
