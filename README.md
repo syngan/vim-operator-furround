@@ -15,7 +15,7 @@ mapping:
 
 # Example
 
-## <Plug>(opeartor-furround-append)`
+## `<Plug>(opeartor-furround-append)`
 
 - `map H <Plug>(opeartor-furround-append)`
 - original text is `tako`
@@ -31,7 +31,7 @@ mapping:
 
 - pair: `[]`, `()`, `{}`, `<>`, `||`, `""`, `''`
 
-## <Plug>(opeartor-furround-delete)`
+## `<Plug>(opeartor-furround-delete)`
 
 - `map D <Plug>(opeartor-furround-delete)`
 - text is `hoge(tako)` and do `Df)` then `tako`
