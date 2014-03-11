@@ -10,6 +10,8 @@ let g:str = [
 \	"bb function['ta)ko'](hoge) aa",
 \	"bb function['ta(ko'](hoge) aa",
 \	"bb function['ta]ko'](hoge) aa",
+\	"bb function['ta[ko'](hoge) aa",
+\	" hoge(tako(un)) ",
 \	"koko ha tako['fufu'](desu) (ka).",
 \]
 
@@ -83,7 +85,19 @@ describe '<Plug>(operator-furround-delete)'
 	endfor
   end
 
-
+  it 'line5'
+	let idx = 5
+    normal! 5Gff
+    execute 'normal' "\<Plug>(operator-furround-delete)f)"
+    let ans = substitute(g:str[idx-1], "function.*(hoge)", "hoge", "")
+	for i in range(len(g:str))
+		if i == idx-1
+			Expect getline(i+1) == ans
+		else
+			Expect getline(i+1) == g:str[i]
+		endif
+	endfor
+  end
 
   it 'line6'
 	let idx = 6
@@ -113,6 +127,7 @@ describe '<Plug>(operator-furround-delete)'
 		endif
 	endfor
   end
+
   it 'line8'
 	let idx = 8
     normal! 8Gff
@@ -127,6 +142,18 @@ describe '<Plug>(operator-furround-delete)'
 	endfor
   end
 
+  it 'line9'
+	let idx = 9
+    normal! 9Gff
+    execute 'normal' "\<Plug>(operator-furround-delete)f)"
+    let ans = substitute(g:str[idx-1], "function.*(hoge)", "hoge", "")
+	for i in range(len(g:str))
+		if i == idx-1
+			Expect getline(i+1) == ans
+		else
+			Expect getline(i+1) == g:str[i]
+		endif
+	endfor
+  end
 end
 
-"
