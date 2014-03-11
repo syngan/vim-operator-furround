@@ -1,7 +1,9 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
-" @vimlint(EVL102, 1, a:_)
+scriptencoding utf-8
+
+" @vimlint(EVL103, 1, a:_)
 function! s:log(_) " {{{
 "  call vimconsole#log(a:_)
 endfunction " }}}
@@ -32,15 +34,15 @@ endfunction " }}}
 call s:create_block_tbl(s:block)
 
 function! s:get_val(key, val) " {{{
-  " default $BCMIU$-$NCM<hF@(B.
-  " b: $B$,$"$C$?$i$=$l(B, $B$J$1$l$P(B g: $B$r$_$k(B.
+  " default 値付きの値取得.
+  " b: があったらそれ, なければ g: をみる.
   return get(b:, a:key, get(g:, a:key, a:val))
 endfunction " }}}
 
 function! s:get_block_latex(motion, str) " {{{
-  " latex $B7A<0$NBP1~(B
-  " \begin{xxx} \begin{yyy} ... $B$,(B yank $B$5$l$F$$$?$i(B,
-  " \end{yyy} \end{xxx} $B$H$N%Z%"$r:n$k(B
+  " latex 形式の対応
+  " \begin{xxx} \begin{yyy} ... が yank されていたら,
+  " \end{yyy} \end{xxx} とのペアを作る
   let p = []
   let s = 0
   while 1
@@ -80,9 +82,9 @@ function! s:get_block_latex(motion, str) " {{{
 endfunction " }}}
 
 function! s:get_block_xml(str) " {{{
-  " xml $B7A<0$NBP1~(B
-  " <xxx xxxx><yyy yyyyy> ... $B$,(B yank $B$5$l$F$$$?$i(B,
-  " </yyy></xxx> $B$H$N%Z%"$r:n$k(B
+  " xml 形式の対応
+  " <xxx xxxx><yyy yyyyy> ... が yank されていたら,
+  " </yyy></xxx> とのペアを作る
   let p = []
   let s = 0
   while 1
@@ -126,7 +128,7 @@ function! s:get_pair(str) " {{{
   for l in range(len(a:str))
     let s = a:str[l]
     if has_key(s:block, s)
-        " $B3+3g8L(B
+        " 開括弧
       let r = s:block[s]
       if r == s && len(stack) > 0
         let pair = stack[-1]
@@ -139,11 +141,11 @@ function! s:get_pair(str) " {{{
         let stack += [[s, r]]
       endif
     elseif has_key(s:block_d, s)
-      " $BJD$83g8L(B
+      " 閉じ括弧
       if len(stack) > 0 && stack[-1][1] == s
         call remove(stack, -1)
       else
-        " $BBP1~$9$k%Z%"$,$$$J$$(B. $B2u$l$F$$$k$+$i$o$+$a(B
+        " 対応するペアがいない. 壊れているからわかめ
         return [a:str, s:block[a:str[len(a:str) - 1]]]
       endif
     endif
@@ -169,7 +171,7 @@ function! s:get_block(motion, str) " {{{
     let pair = s:get_block_xml(a:str)
   endif
 
-  if len(pair) == 0 
+  if len(pair) == 0
     let pair = s:get_val('operator_furround_default_block', ['(', ')'])
   endif
 
@@ -231,11 +233,14 @@ function! operator#furround#append(motion) " {{{
   endif
 endfunction " }}}
 
-" $BJ8;zNs$NKvHx$,(B ( $B$@$C$?$i(B, textobj $B$N30$^$GC5$7$K9T$/(B?
-" insert $B$N>l9g$H$A$,$C$F(B, $B>C$7$?$$$N$O0lHV30B&$N$_$J5$$,$9$k(B.
+" 文字列の末尾が ( だったら, textobj の外まで探しに行く?
+" insert の場合とちがって, 消したいのは一番外側のみな気がする.
 " hoge[tako]('foo')
 " hoge[tako](<foo>)
-" v:count $B$O9MN8$9$Y$-$+$b(B.
+" v:count は考慮すべきかも.
+" D = map(delete)
+" D2f) としたとき, v:count=2 となり
+" 2Df) のときは, v:count=0 となる.
 function! s:get_block_del(str) " {{{
   let stack = []
   let l = len(a:str)
@@ -243,11 +248,11 @@ function! s:get_block_del(str) " {{{
   for l in range(len(a:str))
     let s = a:str[l]
     if has_key(s:block, s)
-        " $B3+3g8L(B
+        " 開括弧
       let r = s:block[s]
       if r == s && len(stack) > 0
         if stack[-1][0] == r
-          " $BJD$8$?(B
+          " 閉じた
           let last = remove(stack, -1)
         else
           let stack += [[s, r, l]]
@@ -256,16 +261,16 @@ function! s:get_block_del(str) " {{{
         let stack += [[s, r, l]]
       endif
     elseif has_key(s:block_d, s)
-      " $BJD$83g8L(B
+      " 閉じ括弧
       if len(stack) > 0 && stack[-1][1] == s
         let last = remove(stack, -1)
       else
-        " $BBP1~$9$k%Z%"$,$$$J$$(B. $B2u$l$F$$$k$+$i$o$+$a(B
+        " 対応するペアがいない. 壊れているからわかめ
       endif
     endif
   endfor
 
-  " $B:G8e$N%9%Z!<%9$I$&$9$s$Y(B.
+  " 最後のスペースどうすんべ.
   while l >= 0
     if a:str[l] !~ '[[:blank:]\n]'
       break
