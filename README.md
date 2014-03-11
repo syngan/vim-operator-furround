@@ -12,7 +12,10 @@ Required:
 mapping:
 - `<Plug>(operator-furround-append)`
 
-## example
+# Example
+
+
+## <Plug>(opeartor-furround-append)`
 
 - `map H <Plug>(opeartor-furround-append)`
 - original text is `tako`
@@ -28,20 +31,22 @@ mapping:
 
 - pair: `[]`, `()`, `{}`, `<>`, `||`, `""`, `''`
 
-### [bg]:operator_furround_latex
+# Customize
+
+## [bg]:operator_furround_latex
 
 - default 1
 - original text is `tako`
 - yank `\begin{center}` and do `Hiw` then `\begin{center}tako\end{center}`
 
-### [bg]:operator_furround_xml
+## [bg]:operator_furround_xml
 
 - default 0
 - original text is `tako`
 - yank `<p>` and do `Hiw` then `<p>tako</p>`
 - yank `<p><q>` and do `Hiw` then `<p><q>tako</q></p>`
 
-### [bg]:operator_furround_use_input
+## [bg]:operator_furround_use_input
 
 - default 0
 - original text is `tako`
@@ -49,7 +54,7 @@ mapping:
 - do `Hiw` and type `` then use register `"`
 - do `"fHiw` then use register `f`
 
-## Blog in Japanese
+# Blog in Japanese
 
 - [hoge() で囲みたい症候群](http://d.hatena.ne.jp/syngan/20140301/1393676442)
 - [vim-operator-furround で LaTeX/XML 編集](http://d.hatena.ne.jp/syngan/20140304/1393876531)
