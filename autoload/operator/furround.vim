@@ -5,7 +5,7 @@ scriptencoding utf-8
 
 " @vimlint(EVL103, 1, a:_)
 function! s:log(_) " {{{
-"  call vimconsole#log(a:_)
+  silent! call vimconsole#log(a:_)
 endfunction " }}}
 
 " default block {{{
@@ -289,7 +289,7 @@ function! operator#furround#delete(motion) " {{{
   if a:motion != 'char'
     return
   endif
-"  call s:log("count=" . v:count1 . "," . v:count)
+"  call s:log("count=" . v:count1 . "," . v:count . ",pre=" . v:prevcount)
 
   let save_reg = getreg('f')
   let save_regtype = getregtype('f')
@@ -299,6 +299,7 @@ function! operator#furround#delete(motion) " {{{
     let str = getreg('f')
 
     let through = 0
+"   for _ in range(v:prevcount ? v:prevcount : 1)
     for _ in range(1)
       let block = s:get_block_del(str)
       if len(block) == 0
