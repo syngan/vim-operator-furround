@@ -234,13 +234,10 @@ function! operator#furround#append(motion) " {{{
 endfunction " }}}
 
 " 文字列の末尾が ( だったら, textobj の外まで探しに行く?
-" insert の場合とちがって, 消したいのは一番外側のみな気がする.
+" append の場合とちがって, 消したいのは一番外側のみな気がする.
 " hoge[tako]('foo')
 " hoge[tako](<foo>)
 " v:count は考慮すべきかも.
-" D = map(delete)
-" D2f) としたとき, v:count=2 となり
-" 2Df) のときは, v:count=0 となる.
 function! s:get_block_del(str) " {{{
   let stack = []
   let l = len(a:str)
