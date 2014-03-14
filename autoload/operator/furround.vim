@@ -122,7 +122,7 @@ function! s:get_block_xml(str) " {{{
   return ['', end]
 endfunction " }}}
 
-function! s:get_pair(str) " {{{
+function! s:get_pair(str, last) " {{{
   let stack = []
   let l = len(a:str)
   for l in range(len(a:str))
@@ -133,6 +133,7 @@ function! s:get_pair(str) " {{{
       if r == s && len(stack) > 0
         let pair = stack[-1]
         if pair[0] == r
+          " 始まりと終わりが同じタイプ
           call remove(stack, -1)
         else
           let stack += [[s, r]]
@@ -144,23 +145,31 @@ function! s:get_pair(str) " {{{
       " 閉じ括弧
       if len(stack) > 0 && stack[-1][1] == s
         call remove(stack, -1)
-      else
+      elseif a:last
         " 対応するペアがいない. 壊れているからわかめ
-        return [a:str, s:block[a:str[len(a:str) - 1]]]
+        return ['', s:block[a:str[len(a:str) - 1]]]
+      else
+        return []
       endif
     endif
   endfor
+
+  if len(stack) == 0
+    return []
+  endif
+
   let r = ''
   for i in range(len(stack)-1, 0, -1)
     let r .= stack[i][1]
   endfor
-  return [a:str, r]
+  return ['', r]
 endfunction " }}}
 
 function! s:get_block(motion, str) " {{{
 
   if has_key(s:block, a:str[len(a:str)- 1])
-    return s:get_pair(a:str)
+    let pair = s:get_pair(a:str, 1)
+    return [a:str, pair[1]]
   endif
 
   let pair = []
@@ -170,7 +179,9 @@ function! s:get_block(motion, str) " {{{
   if len(pair) == 0 && s:get_val('operator_furround_xml', 0)
     let pair = s:get_block_xml(a:str)
   endif
-
+  if len(pair) == 0
+    let pair = s:get_pair(a:str, 0)
+  endif
   if len(pair) == 0
     let pair = s:get_val('operator_furround_default_block', ['(', ')'])
   endif
@@ -186,8 +197,8 @@ function! s:knormal(s) " {{{
   execute 'keepjumps' 'silent' 'normal!' a:s
 endfunction " }}}
 
-let s:append_block = {} " {{{
-function! s:append_block.char(left, right)
+let s:append_block = {}
+function! s:append_block.char(left, right) " {{{
   call s:knormal("`[v`]\<Esc>")
   call s:knormal(printf("`>a%s\<Esc>`<i%s\<Esc>", a:right, a:left))
 endfunction " }}}
@@ -225,7 +236,6 @@ function! operator#furround#append(motion) " {{{
   endif
 
   let [func, right] = s:get_block(a:motion, str)
-
   call s:append_block[a:motion](func, right)
 
   if use_input
