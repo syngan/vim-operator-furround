@@ -28,6 +28,8 @@ mapping:
 - yank `hoge["` and do `Hiw` then `hoge["tako"]`
 - yank `hoge(["` and do `Hiw` then `hoge(["tako"])`
 - yank `hoge()["` and do `Hiw` then `hoge()["tako"]`
+- yank `hoge(3, ` and do `Hiw` then `hoge(3, tako)`
+- yank `hoge(3, "` and do `Hiw` then `hoge(3, "tako")`
 
 - pair: `[]`, `()`, `{}`, `<>`, `||`, `""`, `''`
 
