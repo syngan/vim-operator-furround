@@ -22,6 +22,8 @@ describe 'input'
 
   after
     close!
+    unlet! b:operator_furround_use_input
+    unlet! g:operator_furround_use_input
   end
 
   it 'default'
