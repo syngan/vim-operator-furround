@@ -5,7 +5,9 @@ scriptencoding utf-8
 
 " @vimlint(EVL103, 1, a:_)
 function! s:log(_) " {{{
-  silent! call vimconsole#log(a:_)
+  if s:get_val('operator_furround_debug', 0)
+    silent! call vimconsole#log(a:_)
+  endif
 endfunction " }}}
 
 " default block {{{
