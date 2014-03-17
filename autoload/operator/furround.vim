@@ -301,11 +301,13 @@ function! operator#furround#delete(motion) " {{{
 
   let save_reg = getreg('f')
   let save_regtype = getregtype('f')
+  let save_regd = getreg('"')
+  let save_regtyped = getregtype('"')
   let pos = getpos(".")
   try
+    call setreg('f', '', 'v')
     call s:knormal('`[v`]"fy')
     let str = getreg('f')
-
     let through = 0
     let block = s:get_block_del(str)
     if len(block) == 0
@@ -319,6 +321,7 @@ function! operator#furround#delete(motion) " {{{
     endif
   finally
     call setreg('f', save_reg, save_regtype)
+    call setreg('"', save_regd, save_regtyped)
     call setpos(".", pos)
   endtry
 endfunction " }}}
