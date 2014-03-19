@@ -306,17 +306,13 @@ function! operator#furround#delete(motion) " {{{
     call setreg('"', '', 'v')
     call s:knormal('`[v`]y')
     let str = getreg('"')
-    let through = 0
     let block = s:get_block_del(str)
     if len(block) == 0
       return 0
     endif
     let str = str[block[2]+1 : block[3]-1] . str[block[3]+1 :]
-    let through = 1
 
-    if through
-      call s:knormal(printf('`[v`]di%s', str))
-    endif
+    call s:knormal(printf('`[v`]di%s', str))
   finally
     call setreg('"', save_reg, save_regtype)
     call setpos(".", pos)
