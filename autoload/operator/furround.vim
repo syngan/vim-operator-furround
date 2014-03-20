@@ -210,10 +210,9 @@ function! s:append_block.line(left, right) " {{{
         \ getpos("'[")[1], a:right, getpos("']")[1], a:left))
 endfunction " }}}
 
-" @vimlint(EVL102, 1, l:_)
 function! s:append_block.block(left, right) " {{{
-  let [_, l1, c1, _] = getpos("'[")
-  let [_, l2, c2, _] = getpos("']")
+  let [l1, c1] = getpos("'[")[1 : 2]
+  let [l2, c2] = getpos("']")[1 : 2]
   for lnum in range(l1, l2)
     call s:knormal(printf("%dG%d|a%s\<Esc>%d|i%s\<Esc>",
     \ lnum, c2, a:right, c1, a:left))
