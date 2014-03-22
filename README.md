@@ -1,7 +1,7 @@
 vim-operator-furround
 =====================
 
-[![Build Status](https://travis-ci.org/syngan/vim-operator-furround.png?branch=master)](https://travis-ci.org/syngan/vim-operator-furround)
+[![Build Status](https://travis-ci.org/syngan/vim-operator-furround.svg?branch=master)](https://travis-ci.org/syngan/vim-operator-furround)
 
 This plugin is a Vim operator to surround a text by register content.
 
