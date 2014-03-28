@@ -13,6 +13,7 @@ let g:str = [
 \	"bb function['ta[ko'](hoge) aa",
 \	" hoge(tako(un)) ",
 \	"koko ha tako['fufu'](desu) (ka).",
+\	"test,afo[1]"
 \]
 
 function! s:paste_code()
@@ -147,6 +148,20 @@ describe '<Plug>(operator-furround-delete)'
     normal! 9Gff
     execute 'normal' "\<Plug>(operator-furround-delete)f)"
     let ans = substitute(g:str[idx-1], "function.*(hoge)", "hoge", "")
+	for i in range(len(g:str))
+		if i == idx-1
+			Expect getline(i+1) == ans
+		else
+			Expect getline(i+1) == g:str[i]
+		endif
+	endfor
+  end
+
+  it 'line12'
+	let idx = 12
+    normal! 12Gfa
+    execute 'normal' "\<Plug>(operator-furround-delete)f]"
+    let ans = substitute(g:str[idx-1], "afo.1.", "1", "")
 	for i in range(len(g:str))
 		if i == idx-1
 			Expect getline(i+1) == ans
