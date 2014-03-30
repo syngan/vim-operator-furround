@@ -283,7 +283,7 @@ function! s:get_block_del(str) " {{{
     if a:str[l] !~ '[[:blank:]\n]'
       break
     endif
-    let l -= l
+    let l -= 1
   endwhile
 
   if len(last) > 0 && last[1] == a:str[l]
