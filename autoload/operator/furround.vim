@@ -294,7 +294,7 @@ function! s:get_block_del(str) " {{{
 endfunction " }}}
 
 function! operator#furround#delete(motion) " {{{
-  if a:motion != 'char'
+  if a:motion != 'char' && a:motion != 'line'
     return
   endif
 
@@ -303,14 +303,15 @@ function! operator#furround#delete(motion) " {{{
   let pos = getpos(".")
   try
     call setreg('"', '', 'v')
-    call s:knormal('`[v`]y')
+    let v = a:motion == 'char' ? 'v' : 'V'
+    call s:knormal('`[' . v . '`]y')
     let str = getreg('"')
     let block = s:get_block_del(str)
     if len(block) == 0
       return 0
     endif
     let str = str[block[2]+1 : block[3]-1] . str[block[3]+1 :]
-    call s:knormal(printf('`[v`]c%s', str))
+    call s:knormal(printf('`[' . v . '`]c%s', str))
   finally
     call setreg('"', save_reg, save_regtype)
     call setpos(".", pos)
