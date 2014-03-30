@@ -58,6 +58,20 @@ describe '<Plug>(operator-furround-delete)'
 		endif
 	endfor
   end
+  it 'line2 + space'
+	let idx = 2
+    normal! 2Gff
+"	Expect getpos(".")[1 : 2] == [2, 8]
+    execute 'normal' "\<Plug>(operator-furround-delete)f "
+    let ans = substitute(g:str[idx-1], "function.*(hoge)", "hoge", "")
+	for i in range(len(g:str))
+		if i == idx-1
+			Expect getline(i+1+0) == ans
+		else
+			Expect getline(i+1) == g:str[i]
+		endif
+	endfor
+  end
   it 'line3'
 	let idx = 3
     normal! 3Gff
