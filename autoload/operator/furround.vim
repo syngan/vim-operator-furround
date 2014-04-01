@@ -23,6 +23,7 @@ let s:block = {
 \} "}}}
 
 function! s:create_block_tbl(dic)  " {{{
+  " 閉じ括弧のテーブルを構築
   let s:block_d = {}
 
   for k in keys(a:dic)
@@ -298,14 +299,19 @@ function! operator#furround#delete(motion) " {{{
     return
   endif
 
-  let save_reg = getreg('"')
-  let save_regtype = getregtype('"')
   let pos = getpos(".")
+
+  let reg = 'f'
+  let regdic = {}
+  for r in [reg, '"']
+    let regdic[r] = [getreg(r), getregtype(r)]
+  endfor
+
   try
-    call setreg('"', '', 'v')
+    call setreg(reg, '', 'v')
     let v = a:motion == 'char' ? 'v' : 'V'
-    call s:knormal('`[' . v . '`]y')
-    let str = getreg('"')
+    call s:knormal('`[' . v . '`]"' . reg . 'y')
+    let str = getreg(reg)
     let block = s:get_block_del(str)
     if len(block) == 0
       return 0
@@ -313,7 +319,9 @@ function! operator#furround#delete(motion) " {{{
     let str = str[block[2]+1 : block[3]-1] . str[block[3]+1 :]
     call s:knormal(printf('`[' . v . '`]c%s', str))
   finally
-    call setreg('"', save_reg, save_regtype)
+    for r in keys(regdic)
+      call setreg(r, regdic[r][0], regdic[r][1])
+    endfor
     call setpos(".", pos)
   endtry
 endfunction " }}}
