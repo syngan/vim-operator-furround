@@ -220,9 +220,14 @@ function! s:append_block.block(left, right) " {{{
   endfor
 endfunction " }}}
 
-function! operator#furround#append(motion) " {{{
+function! s:append(motion, input_mode) " {{{
   let use_input = 1
-  if (v:register == '' || v:register == '"') &&
+  if a:input_mode
+    let str = s:input()
+    if str == ''
+      return 0
+    endif
+  elseif (v:register == '' || v:register == '"') &&
   \   s:get_val('operator_furround_use_input', 0)
     let str = s:input()
   else
@@ -244,6 +249,15 @@ function! operator#furround#append(motion) " {{{
     call s:repeat_set(str)
   endif
 endfunction " }}}
+
+function! operator#furround#append(motion) " {{{
+  return s:append(a:motion, 0)
+endfunction " }}}
+
+function! operator#furround#appendi(motion) " {{{
+  return s:append(a:motion, 1)
+endfunction " }}}
+
 
 " 文字列の末尾が ( だったら, textobj の外まで探しに行く?
 " append の場合とちがって, 消したいのは一番外側のみな気がする.
