@@ -6,14 +6,33 @@ vim-operator-furround
 This plugin is a Vim operator to surround a text by register content.
 
 Required:
-- kana/vim-operator-user
-    - https://github.com/kana/vim-operator-user
+- [kana/vim-operator-user](https://github.com/kana/vim-operator-user)
 
-mapping:
-- `<Plug>(operator-furround-append)`
+Recommended:
+- [tpope/vim-repeat](https://github.com/tpope/vim-repeat)
+
+Related:
+- [rhysd/vim-operator-surround](https://github.com/rhysd/vim-operator-surround)
+- [tpope/vim-surround](https://github.com/tpope/vim-surround)
+
+mappings:
+- `<Plug>(operator-furround-append)`	(depend on `[bg]:operator_furround_use_input`)
+- `<Plug>(operator-furround-appendi)`	(use input always)
 - `<Plug>(operator-furround-delete)`
 
-# Example
+# Install
+
+## NeoBundle
+
+```vim
+NeoBundleLazy 'syngan/vim-operator-furround', {
+\   'depends' : [ 'kana/vim-operator-user'],
+\   'autoload' : {
+\	'mappings' : ['<Plug>(operator-furround-appendi)',
+\                 '<Plug>(operator-furround-append)',
+\                 '<Plug>(operator-furround-delete)']},
+\}
+```
 
 ## `<Plug>(opeartor-furround-append)`
 
@@ -30,6 +49,7 @@ mapping:
 - yank `hoge()["` and do `Hiw` then `hoge()["tako"]`
 - yank `hoge(3, ` and do `Hiw` then `hoge(3, tako)`
 - yank `hoge(3, "` and do `Hiw` then `hoge(3, "tako")`
+- yank `{\bf ` and do `Hiw` then `{\bf tako}`
 
 - pair: `[]`, `()`, `{}`, `<>`, `||`, `""`, `''`
 
