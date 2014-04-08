@@ -192,8 +192,25 @@ function! s:get_block(motion, str) " {{{
   return [a:str . pair[0], pair[1]]
 endfunction " }}}
 
+function! s:get_reg_rmcr(r) " {{{
+  let str = getreg(a:r)
+  let len = len(str)
+  while len > 1 && str[len - 1] == '\n'
+    let str = str[0 : len - 2]
+    let len -= 1
+  endwhile
+  return str
+endfunction " }}}
+
+function! operator#furround#complete_reg(...) " {{{
+  let regs = '"0123456789abcdefghijklmnopqrstuvwxyz-*+.:%#/'
+  let list = map(split(regs, '.\zs'), 's:get_reg_rmcr(v:val)')
+  let list = filter(list, 'v:val !~ ''^\s*$'' && v:val !~ ''\n''')
+  return  join(list, "\n")
+endfunction " }}}
+
 function! s:input() " {{{
-  return input('furround-block: ')
+  return input('furround-block: ', '', "custom,operator#furround#complete_reg")
 endfunction " }}}
 
 function! s:knormal(s) " {{{
