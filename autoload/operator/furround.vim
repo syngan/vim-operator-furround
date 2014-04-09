@@ -325,10 +325,28 @@ function! s:get_block_del(str) " {{{
   endif
 endfunction " }}}
 
+let s:delf = {}
+let s:delf.char = {'v' : 'v'}
+let s:delf.line = {'v' : 'V'}
+
+function! s:delf.char.p(epos, eline) " {{{
+  if len(a:eline) == a:epos[2]
+    return 'p'
+  else
+    return 'P'
+  endif
+endfunction " }}}
+
+function! s:delf.line.p() " {{{
+  return 'P'
+endfunction " }}}
+
 function! operator#furround#delete(motion) " {{{
-  if a:motion != 'char' && a:motion != 'line'
+  if !has_key(s:delf, a:motion)
     return
   endif
+
+  let func = s:delf[a:motion]
 
   let pos = getpos(".")
 
@@ -340,7 +358,7 @@ function! operator#furround#delete(motion) " {{{
 
   try
     call setreg(reg, '', 'v')
-    let v = a:motion == 'char' ? 'v' : 'V'
+    let v = func.v
     call s:knormal('`[' . v . '`]"' . reg . 'y')
     let str = getreg(reg)
     let block = s:get_block_del(str)
@@ -348,7 +366,12 @@ function! operator#furround#delete(motion) " {{{
       return 0
     endif
     let str = str[block[2]+1 : block[3]-1] . str[block[3]+1 :]
-    call s:knormal(printf('`[' . v . '`]c%s', str))
+
+    call setreg(reg, str, v)
+
+    let p = func.p(getpos("']"), getline("']"))
+
+    call s:knormal(printf('`[%s`]"_d"%s%s', v, reg, p))
   finally
     for r in keys(regdic)
       call setreg(r, regdic[r][0], regdic[r][1])
