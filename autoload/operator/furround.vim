@@ -325,19 +325,19 @@ function! s:get_block_del(str) " {{{
   endif
 endfunction " }}}
 
-let s:delf = {}
-let s:delf.char = {'v' : 'v'}
-let s:delf.line = {'v' : 'V'}
+let s:del_funcs = {}
+let s:del_funcs.char = {'v' : 'v'}
+let s:del_funcs.line = {'v' : 'V'}
 
 " @vimlint(EVL103, 1, a:spos)
-function! s:delf.char.paste(reg, spos, epos, eline) " {{{
+function! s:del_funcs.char.paste(reg, spos, epos, eline) " {{{
   let p = (len(a:eline) == a:epos[2]) ? 'p' : 'P'
   return '"' . a:reg . p
 endfunction " }}}
 " @vimlint(EVL103, 0, a:spos)
 
 " @vimlint(EVL103, 1, a:eline)
-function! s:delf.line.paste(reg, spos, epos, eline) " {{{
+function! s:del_funcs.line.paste(reg, spos, epos, eline) " {{{
   if a:epos[1] == line('$')
     if a:spos[1] == 1
       let ret = 'PG"_dd'
@@ -352,11 +352,11 @@ endfunction " }}}
 " @vimlint(EVL103, 0, a:eline)
 
 function! operator#furround#delete(motion) " {{{
-  if !has_key(s:delf, a:motion)
+  if !has_key(s:del_funcs, a:motion)
     return
   endif
 
-  let func = s:delf[a:motion]
+  let func = s:del_funcs[a:motion]
 
   let pos = getpos(".")
 
