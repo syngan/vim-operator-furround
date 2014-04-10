@@ -329,17 +329,28 @@ let s:delf = {}
 let s:delf.char = {'v' : 'v'}
 let s:delf.line = {'v' : 'V'}
 
-function! s:delf.char.p(epos, eline) " {{{
+" @vimlint(EVL103, 1, a:spos)
+function! s:delf.char.paste(reg, spos, epos, eline) " {{{
   if len(a:eline) == a:epos[2]
-    return 'p'
+    let p = 'p'
   else
-    return 'P'
+    let p = 'P'
+  endif
+  return '"' . a:reg . p
+endfunction " }}}
+" @vimlint(EVL103, 0, a:spos)
+
+" @vimlint(EVL103, 1, a:eline)
+function! s:delf.line.paste(reg, spos, epos, eline) " {{{
+  if a:spos[1] == 1 && a:epos[1] == line('$')
+    return '"' . a:reg . 'PG"_dd'
+  elseif a:epos[1] == line('$')
+    return '"' . a:reg . 'p'
+  else
+    return '"' . a:reg . 'P'
   endif
 endfunction " }}}
-
-function! s:delf.line.p() " {{{
-  return 'P'
-endfunction " }}}
+" @vimlint(EVL103, 0, a:eline)
 
 function! operator#furround#delete(motion) " {{{
   if !has_key(s:delf, a:motion)
@@ -359,7 +370,7 @@ function! operator#furround#delete(motion) " {{{
   try
     call setreg(reg, '', 'v')
     let v = func.v
-    call s:knormal('`[' . v . '`]"' . reg . 'y')
+    call s:knormal(printf('`[%s`]"%sy', v, reg))
     let str = getreg(reg)
     let block = s:get_block_del(str)
     if len(block) == 0
@@ -369,9 +380,9 @@ function! operator#furround#delete(motion) " {{{
 
     call setreg(reg, str, v)
 
-    let p = func.p(getpos("']"), getline("']"))
+    let p = func.paste(reg, getpos("'["), getpos("']"), getline("']"))
 
-    call s:knormal(printf('`[%s`]"_d"%s%s', v, reg, p))
+    call s:knormal(printf('`[%s`]"_d%s', v, p))
   finally
     for r in keys(regdic)
       call setreg(r, regdic[r][0], regdic[r][1])
