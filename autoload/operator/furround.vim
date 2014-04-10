@@ -331,24 +331,23 @@ let s:delf.line = {'v' : 'V'}
 
 " @vimlint(EVL103, 1, a:spos)
 function! s:delf.char.paste(reg, spos, epos, eline) " {{{
-  if len(a:eline) == a:epos[2]
-    let p = 'p'
-  else
-    let p = 'P'
-  endif
+  let p = (len(a:eline) == a:epos[2]) ? 'p' : 'P'
   return '"' . a:reg . p
 endfunction " }}}
 " @vimlint(EVL103, 0, a:spos)
 
 " @vimlint(EVL103, 1, a:eline)
 function! s:delf.line.paste(reg, spos, epos, eline) " {{{
-  if a:spos[1] == 1 && a:epos[1] == line('$')
-    return '"' . a:reg . 'PG"_dd'
-  elseif a:epos[1] == line('$')
-    return '"' . a:reg . 'p'
+  if a:epos[1] == line('$')
+    if a:spos[1] == 1
+      let ret = 'PG"_dd'
+    else
+      let ret = 'p'
+    endif
   else
-    return '"' . a:reg . 'P'
+    let ret = 'P'
   endif
+  return '"' . a:reg . ret
 endfunction " }}}
 " @vimlint(EVL103, 0, a:eline)
 
