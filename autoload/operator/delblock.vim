@@ -67,7 +67,7 @@ lockvar! g:operator#delblock#default_config
 " hoge[tako]('foo')
 " hoge[tako](<foo>)
 " v:count は考慮すべきかも.
-function! s:get_block_del_(str, pair) " {{{
+function! s:block_del_pair(str, pair) " {{{
   call s:log(a:pair)
   let m = match(a:str, a:pair.start)
   call s:log("m=" . m)
@@ -137,7 +137,7 @@ function! s:get_block_del(str) " {{{
 
   for b in block_ft
     for pair in b.block
-      let c = s:get_block_del_(a:str, pair)
+      let c = s:block_del_pair(a:str, pair)
       if c != ''
         return c
       endif
@@ -173,7 +173,7 @@ function! s:del_funcs.line.paste(reg, spos, epos, eline) " {{{
 endfunction " }}}
 " @vimlint(EVL103, 0, a:eline)
 
-function! operator#delblock#delete(motion) " {{{
+function! operator#delblock#do(motion) " {{{
   if !has_key(s:del_funcs, a:motion)
     return
   endif
