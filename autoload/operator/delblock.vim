@@ -46,11 +46,23 @@ let g:operator#delblock#default_block = {
 " v:count は考慮すべきかも.
 " @vimlint(EVL103, 1, a:blocks)
 function! s:get_block_del_(str, blocks, pair) " {{{
-  let ms = matchlist(a:str, '^' . a:pair.start)
+  call s:log(a:pair)
+  let m = match(a:str, a:pair.start)
+  call s:log("m=" . m)
+  if m < -1
+    return ''
+  endif
+
+  if m > 0 && a:str[0 : m-1] !~ '\m^\s*$'
+    return ''
+  endif
+
+  let ms = matchlist(a:str, a:pair.start, m)
+  call s:log(ms)
   if len(ms) == 0
     return ''
   endif
-  let s = len(ms[0])
+  let s = len(ms[0]) + m
 
   let pe = a:pair.end
   if pe =~ '\\[1-9]'
@@ -59,7 +71,9 @@ function! s:get_block_del_(str, blocks, pair) " {{{
     endfor
   endif
 
-  let me = match(a:str, pe . '\(\s\|\n\)*$', s)
+  call s:log(pe)
+  let me = match(a:str, pe . '\m\(\s\|\n\)*$', s)
+  call s:log(me)
   if me < 0
     return ''
   endif
