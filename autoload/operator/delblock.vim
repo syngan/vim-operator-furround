@@ -11,8 +11,6 @@ endfunction " }}}
 function! s:log(_) " {{{
   if s:get_val('debug', 0)
     silent! call vimconsole#log(a:_)
-  else
-    echo "hohohoi"
   endif
 endfunction " }}}
 
@@ -68,9 +66,7 @@ lockvar! g:operator#delblock#default_config
 " hoge[tako](<foo>)
 " v:count は考慮すべきかも.
 function! s:block_del_pair(str, pair) " {{{
-  call s:log(a:pair)
   let m = match(a:str, a:pair.start)
-  call s:log("m=" . m)
   if m < -1
     return ''
   endif
@@ -80,7 +76,6 @@ function! s:block_del_pair(str, pair) " {{{
   endif
 
   let ms = matchlist(a:str, a:pair.start, m)
-  call s:log(ms)
   if len(ms) == 0
     return ''
   endif
@@ -93,9 +88,7 @@ function! s:block_del_pair(str, pair) " {{{
     endfor
   endif
 
-  call s:log(pe)
   let me = match(a:str, pe . '\m\(\s\|\n\)*$', s)
-  call s:log(me)
   if me < 0
     return ''
   endif
