@@ -11,8 +11,8 @@ let g:operator#delblock#config = {
 \ '-' : {
 \   'merge_default_config' : 1,
 \   'block' : [
-\     {'start': '\k\+(', 'end': ')'},
-\     {'start': '\k\+\[', 'end': '\]'},
+\     {'start': '\k\+(', 'end': ')', 'regexp': 1},
+\     {'start': '\k\+\[', 'end': '\]', 'regexp': 1},
 \   ]},
 \}
 

@@ -34,39 +34,42 @@ let g:operator#delblock#default_config = {
 \     {'start': "'", 'end': "'"},
 \   ]},
 \ 'tex' : {
-\   'merge_default_config' : 0,
+\   'merge_default_config' : 1,
 \   'block' : [
-\     {'start': '\\begin{\(\k\+\*\=\)}', 'end': '\\end{\V\1}'},
-\     {'start': '{\\\k\+\s\+', 'end': '}'},
-\     {'start': '\\\k\+\(\[\k\+\]\)\={', 'end': '}'},
+\     {'start': '\\begin{\(\k\+\*\=\)}', 'end': '\\end{\V\1}', 'regexp': 1},
+\     {'start': '{\\\k\+\s\+', 'end': '}', 'regexp': 1},
+\     {'start': '\\\k\+\(\[\k\+\]\)\={', 'end': '}', 'regexp': 1},
 \   ]},
 \ 'c' : {
 \   'merge_default_config' : 1,
 \   'block' : [
-\     {'start': '\k\+(', 'end': ')'},
-\     {'start': '\k\+\[', 'end': '\]'},
+\     {'start': '\k\+(', 'end': ')', 'regexp': 1},
+\     {'start': '\k\+\[', 'end': '\]', 'regexp': 1},
 \   ]},
 \ 'vim' : {
-\   'merge_default_config' : 0,
+\   'merge_default_config' : 1,
 \   'block' : [
-\     {'start': '\([vgslabwt]:\)\?[A-Za-z_][0-9A-Za-z_#.]*(', 'end': ')'},
-\     {'start': '\([vgslabwt]:\)\?[A-Za-z_][0-9A-Za-z_#.]*\[', 'end': '\]'},
+\     {'start': '\([vgslabwt]:\)\?[A-Za-z_][0-9A-Za-z_#.]*(', 'end': ')', 'regexp': 1},
+\     {'start': '\([vgslabwt]:\)\?[A-Za-z_][0-9A-Za-z_#.]*\[', 'end': '\]', 'regexp': 1},
 \   ]},
 \ 'html' : {
+\   'merge_default_config' : 1,
 \   'block' : [
-\     {'start': '<\(\k\+\)>\(\s\|\n\)*', 'end': '</\1>'},
+\     {'start': '<\(\k\+\)>\(\s\|\n\)*', 'end': '</\1>', 'regexp': 1},
 \   ]},
 \ }
 lockvar! g:operator#delblock#default_config
 " }}}
 
-" 文字列の末尾が ( だったら, textobj の外まで探しに行く?
-" append の場合とちがって, 消したいのは一番外側のみな気がする.
-" hoge[tako]('foo')
-" hoge[tako](<foo>)
-" v:count は考慮すべきかも.
+function! s:escape(pattern) " {{{
+    return escape(a:pattern, '\/~ .*^[''$')
+endfunction " }}}
+
 function! s:block_del_pair(str, pair) " {{{
-  let m = match(a:str, a:pair.start)
+  let regexp = get(a:pair, 'regexp', 0)
+  let ps = regexp ? a:pair.start : s:escape(a:pair.start)
+
+  let m = match(a:str, ps)
   if m < -1
     return ''
   endif
@@ -81,8 +84,8 @@ function! s:block_del_pair(str, pair) " {{{
   endif
   let s = len(ms[0]) + m
 
-  let pe = a:pair.end
-  if pe =~ '\\[1-9]'
+  let pe = regexp ? a:pair.end : s:escape(a:pair.end)
+  if regexp && pe =~ '\\[1-9]'
     for i in range(1, 9)
       let pe = substitute(pe, '\\' . i, '\=ms[' . i . ']', 'g')
     endfor
