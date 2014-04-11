@@ -21,22 +21,45 @@ function! s:knormal(s) " {{{
 endfunction " }}}
 
 " default block {{{
+if exists('g:operator#delblock#default_block')
+  unlockvar! g:operator#delblock#default_block
+endif
 let g:operator#delblock#default_block = {
-\ 'merge_default_block' : 0,
-\ 'block' : [
-\   {'start': '(', 'end': ')'},
-\   {'start': '<\(\k\+\)>\(\s\|\n\)*', 'end': '</\1>'},
-\   {'start': '{\\\k\+\s\+', 'end': '}'},
-\   {'start': '{', 'end': '}'},
-\   {'start': '[', 'end': '}'},
-\   {'start': '<', 'end': '>'},
-\   {'start': '"', 'end': '"'},
-\   {'start': "'", 'end': "'"},
-\   {'start': '`', 'end': '`'},
-\   {'start': '\k\+(', 'end': ')'},
-\   {'start': '\\begin{\(\k\+\)}', 'end': '\\end{\1\}'},
-\   {'start': '\\\k\+\(\[\k\+\]\)\={', 'end': '}'},
-\ ]}
+\ '-' : {
+\   'merge_default_block' : 0,
+\   'block' : [
+\     {'start': '(', 'end': ')'},
+\     {'start': '{', 'end': '}'},
+\     {'start': '[', 'end': '}'},
+\     {'start': '<', 'end': '>'},
+\     {'start': '"', 'end': '"'},
+\     {'start': "'", 'end': "'"},
+\   ]},
+\ 'tex' : {
+\   'merge_default_block' : 0,
+\   'block' : [
+\     {'start': '\\begin{\(\k\+\*\=\)}', 'end': '\\end{\V\1}'},
+\     {'start': '{\\\k\+\s\+', 'end': '}'},
+\     {'start': '\\\k\+\(\[\k\+\]\)\={', 'end': '}'},
+\   ]},
+\ 'c' : {
+\   'merge_default_block' : 1,
+\   'block' : [
+\     {'start': '\k\+(', 'end': ')'},
+\     {'start': '\k\+\[', 'end': '\]'},
+\   ]},
+\ 'vim' : {
+\   'merge_default_block' : 0,
+\   'block' : [
+\     {'start': '\([vgslabwt]:\)\?[A-Za-z_][0-9A-Za-z_#.]*(', 'end': ')'},
+\     {'start': '\([vgslabwt]:\)\?[A-Za-z_][0-9A-Za-z_#.]*\[', 'end': '\]'},
+\   ]},
+\ 'html' : {
+\   'block' : [
+\     {'start': '<\(\k\+\)>\(\s\|\n\)*', 'end': '</\1>'},
+\   ]},
+\ }
+lockvar! g:operator#delblock#default_block
 " }}}
 
 " 文字列の末尾が ( だったら, textobj の外まで探しに行く?
@@ -90,20 +113,39 @@ function! s:get_block_del(str) " {{{
   endif
 
   if has_key(blocks, &filetype)
-    let b = blocks[&filetype]
+    let block_ft = [blocks[&filetype]]
+    if get(block_ft[0], 'merge_default_block_user', 0) && has_key(blocks, '-')
+      let block_user_def = blocks['-']
+    endif
+    let merge = get(block_ft[0], 'merge_default_block', 0)
   elseif has_key(blocks, '-')
-    let b = blocks['-']
+    let block_ft = [blocks['-']]
+    let merge = get(block_ft[0], 'merge_default_block', 0)
   else
-    let b = g:operator#delblock#default_block
+    let block_ft = []
+    let merge = 1
   endif
 
-  for pair in b.block
-    let c = s:get_block_del_(a:str, b, pair)  
-    if c != ''
-      return c
-    endif
+  if merge && has_key(g:operator#delblock#default_block, &filetype)
+      let block_ft += [g:operator#delblock#default_block[&filetype]]
+      let merge = get(g:operator#delblock#default_block[&filetype], 'merge_default_block')
+  endif
+  if exists('block_user_def')
+      let block_ft += [block_user_def]
+  endif
+  if merge
+    let block_ft += [g:operator#delblock#default_block['-']]
+  endif
+
+  for b in block_ft
+    for pair in b.block
+      let c = s:get_block_del_(a:str, b, pair)
+      if c != ''
+        return c
+      endif
+    endfor
   endfor
-  
+
   return ''
 endfunction " }}}
 
