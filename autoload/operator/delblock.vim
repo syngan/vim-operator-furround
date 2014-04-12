@@ -36,9 +36,10 @@ let g:operator#delblock#default_config = {
 \ 'tex' : {
 \   'merge_default_config' : 1,
 \   'block' : [
-\     {'start': '\\begin{\(\k\+\*\=\)}', 'end': '\\end{\V\1}', 'regexp': 1},
+\     {'start': '\\begin{\s*\(\k\+\*\=\)\s*}\%(\[.*\]\)\=\%(\s*\n\)\=',
+\      'end': '\\end{\V\1}', 'regexp': 1},
 \     {'start': '{\\\k\+\s\+', 'end': '}', 'regexp': 1},
-\     {'start': '\\\k\+\(\[\k\+\]\)\={', 'end': '}', 'regexp': 1},
+\     {'start': '\\\k\+\(\[.\+\]\)\={', 'end': '}', 'regexp': 1},
 \     {'start': '\\\k\+|', 'end': '|', 'regexp': 1},
 \   ]},
 \ 'c' : {
