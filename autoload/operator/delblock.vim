@@ -208,10 +208,6 @@ function! operator#delblock#do(motion) " {{{
   endtry
 endfunction " }}}
 
-function! s:repeat_set(str) " {{{
-  silent! call repeat#set("\<Plug>(operator-delblock-repeat)".a:str."\<CR>", 1)
-endfunction " }}}
-
 let &cpo = s:save_cpo
 unlet s:save_cpo
 
