@@ -28,7 +28,7 @@ let g:operator#delblock#default_config = {
 \   'block' : [
 \     {'start': '(', 'end': ')'},
 \     {'start': '{', 'end': '}'},
-\     {'start': '[', 'end': '}'},
+\     {'start': '[', 'end': ']'},
 \     {'start': '<', 'end': '>'},
 \     {'start': '"', 'end': '"'},
 \     {'start': "'", 'end': "'"},
