@@ -36,6 +36,7 @@ let s:default_config = {
 \     {'start': '<', 'end': '>'},
 \     {'start': '"', 'end': '"'},
 \     {'start': "'", 'end': "'"},
+\     {'start': "`", 'end': "`"},
 \   ]},
 \ 'tex' : {
 \   'merge_default_config' : 1,
@@ -342,6 +343,50 @@ function! operator#furround#appendi(motion) " {{{
   return s:append(a:motion, 1)
 endfunction " }}}
 
+function! s:get_conf() " {{{
+  let blocks = exists("g:operator#furround#config") ?
+        \ g:operator#furround#config : 0
+  if type(blocks) != type({})
+    unlet blocks
+    let blocks = {}
+  endif
+
+  if has_key(blocks, &filetype)
+    let block_ft = [blocks[&filetype]]
+    if get(block_ft[0], 'merge_default_config_user', 0) && has_key(blocks, '-')
+      let block_user_def = blocks['-']
+    endif
+    let merge = get(block_ft[0], 'merge_default_config', 0)
+  elseif has_key(blocks, '-')
+    let block_ft = [blocks['-']]
+    let merge = get(block_ft[0], 'merge_default_config', 0)
+  else
+    let block_ft = []
+    let merge = 1
+  endif
+
+  if merge && has_key(s:default_config, &filetype)
+      let block_ft += [s:default_config[&filetype]]
+      let merge = get(s:default_config[&filetype], 'merge_default_config')
+  endif
+  if exists('block_user_def')
+      let block_ft += [block_user_def]
+  endif
+  if merge
+    let block_ft += [s:default_config['-']]
+  endif
+
+  " block_bf is a list of dictionaries
+  let bs = map(block_ft, 'has_key(v:val, "block") ? v:val.block : []')
+
+  let r = []
+  for b in bs
+    let r += b
+  endfor
+
+  return r
+endfunction " }}}
+
 function! s:block_del_pair(str, pair) " {{{
   let regexp = get(a:pair, 'regexp', 0)
   let ps = regexp ? a:pair.start : s:escape(a:pair.start)
@@ -377,46 +422,10 @@ function! s:block_del_pair(str, pair) " {{{
 endfunction " }}}
 
 function! s:get_block_del(str) " {{{
-  let blocks = exists("g:operator#furround#config") ?
-        \ g:operator#furround#config : 0
-  if type(blocks) != type({})
-    unlet blocks
-    let blocks = {}
-  endif
-
-  if has_key(blocks, &filetype)
-    let block_ft = [blocks[&filetype]]
-    if get(block_ft[0], 'merge_default_config_user', 0) && has_key(blocks, '-')
-      let block_user_def = blocks['-']
-    endif
-    let merge = get(block_ft[0], 'merge_default_config', 0)
-  elseif has_key(blocks, '-')
-    let block_ft = [blocks['-']]
-    let merge = get(block_ft[0], 'merge_default_config', 0)
-  else
-    let block_ft = []
-    let merge = 1
-  endif
-
-  if merge && has_key(s:default_config, &filetype)
-      let block_ft += [s:default_config[&filetype]]
-      let merge = get(s:default_config[&filetype], 'merge_default_config')
-  endif
-  if exists('block_user_def')
-      let block_ft += [block_user_def]
-  endif
-  if merge
-    let block_ft += [s:default_config['-']]
-  endif
-
-  for b in block_ft
-    if has_key(b, "block")
-      for pair in b.block
-        let c = s:block_del_pair(a:str, pair)
-        if c != ''
-          return c
-        endif
-      endfor
+  for pair in s:get_conf()
+    let c = s:block_del_pair(a:str, pair)
+    if c != ''
+      return c
     endif
   endfor
 
