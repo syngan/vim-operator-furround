@@ -243,7 +243,6 @@ function! s:get_block(motion, str) " {{{
   let pair = []
   if s:get_val('latex', 1)
     let pair = s:get_block_latex(a:motion, a:str)
-    call s:log(pair)
   endif
   if len(pair) == 0 && s:get_val('xml', 0)
     let pair = s:get_block_xml(a:str)
@@ -252,8 +251,8 @@ function! s:get_block(motion, str) " {{{
     let pair = s:get_pair(a:str, 0)
   endif
   if len(pair) == 0
+    " private.
     let pair = s:get_val('append_block', ['(', ')'])
-    call s:log(pair)
   endif
 
   return [a:str . pair[0], pair[1]]
@@ -328,7 +327,6 @@ function! s:append(motion, input_mode) " {{{
 
   let [func, right] = s:get_block(a:motion, str)
 
-  call s:log("get_block[" . a:motion . "[=" . string([func, right, a:motion, str]))
   call s:append_block[a:motion](func, right)
 
   if use_input
@@ -419,8 +417,6 @@ function! s:get_block_del(str) " {{{
           return c
         endif
       endfor
-    else
-      call s:log(b)
     endif
   endfor
 
