@@ -5,7 +5,7 @@ scriptencoding utf-8
 
 " @vimlint(EVL103, 1, a:_)
 function! s:log(_) " {{{
-  if s:get_val('debug', 0)
+  if get(g:, 'operator#furround#debug', 0)
     silent! call vimconsole#log(a:_)
   endif
 endfunction " }}}
@@ -243,6 +243,7 @@ function! s:get_block(motion, str) " {{{
   let pair = []
   if s:get_val('latex', 1)
     let pair = s:get_block_latex(a:motion, a:str)
+    call s:log(pair)
   endif
   if len(pair) == 0 && s:get_val('xml', 0)
     let pair = s:get_block_xml(a:str)
@@ -291,7 +292,7 @@ endfunction " }}}
 
 function! s:append_block.line(left, right) " {{{
   call s:knormal(printf("%dGA%s\<Esc>%dGgI%s\<Esc>",
-        \ getpos("'[")[1], a:right, getpos("']")[1], a:left))
+        \ getpos("']")[1], a:right, getpos("'[")[1], a:left))
 endfunction " }}}
 
 function! s:append_block.block(left, right) " {{{
@@ -327,7 +328,7 @@ function! s:append(motion, input_mode) " {{{
 
   let [func, right] = s:get_block(a:motion, str)
 
-  call s:log("get_block=" . string([func, right, a:motion, str]))
+  call s:log("get_block[" . a:motion . "[=" . string([func, right, a:motion, str]))
   call s:append_block[a:motion](func, right)
 
   if use_input
@@ -411,12 +412,16 @@ function! s:get_block_del(str) " {{{
   endif
 
   for b in block_ft
-    for pair in b.block
-      let c = s:block_del_pair(a:str, pair)
-      if c != ''
-        return c
-      endif
-    endfor
+    if has_key(b, "block")
+      for pair in b.block
+        let c = s:block_del_pair(a:str, pair)
+        if c != ''
+          return c
+        endif
+      endfor
+    else
+      call s:log(b)
+    endif
   endfor
 
   return ''
