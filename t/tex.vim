@@ -16,6 +16,8 @@ describe '<Plug>(operator-furround-append) tex-mode'
 
   before
     new
+    set filetype=foo
+    unlet! g:operator#furround#config
     call s:paste_code()
   end
 
@@ -36,7 +38,8 @@ describe '<Plug>(operator-furround-append) tex-mode'
   it 'begin-defualt b:=0'
     normal! 1Gft
     let @" = "\\begin{center}"
-    let b:operator_furround_latex = 0
+    let g:operator#furround#config = {}
+    let g:operator#furround#config['foo'] = {'latex' : 0}
     execute 'normal' "\<Plug>(operator-furround-append)iw"
     let ans = substitute(g:str, "tako", '\\begin{center}(tako)', "")
     Expect getline(1) ==# ans
@@ -47,7 +50,8 @@ describe '<Plug>(operator-furround-append) tex-mode'
   it 'begin-defualt b:=1'
     normal! 1Gft
     let @" = "\\begin{center}"
-    let b:operator_furround_latex = 1
+    let g:operator#furround#config = {}
+    let g:operator#furround#config['foo'] = {'latex' : 1}
     execute 'normal' "\<Plug>(operator-furround-append)iw"
     let ans = substitute(g:str, "tako", '\\begin{center}tako\\end{center}', "")
     Expect getline(1) ==# ans
@@ -58,7 +62,8 @@ describe '<Plug>(operator-furround-append) tex-mode'
   it 'begin-defualt g:=1'
     normal! 1Gft
     let @" = "\\begin{center}"
-    let g:operator_furround_latex = 1
+    let g:operator#furround#config = {}
+    let g:operator#furround#config['-'] = {'latex' : 1}
     execute 'normal' "\<Plug>(operator-furround-append)iw"
     let ans = substitute(g:str, "tako", '\\begin{center}tako\\end{center}', "")
     Expect getline(1) ==# ans
@@ -69,7 +74,8 @@ describe '<Plug>(operator-furround-append) tex-mode'
   it 'begin-defualt g:=0'
     normal! 1Gft
     let @" = "\\begin{center}"
-    let g:operator_furround_latex = 0
+    let g:operator#furround#config = {}
+    let g:operator#furround#config['-'] = {'latex' : 0}
     execute 'normal' "\<Plug>(operator-furround-append)iw"
     let ans = substitute(g:str, "tako", '\\begin{center}(tako)', "")
     Expect getline(1) ==# ans
@@ -80,8 +86,9 @@ describe '<Plug>(operator-furround-append) tex-mode'
   it 'begin-defualt b:&g:'
     normal! 1Gft
     let @" = "\\begin{center}"
-    let g:operator_furround_latex = 1
-    let b:operator_furround_latex = 1
+    let g:operator#furround#config = {}
+    let g:operator#furround#config['-'] = {'latex' : 1}
+    let g:operator#furround#config['foo'] = {'latex' : 1}
     execute 'normal' "\<Plug>(operator-furround-append)iw"
     let ans = substitute(g:str, "tako", '\\begin{center}tako\\end{center}', "")
     Expect getline(1) ==# ans
@@ -92,8 +99,9 @@ describe '<Plug>(operator-furround-append) tex-mode'
   it 'begin-defualt !b:&g:'
     normal! 1Gft
     let @" = "\\begin{center}"
-    let g:operator_furround_latex = 1
-    let b:operator_furround_latex = 0
+    let g:operator#furround#config = {}
+    let g:operator#furround#config['-'] = {'latex' : 1}
+    let g:operator#furround#config['foo'] = {'latex' : 0}
     execute 'normal' "\<Plug>(operator-furround-append)iw"
     let ans = substitute(g:str, "tako", '\\begin{center}(tako)', "")
     Expect getline(1) ==# ans
@@ -104,8 +112,9 @@ describe '<Plug>(operator-furround-append) tex-mode'
   it 'begin-defualt b:=1&g:=0'
     normal! 1Gft
     let @" = "\\begin{center}"
-    let g:operator_furround_latex = 0
-    let b:operator_furround_latex = 1
+    let g:operator#furround#config = {}
+    let g:operator#furround#config['-'] = {'latex' : 0}
+    let g:operator#furround#config['foo'] = {'latex' : 1}
     execute 'normal' "\<Plug>(operator-furround-append)iw"
     let ans = substitute(g:str, "tako", '\\begin{center}tako\\end{center}', "")
     Expect getline(1) ==# ans
@@ -116,7 +125,8 @@ describe '<Plug>(operator-furround-append) tex-mode'
   it 'begin/begin'
     normal! 1Gft
     let @" = "\\begin{center}\\begin{foo}"
-    let b:operator_furround_latex = 1
+    let g:operator#furround#config = {}
+    let g:operator#furround#config['foo'] = {'latex' : 1}
     execute 'normal' "\<Plug>(operator-furround-append)iw"
     let ans = substitute(g:str, "tako", '\\begin{center}\\begin{foo}tako\\end{foo}\\end{center}', "")
     Expect getline(1) ==# ans
@@ -128,7 +138,8 @@ describe '<Plug>(operator-furround-append) tex-mode'
   it 'begin/begin/end/begin'
     normal! 1Gft
     let @" = "\\begin{center}\\begin{foo}\\end{foo}\\begin{goo}"
-    let b:operator_furround_latex = 1
+    let g:operator#furround#config = {}
+    let g:operator#furround#config['foo'] = {'latex' : 1}
     execute 'normal' "\<Plug>(operator-furround-append)iw"
     let ans = substitute(g:str, "tako", '\\begin{center}\\begin{foo}\\end{foo}\\begin{goo}tako\\end{goo}\\end{center}', "")
     Expect getline(1) ==# ans

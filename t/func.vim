@@ -3,11 +3,11 @@ runtime! plugin/operator/*.vim
 
 scriptencoding utf-8
 
-map <silent>sd <Plug>(operator-delblock)
+map <silent>sd <Plug>(operator-furround-delete)
 let g:__ = 'koreha dummy string __'
 let g:_f = 'koreha dummy string _f'
 
-let g:operator#delblock#config = {
+let g:operator#furround#config = {
 \ '-' : {
 \   'merge_default_config' : 1,
 \   'block' : [
@@ -40,7 +40,7 @@ describe 'del-char'
   it '1line'
     call s:paste_code(['hoge(tako)'])
     normal! gg0
-    execute 'normal' "\<Plug>(operator-delblock)f)"
+    execute 'normal' "\<Plug>(operator-furround-delete)f)"
     Expect getline(1) == 'tako'
     Expect line('$') == 1
     Expect getreg('"') == g:__
@@ -50,7 +50,7 @@ describe 'del-char'
   it 'gomi + 1line'
     call s:paste_code(['aa hoge(tako)'])
     normal! gg0fh
-    execute 'normal' "\<Plug>(operator-delblock)f)"
+    execute 'normal' "\<Plug>(operator-furround-delete)f)"
     Expect getline(1) == 'aa tako'
     Expect line('$') == 1
     Expect getreg('"') == g:__
@@ -60,7 +60,7 @@ describe 'del-char'
   it '1line+gomi'
     call s:paste_code(['hoge(tako)aa'])
     normal! gg0fh
-    execute 'normal' "\<Plug>(operator-delblock)f)"
+    execute 'normal' "\<Plug>(operator-furround-delete)f)"
     Expect getline(1) == 'takoaa'
     Expect line('$') == 1
     Expect getreg('"') == g:__
@@ -70,7 +70,7 @@ describe 'del-char'
   it '1line + gomi'
     call s:paste_code(['hoge(tako) aa'])
     normal! gg0fh
-    execute 'normal' "\<Plug>(operator-delblock)f)"
+    execute 'normal' "\<Plug>(operator-furround-delete)f)"
     Expect getline(1) == 'tako aa'
     Expect line('$') == 1
     Expect getreg('"') == g:__
@@ -80,7 +80,7 @@ describe 'del-char'
   it '"1line"'
     call s:paste_code(['"hoge(tako)"'])
     normal! gg0fh
-    execute 'normal' "\<Plug>(operator-delblock)f)"
+    execute 'normal' "\<Plug>(operator-furround-delete)f)"
     Expect getline(1) == '"tako"'
     Expect line('$') == 1
     Expect getreg('"') == g:__
@@ -90,7 +90,7 @@ describe 'del-char'
   it '2line'
     call s:paste_code(['hoge(tako,', 'vim)'])
     normal! gg0
-    execute 'normal' "v/)\<CR>\<Plug>(operator-delblock)"
+    execute 'normal' "v/)\<CR>\<Plug>(operator-furround-delete)"
     Expect getline(1) == 'tako,'
     Expect getline(2) == 'vim'
     Expect line('$') == 2
@@ -101,7 +101,7 @@ describe 'del-char'
   it '[_]2line'
     call s:paste_code([' hoge(tako,', 'vim)'])
     normal! gg0l
-    execute 'normal' "v/)\<CR>\<Plug>(operator-delblock)"
+    execute 'normal' "v/)\<CR>\<Plug>(operator-furround-delete)"
     Expect getline(1) == ' tako,'
     Expect getline(2) == 'vim'
     Expect line('$') == 2
@@ -123,7 +123,7 @@ describe 'del-line'
   it '1line'
     call s:paste_code(['hoge(tako)'])
     normal! gg0
-    execute 'normal' "V\<Plug>(operator-delblock)"
+    execute 'normal' "V\<Plug>(operator-furround-delete)"
     Expect getline(1) == 'tako'
     Expect line('$') == 1
     Expect getreg('"') == g:__
@@ -133,7 +133,7 @@ describe 'del-line'
   it 'gomi + 1line'
     call s:paste_code(['aa', 'hoge(tako)'])
     normal! 2G0
-    execute 'normal' "V\<Plug>(operator-delblock)"
+    execute 'normal' "V\<Plug>(operator-furround-delete)"
     Expect getline(1) == 'aa'
     Expect getline(2) == 'tako'
     Expect line('$') == 2
@@ -144,7 +144,7 @@ describe 'del-line'
   it '1line + gomi'
     call s:paste_code(['hoge(tako)', 'aa'])
     normal! gg0
-    execute 'normal' "V\<Plug>(operator-delblock)"
+    execute 'normal' "V\<Plug>(operator-furround-delete)"
     Expect getline(1) == 'tako'
     Expect getline(2) == 'aa'
     Expect line('$') == 2
@@ -155,7 +155,7 @@ describe 'del-line'
   it 'gomi + 1line + gomi'
     call s:paste_code(['aa', 'hoge(tako)', 'bb'])
     normal! 2G0
-    execute 'normal' "V\<Plug>(operator-delblock)"
+    execute 'normal' "V\<Plug>(operator-furround-delete)"
     Expect getline(1) == 'aa'
     Expect getline(2) == 'tako'
     Expect getline(3) == 'bb'
@@ -167,7 +167,7 @@ describe 'del-line'
   it '2line'
     call s:paste_code(['hoge(tako,', 'vim)'])
     normal! gg0
-    execute 'normal' "Vj\<Plug>(operator-delblock)"
+    execute 'normal' "Vj\<Plug>(operator-furround-delete)"
     Expect getline(1) == 'tako,'
     Expect getline(2) == 'vim'
     Expect line('$') == 2
@@ -179,7 +179,7 @@ describe 'del-line'
     " 仕様としては, '(' まで削除なので空白も削除する
     call s:paste_code([' hoge(tako,', 'vim)'])
     normal! gg0
-    execute 'normal' "Vj\<Plug>(operator-delblock)"
+    execute 'normal' "Vj\<Plug>(operator-furround-delete)"
     Expect getline(1) == 'tako,'
     Expect getline(2) == 'vim'
     Expect line('$') == 2
@@ -190,7 +190,7 @@ describe 'del-line'
   it 'gomi + 2line'
     call s:paste_code(['aa', 'hoge(tako,', 'vim)'])
     normal! 2G0
-    execute 'normal' "Vj\<Plug>(operator-delblock)"
+    execute 'normal' "Vj\<Plug>(operator-furround-delete)"
     Expect getline(1) == 'aa'
     Expect getline(2) == 'tako,'
     Expect getline(3) == 'vim'
@@ -202,7 +202,7 @@ describe 'del-line'
   it '2line + gomi'
     call s:paste_code(['hoge(tako,', 'vim)', 'bb'])
     normal! gg0
-    execute 'normal' "Vj\<Plug>(operator-delblock)"
+    execute 'normal' "Vj\<Plug>(operator-furround-delete)"
     Expect getline(1) == 'tako,'
     Expect getline(2) == 'vim'
     Expect getline(3) == 'bb'
@@ -214,7 +214,7 @@ describe 'del-line'
   it 'gomi + 2line + gomi'
     call s:paste_code(['aa', 'hoge(tako,', 'vim)', 'bb'])
     normal! 2G0
-    execute 'normal' "Vj\<Plug>(operator-delblock)"
+    execute 'normal' "Vj\<Plug>(operator-furround-delete)"
     Expect getline(1) == 'aa'
     Expect getline(2) == 'tako,'
     Expect getline(3) == 'vim'

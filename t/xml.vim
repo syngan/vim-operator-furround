@@ -19,6 +19,8 @@ describe '<Plug>(operator-furround-append) xml-mode'
   before
     new
     call s:paste_code()
+    unlet! g#operator#furround#config
+    set filetype=foo
   end
 
   after
@@ -39,7 +41,8 @@ describe '<Plug>(operator-furround-append) xml-mode'
   it 'begin-default g=0'
     normal! 3Gft
     let @" = "<p>"
-    let g:operator_furround_xml = 0
+    let g:operator#furround#config = {}
+    let g:operator#furround#config['-'] = {'xml' : 0}
     execute 'normal' "\<Plug>(operator-furround-append)iw"
     let ans = substitute(g:str[2], "tako", '<p>(tako)', "")
     Expect getline(1) ==# g:str[0]
@@ -51,7 +54,8 @@ describe '<Plug>(operator-furround-append) xml-mode'
   it 'begin-default g=1'
     normal! 3Gft
     let @" = "<p>"
-    let g:operator_furround_xml = 1
+    let g:operator#furround#config = {}
+    let g:operator#furround#config['-'] = {'xml' : 1}
     execute 'normal' "\<Plug>(operator-furround-append)iw"
     let ans = substitute(g:str[2], "tako", '<p>tako</p>', "")
     Expect getline(1) ==# g:str[0]
@@ -63,7 +67,8 @@ describe '<Plug>(operator-furround-append) xml-mode'
   it 'begin-default b=0'
     normal! 3Gft
     let @" = "<p>"
-    let b:operator_furround_xml = 0
+    let g:operator#furround#config = {}
+    let g:operator#furround#config['foo'] = {'xml' : 0}
     execute 'normal' "\<Plug>(operator-furround-append)iw"
     let ans = substitute(g:str[2], "tako", '<p>(tako)', "")
     Expect getline(1) ==# g:str[0]
@@ -75,7 +80,8 @@ describe '<Plug>(operator-furround-append) xml-mode'
   it 'begin-default b=1'
     normal! 3Gft
     let @" = "<p>"
-    let b:operator_furround_xml = 1
+    let g:operator#furround#config = {}
+    let g:operator#furround#config['foo'] = {'xml' : 1}
     execute 'normal' "\<Plug>(operator-furround-append)iw"
     let ans = substitute(g:str[2], "tako", '<p>tako</p>', "")
     Expect getline(1) ==# g:str[0]
@@ -87,8 +93,9 @@ describe '<Plug>(operator-furround-append) xml-mode'
   it 'begin-default b=0,g=0'
     normal! 3Gft
     let @" = "<p>"
-    let b:operator_furround_xml = 0
-    let g:operator_furround_xml = 0
+    let g:operator#furround#config = {}
+    let g:operator#furround#config['-'] = {'xml' : 0}
+    let g:operator#furround#config['foo'] = {'xml' : 0}
     execute 'normal' "\<Plug>(operator-furround-append)iw"
     let ans = substitute(g:str[2], "tako", '<p>(tako)', "")
     Expect getline(1) ==# g:str[0]
@@ -100,8 +107,9 @@ describe '<Plug>(operator-furround-append) xml-mode'
   it 'begin-default b=0,g=1'
     normal! 3Gft
     let @" = "<p>"
-    let b:operator_furround_xml = 0
-    let g:operator_furround_xml = 1
+    let g:operator#furround#config = {}
+    let g:operator#furround#config['-'] = {'xml' : 1}
+    let g:operator#furround#config['foo'] = {'xml' : 0}
     execute 'normal' "\<Plug>(operator-furround-append)iw"
     let ans = substitute(g:str[2], "tako", '<p>(tako)', "")
     Expect getline(1) ==# g:str[0]
@@ -113,8 +121,9 @@ describe '<Plug>(operator-furround-append) xml-mode'
   it 'begin-default b=1,g=0'
     normal! 3Gft
     let @" = "<p>"
-    let b:operator_furround_xml = 1
-    let g:operator_furround_xml = 0
+    let g:operator#furround#config = {}
+    let g:operator#furround#config['-'] = {'xml' : 0}
+    let g:operator#furround#config['foo'] = {'xml' : 1}
     execute 'normal' "\<Plug>(operator-furround-append)iw"
     let ans = substitute(g:str[2], "tako", '<p>tako</p>', "")
     Expect getline(1) ==# g:str[0]
@@ -126,8 +135,9 @@ describe '<Plug>(operator-furround-append) xml-mode'
   it 'begin-default b=1,g=1'
     normal! 3Gft
     let @" = "<p>"
-    let b:operator_furround_xml = 1
-    let g:operator_furround_xml = 1
+    let g:operator#furround#config = {}
+    let g:operator#furround#config['-'] = {'xml' : 1}
+    let g:operator#furround#config['foo'] = {'xml' : 1}
     execute 'normal' "\<Plug>(operator-furround-append)iw"
     let ans = substitute(g:str[2], "tako", '<p>tako</p>', "")
     Expect getline(1) ==# g:str[0]
@@ -140,8 +150,9 @@ describe '<Plug>(operator-furround-append) xml-mode'
     normal! 3Gft
     let str = "<hoge u=1><foo/><taa v=2/><r><p w=3></p></r><q x=5 y=3>"
     let @" = str
-    let b:operator_furround_xml = 1
-    let g:operator_furround_xml = 1
+    let g:operator#furround#config = {}
+    let g:operator#furround#config['-'] = {'xml' : 1}
+    let g:operator#furround#config['foo'] = {'xml' : 1}
     execute 'normal' "\<Plug>(operator-furround-append)iw"
     let ans = substitute(g:str[2], "tako", str . 'tako</q></taa></hoge>', "")
     Expect getline(1) ==# g:str[0]
@@ -153,9 +164,10 @@ describe '<Plug>(operator-furround-append) xml-mode'
   it 'real'
     let str = '<font color="#ffffff"><span style="background-color:black; color:white;">'
     let @" = str
-    let b:operator_furround_xml = 1
-    let g:operator_furround_xml = 1
 
+    let g:operator#furround#config = {}
+    let g:operator#furround#config['-'] = {'xml' : 1}
+    let g:operator#furround#config['foo'] = {'xml' : 1}
     normal! 4Gfg
     execute 'normal' "vl\<Plug>(operator-furround-append)"
     let ans = substitute(g:str[3], "ge", str . 'ge</span></font>', "")

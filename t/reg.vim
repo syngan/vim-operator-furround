@@ -28,6 +28,12 @@ describe 'register'
     call setreg('"', g:__, 'v')
     call setreg('f', g:_f, 'v')
     call s:paste_code()
+	let g:operator#furround#config = {}
+	let g:operator#furround#config['-'] = {'block' : [
+	\ {'start' : '\k\+\[''.*''\](', 'end' : ')', 'regexp' : 1},
+	\ {'start' : '\k\+\[.*\](', 'end' : ')', 'regexp': 1},
+	\ {'start' : '\k\+(', 'end' : ')', 'regexp' : 1},
+	\]}
   end
 
   after

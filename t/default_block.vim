@@ -22,42 +22,42 @@ for g:fp in ['', 'tex', 'c', 'vim']
     it '(tako)'
       call s:paste_code(['(tako)'])
       normal! gg0
-      execute 'normal' "\<Plug>(operator-delblock)f)"
+      execute 'normal' "\<Plug>(operator-furround-delete)f)"
       Expect getline(1) == 'tako'
     end
 
     it '{tako}'
       call s:paste_code(['{tako}'])
       normal! gg0
-      execute 'normal' "\<Plug>(operator-delblock)f}"
+      execute 'normal' "\<Plug>(operator-furround-delete)f}"
       Expect getline(1) == 'tako'
     end
 
     it '[tako]'
       call s:paste_code(['[tako]'])
       normal! gg0
-      execute 'normal' "\<Plug>(operator-delblock)f]"
+      execute 'normal' "\<Plug>(operator-furround-delete)f]"
       Expect getline(1) == 'tako'
     end
 
     it '"tako"'
       call s:paste_code(['"tako"'])
       normal! gg0
-      execute 'normal' "\<Plug>(operator-delblock)f\""
+      execute 'normal' "\<Plug>(operator-furround-delete)f\""
       Expect getline(1) == 'tako'
     end
 
     it '<tako>'
       call s:paste_code(['<tako>'])
       normal! gg0
-      execute 'normal' "\<Plug>(operator-delblock)f>"
+      execute 'normal' "\<Plug>(operator-furround-delete)f>"
       Expect getline(1) == 'tako'
     end
 
     it '''tako'''
       call s:paste_code(['''tako'''])
       normal! gg0
-      execute 'normal' "\<Plug>(operator-delblock)f'"
+      execute 'normal' "\<Plug>(operator-furround-delete)f'"
       Expect getline(1) == 'tako'
     end
   end

@@ -21,62 +21,62 @@ describe 'tex-pair'
   it '{\bf tako}'
     call s:paste_code(['{\bf tako}'])
     normal! gg0
-    execute 'normal' "\<Plug>(operator-delblock)f}"
+    execute 'normal' "\<Plug>(operator-furround-delete)f}"
     Expect getline(1) == 'tako'
   end
 
   it '\verb|tako|'
     call s:paste_code(['\verb|tako|'])
     normal! gg0
-    execute 'normal' "\<Plug>(operator-delblock)2f|"
+    execute 'normal' "\<Plug>(operator-furround-delete)2f|"
     Expect getline(1) == 'tako'
   end
 
   it '\verbmtakom'
     call s:paste_code(['\verbmtakom'])
     normal! gg0
-    execute 'normal' "\<Plug>(operator-delblock)2fm"
+    execute 'normal' "\<Plug>(operator-furround-delete)2fm"
     Expect getline(1) == 'tako'
   end
 
   it '\verb*|tako|'
     call s:paste_code(['\verb*|tako|'])
     normal! gg0
-    execute 'normal' "\<Plug>(operator-delblock)2f|"
+    execute 'normal' "\<Plug>(operator-furround-delete)2f|"
     Expect getline(1) == 'tako'
   end
 
   it '\verb*mtakom'
     call s:paste_code(['\verb*mtakom'])
     normal! gg0
-    execute 'normal' "\<Plug>(operator-delblock)2fm"
+    execute 'normal' "\<Plug>(operator-furround-delete)2fm"
     Expect getline(1) == 'tako'
   end
   it '\cite{tako}'
     call s:paste_code(['\cite{tako}'])
     normal! gg0
-    execute 'normal' "\<Plug>(operator-delblock)f}"
+    execute 'normal' "\<Plug>(operator-furround-delete)f}"
     Expect getline(1) == 'tako'
   end
 
   it '\includegraphics[width=60mm]{tako}'
     call s:paste_code(['\includegraphics[width=60mm]{tako}'])
     normal! gg0
-    execute 'normal' "\<Plug>(operator-delblock)f}"
+    execute 'normal' "\<Plug>(operator-furround-delete)f}"
     Expect getline(1) == 'tako'
   end
 
   it '\begin{center}tako\end{center}'
     call s:paste_code(['\begin{center}tako\end{center}'])
     normal! gg0
-    execute 'normal' "\<Plug>(operator-delblock)2f}"
+    execute 'normal' "\<Plug>(operator-furround-delete)2f}"
     Expect getline(1) == 'tako'
   end
 
   it '\begin{figure}[htbp]'
   call s:paste_code(['\begin{figure}[htbp]', 'tako', '\end{figure}'])
     normal! gg0
-    execute 'normal' "V2j\<Plug>(operator-delblock)"
+    execute 'normal' "V2j\<Plug>(operator-furround-delete)"
     Expect getline(1) == 'tako'
     Expect line('$') == 1
   end

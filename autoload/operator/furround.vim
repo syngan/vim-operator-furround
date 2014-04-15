@@ -5,7 +5,7 @@ scriptencoding utf-8
 
 " @vimlint(EVL103, 1, a:_)
 function! s:log(_) " {{{
-  if s:get_val('operator_furround_debug', 0)
+  if s:get_val('debug', 0)
     silent! call vimconsole#log(a:_)
   endif
 endfunction " }}}
@@ -21,6 +21,60 @@ let s:block = {
 \ '''' : '''',
 \ '`' : '`',
 \} "}}}
+
+" default block {{{
+if exists('s:default_config')
+  unlockvar! s:default_config
+endif
+let s:default_config = {
+\ '-' : {
+\   'merge_default_config' : 0,
+\   'block' : [
+\     {'start': '(', 'end': ')'},
+\     {'start': '{', 'end': '}'},
+\     {'start': '[', 'end': ']'},
+\     {'start': '<', 'end': '>'},
+\     {'start': '"', 'end': '"'},
+\     {'start': "'", 'end': "'"},
+\   ]},
+\ 'tex' : {
+\   'merge_default_config' : 1,
+\   'block' : [
+\     {'start': '\\begin{\s*\(\k\+\*\=\)\s*}\%(\[[^\]]\+\]\|{[^}]\+}\)*\%(\s*\n\)\=',
+\      'end': '\\end{\1}', 'regexp': 1},
+\     {'start': '{\\\k\+\s\+', 'end': '}',
+\      'regexp': 1, 'comment' : '{\bf xxx}'},
+\     {'start': '\\\k\+\(\[[^\]]\+\]\|{[^}]\+}\)*{', 'end': '}',
+\      'regexp': 1, 'comment' : '\hoge[xxx]{yyy}'},
+\     {'start': '\\verb\*\=\(.\)', 'end': '\1', 'regexp': 1},
+\     {'start': '\(\$\$\=\)', 'end': '\1', 'regexp': 1},
+\     {'start': '\\[', 'end': '\\]', 'regexp': 1},
+\     {'start': '\\(', 'end': '\\)', 'regexp': 1},
+\   ]},
+\ 'c' : {
+\   'merge_default_config' : 1,
+\   'block' : [
+\     {'start': '\k\+(', 'end': ')', 'regexp': 1},
+\     {'start': '\k\+\[', 'end': '\]', 'regexp': 1},
+\   ]},
+\ 'vim' : {
+\   'merge_default_config' : 1,
+\   'block' : [
+\     {'start': '\([vgslabwt]:\)\?[A-Za-z_][0-9A-Za-z_#.]*(', 'end': ')', 'regexp': 1},
+\     {'start': '\([vgslabwt]:\)\?[A-Za-z_][0-9A-Za-z_#.]*\[', 'end': '\]', 'regexp': 1},
+\   ]},
+\ 'html' : {
+\   'merge_default_config' : 1,
+\   'block' : [
+\     {'start': '<\(\k\+\)>\(\s\|\n\)*', 'end': '</\1>', 'regexp': 1},
+\   ]},
+\ }
+lockvar! s:default_config
+" }}}
+
+function! s:escape(pattern) " {{{
+    return escape(a:pattern, '\/~ .*^[''$')
+endfunction " }}}
 
 function! s:create_block_tbl(dic)  " {{{
   " 閉じ括弧のテーブルを構築
@@ -39,7 +93,18 @@ call s:create_block_tbl(s:block)
 function! s:get_val(key, val) " {{{
   " default 値付きの値取得.
   " b: があったらそれ, なければ g: をみる.
-  return get(b:, a:key, get(g:, a:key, a:val))
+  if ! exists("g:operator#furround#config")
+    return a:val
+  endif
+
+  let dic = g:operator#furround#config
+  for ft in [&filetype, '-']
+    if has_key(dic, ft) && has_key(dic[ft], a:key)
+      return dic[ft][a:key]
+    endif
+  endfor
+
+  return a:val
 endfunction " }}}
 
 function! s:get_block_latex(motion, str) " {{{
@@ -176,17 +241,18 @@ function! s:get_block(motion, str) " {{{
   endif
 
   let pair = []
-  if s:get_val('operator_furround_latex', 1)
+  if s:get_val('latex', 1)
     let pair = s:get_block_latex(a:motion, a:str)
   endif
-  if len(pair) == 0 && s:get_val('operator_furround_xml', 0)
+  if len(pair) == 0 && s:get_val('xml', 0)
     let pair = s:get_block_xml(a:str)
   endif
   if len(pair) == 0
     let pair = s:get_pair(a:str, 0)
   endif
   if len(pair) == 0
-    let pair = s:get_val('operator_furround_default_block', ['(', ')'])
+    let pair = s:get_val('append_block', ['(', ')'])
+    call s:log(pair)
   endif
 
   return [a:str . pair[0], pair[1]]
@@ -245,7 +311,7 @@ function! s:append(motion, input_mode) " {{{
       return 0
     endif
   elseif (v:register == '' || v:register == '"') &&
-  \   s:get_val('operator_furround_use_input', 0)
+  \   s:get_val('use_input', 0)
     let str = s:input()
   else
     let str = ''
@@ -260,6 +326,8 @@ function! s:append(motion, input_mode) " {{{
   endif
 
   let [func, right] = s:get_block(a:motion, str)
+
+  call s:log("get_block=" . string([func, right, a:motion, str]))
   call s:append_block[a:motion](func, right)
 
   if use_input
@@ -275,54 +343,83 @@ function! operator#furround#appendi(motion) " {{{
   return s:append(a:motion, 1)
 endfunction " }}}
 
+function! s:block_del_pair(str, pair) " {{{
+  let regexp = get(a:pair, 'regexp', 0)
+  let ps = regexp ? a:pair.start : s:escape(a:pair.start)
 
-" 文字列の末尾が ( だったら, textobj の外まで探しに行く?
-" append の場合とちがって, 消したいのは一番外側のみな気がする.
-" hoge[tako]('foo')
-" hoge[tako](<foo>)
-" v:count は考慮すべきかも.
+  let m = match(a:str, ps)
+  if m < -1
+    return ''
+  endif
+
+  if m > 0 && a:str[0 : m-1] !~ '\m^\s*$'
+    return ''
+  endif
+
+  let ms = matchlist(a:str, a:pair.start, m)
+  if len(ms) == 0
+    return ''
+  endif
+  let s = len(ms[0]) + m
+
+  let pe = regexp ? a:pair.end : s:escape(a:pair.end)
+  if regexp && pe =~ '\\[1-9]'
+    for i in range(1, 9)
+      let pe = substitute(pe, '\\' . i, '\=ms[' . i . ']', 'g')
+    endfor
+  endif
+
+  let me = match(a:str, pe . '\m\(\s\|\n\)*$', s)
+  if me < 0
+    return ''
+  endif
+
+  return a:str[s : me - 1]
+endfunction " }}}
+
 function! s:get_block_del(str) " {{{
-  let stack = []
-  let l = len(a:str)
-  let last = []
-  for l in range(len(a:str))
-    let s = a:str[l]
-    if has_key(s:block, s)
-        " 開括弧
-      let r = s:block[s]
-      if r == s && len(stack) > 0
-        if stack[-1][0] == r
-          " 閉じた
-          let last = remove(stack, -1)
-        else
-          let stack += [[s, r, l]]
-        endif
-      else
-        let stack += [[s, r, l]]
-      endif
-    elseif has_key(s:block_d, s)
-      " 閉じ括弧
-      if len(stack) > 0 && stack[-1][1] == s
-        let last = remove(stack, -1)
-      else
-        " 対応するペアがいない. 壊れているからわかめ
-      endif
+  let blocks = exists("g:operator#furround#config") ?
+        \ g:operator#furround#config : 0
+  if type(blocks) != type({})
+    unlet blocks
+    let blocks = {}
+  endif
+
+  if has_key(blocks, &filetype)
+    let block_ft = [blocks[&filetype]]
+    if get(block_ft[0], 'merge_default_config_user', 0) && has_key(blocks, '-')
+      let block_user_def = blocks['-']
     endif
+    let merge = get(block_ft[0], 'merge_default_config', 0)
+  elseif has_key(blocks, '-')
+    let block_ft = [blocks['-']]
+    let merge = get(block_ft[0], 'merge_default_config', 0)
+  else
+    let block_ft = []
+    let merge = 1
+  endif
+
+  if merge && has_key(s:default_config, &filetype)
+      let block_ft += [s:default_config[&filetype]]
+      let merge = get(s:default_config[&filetype], 'merge_default_config')
+  endif
+  if exists('block_user_def')
+      let block_ft += [block_user_def]
+  endif
+  if merge
+    let block_ft += [s:default_config['-']]
+  endif
+
+  for b in block_ft
+    for pair in b.block
+      let c = s:block_del_pair(a:str, pair)
+      if c != ''
+        return c
+      endif
+    endfor
   endfor
 
-  " 最後のスペースどうすんべ.
-  while l >= 0
-    if a:str[l] !~ '[[:blank:]\n]'
-      break
-    endif
-    let l -= 1
-  endwhile
-
-  if len(last) > 0 && last[1] == a:str[l]
-    return last + [l]
-  else
-    return []
-  endif
+  return ''
 endfunction " }}}
 
 let s:del_funcs = {}
@@ -371,11 +468,10 @@ function! operator#furround#delete(motion) " {{{
     let v = func.v
     call s:knormal(printf('`[%s`]"%sy', v, reg))
     let str = getreg(reg)
-    let block = s:get_block_del(str)
-    if len(block) == 0
+    let str = s:get_block_del(str)
+    if len(str) == ''
       return 0
     endif
-    let str = str[block[2]+1 : block[3]-1] . str[block[3]+1 :]
 
     call setreg(reg, str, v)
 
