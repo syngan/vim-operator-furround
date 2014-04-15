@@ -36,11 +36,16 @@ let g:operator#delblock#default_config = {
 \ 'tex' : {
 \   'merge_default_config' : 1,
 \   'block' : [
-\     {'start': '\\begin{\s*\(\k\+\*\=\)\s*}\%(\[.*\]\)\=\%(\s*\n\)\=',
-\      'end': '\\end{\V\1}', 'regexp': 1},
-\     {'start': '{\\\k\+\s\+', 'end': '}', 'regexp': 1},
-\     {'start': '\\\k\+\(\[.\+\]\)\={', 'end': '}', 'regexp': 1},
+\     {'start': '\\begin{\s*\(\k\+\*\=\)\s*}\%(\[[^\]\+*]\]\|{[^}]\+}\)*\%(\s*\n\)\=',
+\      'end': '\\end{\1}', 'regexp': 1},
+\     {'start': '{\\\k\+\s\+', 'end': '}',
+\      'regexp': 1, 'comment' : '{\bf xxx}'},
+\     {'start': '\\\k\+\(\[[^\]]\+\]\|{[^}]\+}\)*{', 'end': '}',
+\      'regexp': 1, 'comment' : '\hoge[xxx]{yyy}'},
 \     {'start': '\\verb\*\=\(.\)', 'end': '\1', 'regexp': 1},
+\     {'start': '\(\$\$\=\)', 'end': '\1', 'regexp': 1},
+\     {'start': '\\[', 'end': '\\]', 'regexp': 1},
+\     {'start': '\\(', 'end': '\\)', 'regexp': 1},
 \   ]},
 \ 'c' : {
 \   'merge_default_config' : 1,
