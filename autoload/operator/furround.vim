@@ -168,7 +168,7 @@ function! s:get_block(motion, str) " {{{
   let pair = s:get_pair(a:str, 1)
   if len(pair) == 0
     " private.
-    let pair = s:get_val('append_block', ['(', ')'])
+    let pair = s:get_val('default_append_block', ['(', ')'])
   endif
 
   return [a:str . pair[0], pair[1]]

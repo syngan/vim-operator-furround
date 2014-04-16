@@ -43,7 +43,7 @@ describe '<Plug>(operator-furround-append)'
     normal! 1Gft
     let @" = 'hoge'
     let g:operator#furround#config = {}
-    let g:operator#furround#config['-'] = {'append_block': ['<', '>']}
+    let g:operator#furround#config['-'] = {'default_append_block': ['<', '>']}
     execute 'normal' "\<Plug>(operator-furround-append)iw"
     let ans = substitute(g:str, "tako", "hoge<tako>", "")
     Expect getline(1) ==# ans
@@ -55,7 +55,7 @@ describe '<Plug>(operator-furround-append)'
     normal! 1Gft
     let @" = 'hoge'
     let g:operator#furround#config = {}
-    let g:operator#furround#config['foo'] = {'append_block': ['<', '>']}
+    let g:operator#furround#config['foo'] = {'default_append_block': ['<', '>']}
     execute 'normal' "\<Plug>(operator-furround-append)iw"
     let ans = substitute(g:str, "tako", "hoge<tako>", "")
     Expect getline(1) ==# ans
@@ -67,8 +67,8 @@ describe '<Plug>(operator-furround-append)'
     normal! 1Gft
     let @" = 'hoge'
     let g:operator#furround#config = {}
-    let g:operator#furround#config['-'] = {'append_block': ['[', ']']}
-    let g:operator#furround#config['foo'] = {'append_block': ['<', '>']}
+    let g:operator#furround#config['-'] = {'default_append_block': ['[', ']']}
+    let g:operator#furround#config['foo'] = {'default_append_block': ['<', '>']}
     execute 'normal' "\<Plug>(operator-furround-append)iw"
     let ans = substitute(g:str, "tako", "hoge<tako>", "")
     Expect getline(1) ==# ans
