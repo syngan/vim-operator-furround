@@ -48,6 +48,19 @@ describe 'motion'
     Expect getline(5) ==# g:str
   end
 
+  it 'line'
+    normal! 2Gft
+    let @" = 'hoge('
+    execute 'normal' "Vj\<Plug>(operator-furround-append)"
+    Expect getline(1) ==# g:str
+    Expect getline(2) ==# 'hoge(' . g:str
+    Expect getline(3) ==# g:str . ')'
+    Expect getline(4) ==# g:str
+    Expect getline(5) ==# g:str
+  end
+
+
+
   it 'block'
     normal! 2Gft
     let @" = 'hoge('
