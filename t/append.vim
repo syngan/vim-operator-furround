@@ -148,6 +148,26 @@ describe '<Plug>(operator-furround-append)'
     Expect getline(3) ==# g:str3
   end
 
+  it 'hoge()'
+    normal! 1Gft
+    let @" = 'hoge()'
+    execute 'normal' "\<Plug>(operator-furround-append)iw"
+    let ans = substitute(g:str, "tako", "hoge()(tako)", "")
+    Expect getline(1) ==# ans
+    Expect getline(2) ==# g:str2
+    Expect getline(3) ==# g:str3
+  end
+
+  it 'hoge((a) + '
+    normal! 1Gft
+    let @" = 'hoge((a) + '
+    execute 'normal' "\<Plug>(operator-furround-append)iw"
+    let ans = substitute(g:str, "tako", "hoge((a) + tako)", "")
+    Expect getline(1) ==# ans
+    Expect getline(2) ==# g:str2
+    Expect getline(3) ==# g:str3
+  end
+
   it 'reg'
     normal! 1Gft
     let @o = 'hage('

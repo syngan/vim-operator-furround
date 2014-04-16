@@ -151,6 +151,17 @@ function! s:get_pair(str, ...) " {{{
     let l = pair[2] + pair[3]
   endwhile
 
+  while len(stack) > 0
+      let mrhs = match(a:str, stack[-1][4], l)
+      if mrhs < 0
+        break
+      endif
+
+      let mstr = matchstr(a:str, stack[-1][4], mrhs)
+      call remove(stack, -1)
+      let l = len(mstr) + mrhs
+  endwhile
+
   if len(stack) == 0
     return []
   endif
