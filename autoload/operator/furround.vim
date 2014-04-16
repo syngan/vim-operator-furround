@@ -11,6 +11,7 @@ function! s:log(_) " {{{
 endfunction " }}}
 
 " default block {{{
+
 let s:block = {
 \ '(' : ')',
 \ '[' : ']',
@@ -23,9 +24,6 @@ let s:block = {
 \} "}}}
 
 " default block {{{
-if exists('s:default_config')
-  unlockvar! s:default_config
-endif
 let s:default_config = {
 \ '-' : {
 \   'merge_default_config' : 0,
@@ -42,39 +40,38 @@ let s:default_config = {
 \   'merge_default_config' : 1,
 \   'block' : [
 \     {'start': '\\begin{\s*\(\k\+\*\=\)\s*}\%(\[[^\]]\+\]\|{[^}]\+}\)*\%(\s*\n\)\=',
-\      'end': '\\end{\1}', 'regexp': 1},
+\      'end': '\end{\1}', 'regexp': 1},
 \     {'start': '{\\\k\+\s\+', 'end': '}',
 \      'regexp': 1, 'comment' : '{\bf xxx}'},
 \     {'start': '\\\k\+\(\[[^\]]\+\]\|{[^}]\+}\)*{', 'end': '}',
 \      'regexp': 1, 'comment' : '\hoge[xxx]{yyy}'},
 \     {'start': '\\verb\*\=\(.\)', 'end': '\1', 'regexp': 1},
 \     {'start': '\(\$\$\=\)', 'end': '\1', 'regexp': 1},
-\     {'start': '\\[', 'end': '\\]', 'regexp': 1},
-\     {'start': '\\(', 'end': '\\)', 'regexp': 1},
+\     {'start': '\\[', 'end': '\]', 'regexp': 1},
+\     {'start': '\\(', 'end': '\)', 'regexp': 1},
 \   ]},
 \ 'c' : {
 \   'merge_default_config' : 1,
 \   'block' : [
 \     {'start': '\k\+(', 'end': ')', 'regexp': 1},
-\     {'start': '\k\+\[', 'end': '\]', 'regexp': 1},
+\     {'start': '\k\+\[', 'end': ']', 'regexp': 1},
 \   ]},
 \ 'vim' : {
 \   'merge_default_config' : 1,
 \   'block' : [
 \     {'start': '\([vgslabwt]:\)\?[A-Za-z_][0-9A-Za-z_#.]*(', 'end': ')', 'regexp': 1},
-\     {'start': '\([vgslabwt]:\)\?[A-Za-z_][0-9A-Za-z_#.]*\[', 'end': '\]', 'regexp': 1},
+\     {'start': '\([vgslabwt]:\)\?[A-Za-z_][0-9A-Za-z_#.]*\[', 'end': ']', 'regexp': 1},
 \   ]},
 \ 'html' : {
 \   'merge_default_config' : 1,
 \   'block' : [
-\     {'start': '<\(\k\+\)>\(\s\|\n\)*', 'end': '</\1>', 'regexp': 1},
+\     {'start': '<\(\k\+\)\%(\s\+[^>]\+\)*>\(\s\|\n\)*', 'end': '</\1>', 'regexp': 1},
 \   ]},
 \ }
-lockvar! s:default_config
 " }}}
 
 function! s:escape(pattern) " {{{
-    return escape(a:pattern, '\/~ .*^[''$')
+    return escape(a:pattern, '\~ .*^[''$')
 endfunction " }}}
 
 function! s:create_block_tbl(dic)  " {{{
@@ -193,7 +190,6 @@ endfunction " }}}
 
 function! s:get_pair(str, last) " {{{
   let stack = []
-  let l = len(a:str)
   for l in range(len(a:str))
     let s = a:str[l]
     if has_key(s:block, s)
@@ -259,6 +255,113 @@ function! s:get_block(motion, str) " {{{
   return [a:str . pair[0], pair[1]]
 endfunction " }}}
 
+function! s:get_pair_lhs(str, blocks, idx, slen) " {{{
+  let min = a:slen
+  let bmin = {}
+  for b in a:blocks
+    let i = match(a:str, b.start, a:idx)
+    if i < 0
+      continue
+    endif
+
+    if i < min
+      let min = i
+      let bmin = b
+
+      if min == a:idx
+        break
+      endif
+    endif
+  endfor
+
+  if min == a:slen
+    " not found
+    return []
+  endif
+
+  let mlist = matchlist(a:str, bmin.start, min)
+"  let regexp = get(bmin, 'regexp', 0)
+
+  let pe = bmin.end
+  if pe =~ '\\[1-9]'
+    for i in range(1, min([len(mlist)-1, 9]))
+      let pe = substitute(pe, '\\' . i, '\=mlist[' . i . ']', 'g')
+    endfor
+  endif
+
+  call s:log("mlist[0]=[" . mlist[0] . "]")
+  if mlist[0] =~ '\n$'
+    call s:log("append <CR>")
+    let pe = "\n" . pe
+  endif
+  call s:log("pe=" . pe)
+
+  return [mlist[0], pe, min, len(mlist[0]), s:escape(pe)]
+endfunction " }}}
+
+function! s:get_pair(str, ...) " {{{
+  let blocks = s:get_conf()
+  let stack = []
+  let slen = len(a:str)
+  let l = 0
+  while l < slen
+    let pair = s:get_pair_lhs(a:str, blocks, l, slen)
+    call s:log("pair=" . string(pair))
+    if len(pair) == 0
+      break
+    endif
+
+    while len(stack) > 0
+      " 閉じ括弧チェック
+      call s:log("stack[-1]=" . string(stack[-1]))
+      let mrhs = match(a:str, stack[-1][4], l)
+      if mrhs < 0 || mrhs > pair[2]
+        break
+      endif
+
+      let mstr = matchstr(a:str, stack[-1][4], mrhs)
+      call remove(stack, -1)
+      let l = len(mstr) + mrhs
+    endwhile
+
+    if l > pair[2]
+      " 他の閉括弧で開括弧がつぶされた
+      continue
+    endif
+
+    call add(stack, pair)
+    let l = pair[2] + pair[3]
+  endwhile
+
+  if len(stack) == 0
+    return []
+  endif
+
+  let r = ''
+  for i in range(len(stack)-1, 0, -1)
+    call s:log("stack[" . i . "]=" . string(stack[i]))
+    let r .= stack[i][1]
+    call s:log("r    [" . i . "]=" . r)
+  endfor
+  call s:log(stack)
+  call s:log("r=" . r)
+  return ['', r]
+endfunction " }}}
+
+" @vimlint(EVL103, 1, a:motion)
+function! s:get_block(motion, str) " {{{
+
+  let pair = s:get_pair(a:str, 1)
+  call s:log("pair=" . string(pair))
+  if len(pair) == 0
+    " private.
+    let pair = s:get_val('append_block', ['(', ')'])
+  endif
+
+  return [a:str . pair[0], pair[1]]
+endfunction " }}}
+" @vimlint(EVL103, 0, a:motion)
+
 function! s:get_reg_rmcr(r) " {{{
   let str = getreg(a:r)
   let len = len(str)
@@ -287,7 +390,11 @@ endfunction " }}}
 let s:append_block = {}
 function! s:append_block.char(left, right) " {{{
   call s:knormal("`[v`]\<Esc>")
-  call s:knormal(printf("`>a%s\<Esc>`<i%s\<Esc>", a:right, a:left))
+  call setreg('f', a:right, 'v')
+  call s:knormal('`>"fp')
+  call setreg('f', a:left, 'v')
+  call s:knormal('`<"fP')
+  call s:log(getline("."))
 endfunction " }}}
 
 function! s:append_block.line(left, right) " {{{
@@ -327,8 +434,22 @@ function! s:append(motion, input_mode) " {{{
   endif
 
   let [func, right] = s:get_block(a:motion, str)
+  call s:log("s:get_block(" . a:motion . ")=" . string([func, right]))
 
-  call s:append_block[a:motion](func, right)
+
+  let reg = 'f'
+  let regdic = {}
+  for r in [reg, '"']
+    let regdic[r] = [getreg(r), getregtype(r)]
+  endfor
+
+  try
+    call s:append_block[a:motion](func, right)
+  finally
+    for r in keys(regdic)
+      call setreg(r, regdic[r][0], regdic[r][1])
+    endfor
+  endtry
 
   if use_input
     call s:repeat_set(str)
@@ -406,14 +527,14 @@ function! s:block_del_pair(str, pair) " {{{
   endif
   let s = len(ms[0]) + m
 
-  let pe = regexp ? a:pair.end : s:escape(a:pair.end)
+  let pe = a:pair.end
   if regexp && pe =~ '\\[1-9]'
-    for i in range(1, 9)
+    for i in range(1, min([len(ms)-1, 9]))
       let pe = substitute(pe, '\\' . i, '\=ms[' . i . ']', 'g')
     endfor
   endif
 
-  let me = match(a:str, pe . '\m\(\s\|\n\)*$', s)
+  let me = match(a:str, s:escape(pe) . '\m\(\s\|\n\)*$', s)
   if me < 0
     return ''
   endif

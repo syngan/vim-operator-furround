@@ -14,11 +14,23 @@ function! s:paste_code()
   1 delete _
 endfunction
 
+let s:conf = [
+\     {'start': '\k\+(', 'end': ')', 'regexp': 1},
+\     {'start': '\k\+\[', 'end': ']', 'regexp': 1},
+\     {'start': '(', 'end': ')', 'regexp': 0},
+\     {'start': '[', 'end': ']', 'regexp': 0},
+\ ]
+
 describe 'input'
   before
     new
     call s:paste_code()
 	set filetype=foo
+
+    unlet! g:operator#furround#config
+    let g:operator#furround#config = {}
+	let g:operator#furround#config['-'] = {'block': s:conf}
+	let g:operator#furround#config['foo'] = {'block': s:conf}
   end
 
   after
@@ -29,6 +41,7 @@ describe 'input'
   it 'default'
     normal! 2Gft
     let @" = 'hoge('
+
     execute 'normal' "\<Plug>(operator-furround-append)iw"
     let ans = substitute(g:str, "tako", "hoge(tako)", "")
     Expect getline(1) ==# g:str
@@ -41,8 +54,7 @@ describe 'input'
   it 'b=1'
     normal! 2Gft
     let @" = 'hoge('
-    let g:operator#furround#config = {}
-    let g:operator#furround#config['foo'] = {'use_input' : 1}
+    let g:operator#furround#config['foo']['use_input'] = 1
     execute 'normal' "\<Plug>(operator-furround-append)iwfoo[\<CR>"
     let ans = substitute(g:str, "tako", "foo[tako]", "")
     Expect getline(1) ==# g:str
@@ -55,8 +67,7 @@ describe 'input'
   it 'b=0'
     normal! 2Gft
     let @" = 'hoge('
-    let g:operator#furround#config = {}
-    let g:operator#furround#config['foo'] = {'use_input' : 0}
+    let g:operator#furround#config['foo']['use_input'] = 0
     execute 'normal' "\<Plug>(operator-furround-append)iw"
     let ans = substitute(g:str, "tako", "hoge(tako)", "")
     Expect getline(1) ==# g:str
@@ -69,8 +80,7 @@ describe 'input'
   it 'g=1'
     normal! 2Gft
     let @" = 'hoge('
-    let g:operator#furround#config = {}
-    let g:operator#furround#config['-'] = {'use_input' : 1}
+    let g:operator#furround#config['-']['use_input'] =  1
     execute 'normal' "\<Plug>(operator-furround-append)iwfoo[\<CR>"
     let ans = substitute(g:str, "tako", "foo[tako]", "")
     Expect getline(1) ==# g:str
@@ -83,8 +93,7 @@ describe 'input'
   it 'g=0'
     normal! 2Gft
     let @" = 'hoge('
-    let g:operator#furround#config = {}
-    let g:operator#furround#config['-'] = {'use_input' : 0}
+    let g:operator#furround#config['-']['use_input'] =  0
     execute 'normal' "\<Plug>(operator-furround-append)iw"
     let ans = substitute(g:str, "tako", "hoge(tako)", "")
     Expect getline(1) ==# g:str
@@ -97,9 +106,8 @@ describe 'input'
   it 'g=1,b=0'
     normal! 2Gft
     let @" = 'hoge('
-    let g:operator#furround#config = {}
-    let g:operator#furround#config['-'] = {'use_input' : 1}
-    let g:operator#furround#config['foo'] = {'use_input' : 0}
+    let g:operator#furround#config['-']['use_input'] =  1
+    let g:operator#furround#config['foo']['use_input'] = 0
     execute 'normal' "\<Plug>(operator-furround-append)iwiaaa\<CR>"
     let ans = substitute(g:str, "tako.*", "hogeaaa", "")
 	let ans2 = "(tako) desu ka."
@@ -114,9 +122,8 @@ describe 'input'
   it 'g=1,b=1'
     normal! 2Gft
     let @" = 'hoge('
-    let g:operator#furround#config = {}
-    let g:operator#furround#config['-'] = {'use_input' : 1}
-    let g:operator#furround#config['foo'] = {'use_input' : 1}
+    let g:operator#furround#config['-']['use_input'] =  1
+    let g:operator#furround#config['foo']['use_input'] = 1
     execute 'normal' "\<Plug>(operator-furround-append)iwiaaa\<CR>"
     let ans = substitute(g:str, "tako", "iaaa(tako)", "")
     Expect getline(1) ==# g:str
@@ -129,9 +136,8 @@ describe 'input'
   it 'g=0,b=1'
     normal! 2Gft
     let @" = 'hoge('
-    let g:operator#furround#config = {}
-    let g:operator#furround#config['-'] = {'use_input' : 0}
-    let g:operator#furround#config['foo'] = {'use_input' : 1}
+    let g:operator#furround#config['-']['use_input'] =  0
+    let g:operator#furround#config['foo']['use_input'] = 1
     execute 'normal' "\<Plug>(operator-furround-append)iwiaaa\<CR>"
     let ans = substitute(g:str, "tako", "iaaa(tako)", "")
     Expect getline(1) ==# g:str

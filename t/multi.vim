@@ -16,10 +16,17 @@ describe 'multi'
   before
     new
     call s:paste_code()
+	let g:operator#furround#config = {'-' : {
+	\ 'merge_default_config' : 1,
+	\ 'block' : [
+	\ 	{'start': '\k\+(', 'end' : ')'}
+	\ ]}}
+
   end
 
   after
     close!
+	unlet g:operator#furround#config
   end
 
   it 'hoge(('
@@ -78,7 +85,7 @@ describe 'multi'
     normal! 1Gft
     let @" = 'hoge(<)["'
     execute 'normal' "\<Plug>(operator-furround-append)iw"
-    let ans = substitute(g:str, "tako", 'hoge(<)["tako"', "")
+    let ans = substitute(g:str, "tako", 'hoge(<)["tako"]>)', "")
     Expect getline(1) ==# ans
     Expect getline(2) ==# g:str
     Expect getline(3) ==# g:str
