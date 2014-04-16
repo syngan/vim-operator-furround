@@ -11,19 +11,6 @@ function! s:log(_) " {{{
 endfunction " }}}
 
 " default block {{{
-
-let s:block = {
-\ '(' : ')',
-\ '[' : ']',
-\ '<' : '>',
-\ '{' : '}',
-\ '|' : '|',
-\ '"' : '"',
-\ '''' : '''',
-\ '`' : '`',
-\} "}}}
-
-" default block {{{
 let s:default_config = {
 \ '-' : {
 \   'merge_default_config' : 0,
@@ -74,20 +61,6 @@ function! s:escape(pattern) " {{{
     return escape(a:pattern, '\~ .*^[''$')
 endfunction " }}}
 
-function! s:create_block_tbl(dic)  " {{{
-  " 閉じ括弧のテーブルを構築
-  let s:block_d = {}
-
-  for k in keys(a:dic)
-    if k != a:dic[k]
-      let s:block_d[a:dic[k]] = k
-    endif
-  endfor
-endfunction " }}}
-
-" initialize.
-call s:create_block_tbl(s:block)
-
 function! s:get_val(key, val) " {{{
   " default 値付きの値取得.
   " b: があったらそれ, なければ g: をみる.
@@ -103,156 +76,6 @@ function! s:get_val(key, val) " {{{
   endfor
 
   return a:val
-endfunction " }}}
-
-function! s:get_block_latex(motion, str) " {{{
-  " latex 形式の対応
-  " \begin{xxx} \begin{yyy} ... が yank されていたら,
-  " \end{yyy} \end{xxx} とのペアを作る
-  let p = []
-  let s = 0
-  while 1
-    let idx = match(a:str, '\\\(begin\|end\)\s*{\s*\([^}]\+\)\s*}', s)
-    if idx < 0
-      break
-    endif
-    let s = idx + 6
-
-    let key = matchstr(a:str, '\\\(begin\|end\)\s*{\s*\([^}]\+\)\s*}', idx)
-    let key = substitute(key, '\\\(begin\|end\)\s*{\s*', '', '')
-    let key = substitute(key, '\s*}$', '', '')
-    let t = match(a:str, '\\begin\s*{\s*\([^}]\+\)\s*}', idx)
-    if t == idx
-      let p += [key]
-    elseif len(p) > 0 && p[-1] ==# key
-      call remove(p, -1)
-    endif
-
-  endwhile
-
-  if len(p) == 0
-    return []
-  endif
-
-  let end = ""
-  while len(p) > 0
-    let t = remove(p, -1)
-    if a:motion ==# "line"
-      let end .= "\n\\end{" . t . "}"
-    else
-      let end .= "\\end{" . t . "}"
-    endif
-  endwhile
-
-  return ['', end]
-endfunction " }}}
-
-function! s:get_block_xml(str) " {{{
-  " xml 形式の対応
-  " <xxx xxxx><yyy yyyyy> ... が yank されていたら,
-  " </yyy></xxx> とのペアを作る
-  let p = []
-  let s = 0
-  while 1
-    let idx = match(a:str, '<\(/\)\=[^[:space:]>][^>]*>', s)
-    if idx < 0
-      break
-    endif
-
-    let s = idx + 3
-    let key = matchstr(a:str, '<\(/\)\=[^[:space:]>][^>]*>', idx)
-    let tag = substitute(key, '\s.*', '', '')
-    let tag = substitute(tag, '>', '', '')
-    if tag[len(tag) - 1] == '/'
-      continue
-    endif
-    let tag = substitute(tag, '<\(/\)\=', '', '')
-    if key[1] != '/'
-      let p += [tag]
-    elseif len(p) > 0 && p[-1] ==# tag
-      call remove(p, -1)
-    endif
-
-  endwhile
-
-  if len(p) == 0
-    return []
-  endif
-
-  let end = ""
-  while len(p) > 0
-    let t = remove(p, -1)
-    let end .= "</" . t . ">"
-  endwhile
-
-  return ['', end]
-endfunction " }}}
-
-function! s:get_pair(str, last) " {{{
-  let stack = []
-  for l in range(len(a:str))
-    let s = a:str[l]
-    if has_key(s:block, s)
-        " 開括弧
-      let r = s:block[s]
-      if r == s && len(stack) > 0
-        let pair = stack[-1]
-        if pair[0] == r
-          " 始まりと終わりが同じタイプ
-          call remove(stack, -1)
-        else
-          let stack += [[s, r]]
-        endif
-      else
-        let stack += [[s, r]]
-      endif
-    elseif has_key(s:block_d, s)
-      " 閉じ括弧
-      if len(stack) > 0 && stack[-1][1] == s
-        call remove(stack, -1)
-      elseif a:last
-        " 対応するペアがいない. 壊れているからわかめ
-        return ['', s:block[a:str[len(a:str) - 1]]]
-      else
-        return []
-      endif
-    endif
-  endfor
-
-  if len(stack) == 0
-    return []
-  endif
-
-  let r = ''
-  for i in range(len(stack)-1, 0, -1)
-    let r .= stack[i][1]
-  endfor
-  return ['', r]
-endfunction " }}}
-
-function! s:get_block(motion, str) " {{{
-
-  if has_key(s:block, a:str[len(a:str)- 1])
-    let pair = s:get_pair(a:str, 1)
-    return [a:str, pair[1]]
-  endif
-
-  let pair = []
-  if s:get_val('latex', 1)
-    let pair = s:get_block_latex(a:motion, a:str)
-  endif
-  if len(pair) == 0 && s:get_val('xml', 0)
-    let pair = s:get_block_xml(a:str)
-  endif
-  if len(pair) == 0
-    let pair = s:get_pair(a:str, 0)
-  endif
-  if len(pair) == 0
-    " private.
-    let pair = s:get_val('append_block', ['(', ')'])
-  endif
-
-  return [a:str . pair[0], pair[1]]
 endfunction " }}}
 
 function! s:get_pair_lhs(str, blocks, idx, slen) " {{{
@@ -289,12 +112,9 @@ function! s:get_pair_lhs(str, blocks, idx, slen) " {{{
     endfor
   endif
 
-  call s:log("mlist[0]=[" . mlist[0] . "]")
   if mlist[0] =~ '\n$'
-    call s:log("append <CR>")
     let pe = "\n" . pe
   endif
-  call s:log("pe=" . pe)
 
   return [mlist[0], pe, min, len(mlist[0]), s:escape(pe)]
 endfunction " }}}
@@ -306,14 +126,12 @@ function! s:get_pair(str, ...) " {{{
   let l = 0
   while l < slen
     let pair = s:get_pair_lhs(a:str, blocks, l, slen)
-    call s:log("pair=" . string(pair))
     if len(pair) == 0
       break
     endif
 
     while len(stack) > 0
       " 閉じ括弧チェック
-      call s:log("stack[-1]=" . string(stack[-1]))
       let mrhs = match(a:str, stack[-1][4], l)
       if mrhs < 0 || mrhs > pair[2]
         break
@@ -339,12 +157,8 @@ function! s:get_pair(str, ...) " {{{
 
   let r = ''
   for i in range(len(stack)-1, 0, -1)
-    call s:log("stack[" . i . "]=" . string(stack[i]))
     let r .= stack[i][1]
-    call s:log("r    [" . i . "]=" . r)
   endfor
-  call s:log(stack)
-  call s:log("r=" . r)
   return ['', r]
 endfunction " }}}
 
@@ -352,7 +166,6 @@ endfunction " }}}
 function! s:get_block(motion, str) " {{{
 
   let pair = s:get_pair(a:str, 1)
-  call s:log("pair=" . string(pair))
   if len(pair) == 0
     " private.
     let pair = s:get_val('append_block', ['(', ')'])
@@ -394,7 +207,6 @@ function! s:append_block.char(left, right) " {{{
   call s:knormal('`>"fp')
   call setreg('f', a:left, 'v')
   call s:knormal('`<"fP')
-  call s:log(getline("."))
 endfunction " }}}
 
 function! s:append_block.line(left, right) " {{{
@@ -434,8 +246,6 @@ function! s:append(motion, input_mode) " {{{
   endif
 
   let [func, right] = s:get_block(a:motion, str)
-  call s:log("s:get_block(" . a:motion . ")=" . string([func, right]))
-
 
   let reg = 'f'
   let regdic = {}
