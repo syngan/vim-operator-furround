@@ -99,7 +99,7 @@ function! s:get_pair_lhs(str, blocks, idx, slen) " {{{
 
   if min == a:slen
     " not found
-    return []
+    return {}
   endif
 
   let mlist = matchlist(a:str, bmin.start, min)
@@ -116,7 +116,13 @@ function! s:get_pair_lhs(str, blocks, idx, slen) " {{{
     let pe = "\n" . pe
   endif
 
-  return [mlist[0], pe, min, len(mlist[0]), s:escape(pe)]
+  return {
+  \ 'start_str' : mlist[0],
+  \ 'end_str' : pe,
+  \ 'index' : min,
+  \ 'start_len' : len(mlist[0]),
+  \ 'end_expr' : s:escape(pe),
+  \ }
 endfunction " }}}
 
 function! s:get_pair(str, ...) " {{{
@@ -132,34 +138,34 @@ function! s:get_pair(str, ...) " {{{
 
     while len(stack) > 0
       " 閉じ括弧チェック
-      let mrhs = match(a:str, stack[-1][4], l)
-      if mrhs < 0 || mrhs > pair[2]
+      let mrhs = match(a:str, stack[-1].end_expr, l)
+      if mrhs < 0 || mrhs > pair.index
         break
       endif
 
-      let mstr = matchstr(a:str, stack[-1][4], mrhs)
+      let mstr = matchstr(a:str, stack[-1].end_expr, mrhs)
       call remove(stack, -1)
       let l = len(mstr) + mrhs
     endwhile
 
-    if l > pair[2]
+    if l > pair.index
       " 他の閉括弧で開括弧がつぶされた
       continue
     endif
 
     call add(stack, pair)
-    let l = pair[2] + pair[3]
+    let l = pair.index + pair.start_len
   endwhile
 
   while len(stack) > 0
-      let mrhs = match(a:str, stack[-1][4], l)
-      if mrhs < 0
-        break
-      endif
+    let mrhs = match(a:str, stack[-1].end_expr, l)
+    if mrhs < 0
+      break
+    endif
 
-      let mstr = matchstr(a:str, stack[-1][4], mrhs)
-      call remove(stack, -1)
-      let l = len(mstr) + mrhs
+    let mstr = matchstr(a:str, stack[-1].end_expr, mrhs)
+    call remove(stack, -1)
+    let l = len(mstr) + mrhs
   endwhile
 
   if len(stack) == 0
@@ -168,7 +174,7 @@ function! s:get_pair(str, ...) " {{{
 
   let r = ''
   for i in range(len(stack)-1, 0, -1)
-    let r .= stack[i][1]
+    let r .= stack[i].end_str
   endfor
   return ['', r]
 endfunction " }}}
