@@ -3,7 +3,6 @@ set cpo&vim
 
 scriptencoding utf-8
 
-" @vimlint(EVL103, 1, a:_)
 function! s:log(_) " {{{
   if get(g:, 'operator#furround#debug', 0)
     silent! call vimconsole#log(a:_)
@@ -26,7 +25,8 @@ let s:default_config = {
 \ 'tex' : {
 \   'merge_default_config' : 1,
 \   'block' : [
-\     {'start': '\\begin{\s*\(\k\+\*\=\)\s*}\%(\[[^\]]\+\]\|{[^}]\+}\)*\%(\s*\n\)\=',
+\     {'start': '\\begin\s*{\(\k\+\*\=\)}\%(\[[^\]]\+\]\|{[^}]\+}\)*\%(\s*\n\)\=',
+\      'end_expr': '\\end\s*{\1}',
 \      'end': '\end{\1}', 'regexp': 1},
 \     {'start': '{\\\k\+\s\+', 'end': '}',
 \      'regexp': 1, 'comment' : '{\bf xxx}'},
@@ -46,13 +46,16 @@ let s:default_config = {
 \ 'vim' : {
 \   'merge_default_config' : 1,
 \   'block' : [
-\     {'start': '\([vgslabwt]:\)\?[A-Za-z_][0-9A-Za-z_#.]*(', 'end': ')', 'regexp': 1},
-\     {'start': '\([vgslabwt]:\)\?[A-Za-z_][0-9A-Za-z_#.]*\[', 'end': ']', 'regexp': 1},
+\     {'start': '\([vgslabwt]:\)\?[A-Za-z_][0-9A-Za-z_#.]*(',
+\      'end': ')', 'regexp': 1},
+\     {'start': '\([vgslabwt]:\)\?[A-Za-z_][0-9A-Za-z_#.]*\[',
+\      'end': ']', 'regexp': 1},
 \   ]},
 \ 'html' : {
 \   'merge_default_config' : 1,
 \   'block' : [
-\     {'start': '<\(\k\+\)\%(\s\+[^>]\+\)*>\(\s\|\n\)*', 'end': '</\1>', 'regexp': 1},
+\     {'start': '<\(\k\+\)\%(\s\+[^>]\+\)*>\(\s\|\n\)*',
+\      'end': '</\1>', 'regexp': 1},
 \   ]},
 \ }
 " }}}
@@ -111,17 +114,28 @@ function! s:get_pair_lhs(str, blocks, idx, slen) " {{{
       let pe = substitute(pe, '\\' . i, '\=mlist[' . i . ']', 'g')
     endfor
   endif
-
   if mlist[0] =~ '\n$'
     let pe = "\n" . pe
   endif
 
+  if has_key(bmin, 'end_expr')
+    let pee = bmin.end_expr
+    if pee =~ '\\[1-9]'
+      for i in range(1, min([len(mlist)-1, 9]))
+        let pee = substitute(pee, '\\' . i, '\=mlist[' . i . ']', 'g')
+      endfor
+    endif
+  else
+    let pee = s:escape(pe)
+  endif
+
+
   return {
-  \ 'start_str' : mlist[0],
-  \ 'end_str' : pe,
   \ 'index' : min,
+  \ 'start_str' : mlist[0],
   \ 'start_len' : len(mlist[0]),
-  \ 'end_expr' : s:escape(pe),
+  \ 'end_str' : pe,
+  \ 'end_expr' : pee,
   \ }
 endfunction " }}}
 

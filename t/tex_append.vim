@@ -60,6 +60,16 @@ describe '<Plug>(operator-furround-append) tex-mode'
     Expect getline(3) ==# g:str3
   end
 
+  it 'begin/begin/end/begin with space'
+    normal! 1Gft
+    let @" = "\\begin{center}\\begin   {foo}\\end   {foo}\\begin  {goo}"
+    execute 'normal' "\<Plug>(operator-furround-append)iw"
+    let ans = substitute(g:str, "tako", '\\begin{center}\\begin   {foo}\\end   {foo}\\begin  {goo}tako\\end{goo}\\end{center}', "")
+    Expect getline(1) ==# ans
+    Expect getline(2) ==# g:str2
+    Expect getline(3) ==# g:str3
+  end
+
   it '{\bf '
     call setreg('"', '{\bf ', 'v')
     normal! 1Gft
