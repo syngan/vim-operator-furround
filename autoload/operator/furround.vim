@@ -125,6 +125,26 @@ function! s:get_pair_lhs(str, blocks, idx, slen) " {{{
   \ }
 endfunction " }}}
 
+function! s:get_pair_rhs(str, stack, l, pair_idx) " {{{
+  " stack に対する閉じ括弧チェック
+  let stack = a:stack
+  let l = a:l
+
+  while len(stack) > 0
+    " 閉じ括弧チェック
+    let mrhs = match(a:str, stack[-1].end_expr, l)
+    if mrhs < 0 || mrhs > a:pair_idx
+      break
+    endif
+
+    let mstr = matchstr(a:str, stack[-1].end_expr, mrhs)
+    call remove(stack, -1)
+    let l = len(mstr) + mrhs
+  endwhile
+
+  return [l, stack]
+endfunction " }}}
+
 function! s:get_pair(str, ...) " {{{
   let blocks = s:get_conf()
   let stack = []
@@ -136,17 +156,7 @@ function! s:get_pair(str, ...) " {{{
       break
     endif
 
-    while len(stack) > 0
-      " 閉じ括弧チェック
-      let mrhs = match(a:str, stack[-1].end_expr, l)
-      if mrhs < 0 || mrhs > pair.index
-        break
-      endif
-
-      let mstr = matchstr(a:str, stack[-1].end_expr, mrhs)
-      call remove(stack, -1)
-      let l = len(mstr) + mrhs
-    endwhile
+    let [l, stack] = s:get_pair_rhs(a:str, stack, l, pair.index)
 
     if l > pair.index
       " 他の閉括弧で開括弧がつぶされた
@@ -157,16 +167,7 @@ function! s:get_pair(str, ...) " {{{
     let l = pair.index + pair.start_len
   endwhile
 
-  while len(stack) > 0
-    let mrhs = match(a:str, stack[-1].end_expr, l)
-    if mrhs < 0
-      break
-    endif
-
-    let mstr = matchstr(a:str, stack[-1].end_expr, mrhs)
-    call remove(stack, -1)
-    let l = len(mstr) + mrhs
-  endwhile
+  let [l, stack] = s:get_pair_rhs(a:str, stack, l, slen)
 
   if len(stack) == 0
     return []
