@@ -10,6 +10,8 @@ function! s:log(_) " {{{
 endfunction " }}}
 
 " default block {{{
+let s:ws_tex = '\%(\s*\%(%.*\)*\n\)\='
+let s:prm_tex = '\%(\[[^\]]\+\]\|{[^}]\+}\)*'
 let s:default_config = {
 \ '-' : {
 \   'merge_default_config' : 0,
@@ -25,12 +27,12 @@ let s:default_config = {
 \ 'tex' : {
 \   'merge_default_config' : 1,
 \   'block' : [
-\     {'start': '\\begin\s*{\(\k\+\*\=\)}\%(\[[^\]]\+\]\|{[^}]\+}\)*\%(\s*\n\)\=',
+\     {'start': '\\begin\s*' . s:prm_tex . s:ws_tex,
 \      'end_expr': '\\end\s*{\1}',
 \      'end': '\end{\1}', 'regexp': 1},
 \     {'start': '{\\\k\+\s\+', 'end': '}',
 \      'regexp': 1, 'comment' : '{\bf xxx}'},
-\     {'start': '\\\k\+\(\[[^\]]\+\]\|{[^}]\+}\)*{', 'end': '}',
+\     {'start': '\\\k\+' . s:prm_tex . '{', 'end': '}',
 \      'regexp': 1, 'comment' : '\hoge[xxx]{yyy}'},
 \     {'start': '\\verb\*\=\(.\)', 'end': '\1', 'regexp': 1},
 \     {'start': '\(\$\$\=\)', 'end': '\1', 'regexp': 1},
