@@ -64,6 +64,17 @@ function! s:escape(pattern) " {{{
     return escape(a:pattern, '\~ .*^[''$')
 endfunction " }}}
 
+function! s:escape_n(str, mlist) " {{{
+  let s = a:str
+  if s =~ '\\[1-9]'
+    for i in range(1, min([len(a:mlist)-1, 9]))
+      let s = substitute(s, '\\' . i, '\=a:mlist[' . i . ']', 'g')
+    endfor
+  endif
+
+  return s
+endfunction " }}}
+
 function! s:get_val(key, val) " {{{
   " default 値付きの値取得.
   " b: があったらそれ, なければ g: をみる.
@@ -108,27 +119,16 @@ function! s:get_pair_lhs(str, blocks, idx, slen) " {{{
   let mlist = matchlist(a:str, bmin.start, min)
 "  let regexp = get(bmin, 'regexp', 0)
 
-  let pe = bmin.end
-  if pe =~ '\\[1-9]'
-    for i in range(1, min([len(mlist)-1, 9]))
-      let pe = substitute(pe, '\\' . i, '\=mlist[' . i . ']', 'g')
-    endfor
-  endif
+  let pe = s:escape_n(bmin.end, mlist)
   if mlist[0] =~ '\n$'
     let pe = "\n" . pe
   endif
 
   if has_key(bmin, 'end_expr')
-    let pee = bmin.end_expr
-    if pee =~ '\\[1-9]'
-      for i in range(1, min([len(mlist)-1, 9]))
-        let pee = substitute(pee, '\\' . i, '\=mlist[' . i . ']', 'g')
-      endfor
-    endif
+    let pee = s:escape_n(bmin.end_expr, mlist)
   else
     let pee = s:escape(pe)
   endif
-
 
   return {
   \ 'index' : min,
