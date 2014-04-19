@@ -27,7 +27,7 @@ let s:default_config = {
 \ 'tex' : {
 \   'merge_default_config' : 1,
 \   'block' : [
-\     {'start': '\\begin\s*' . s:prm_tex . s:ws_tex,
+\     {'start': '\\begin\s*{\(\k\+\*\=\)}' . s:prm_tex . s:ws_tex,
 \      'end_expr': '\\end\s*{\1}',
 \      'end': '\end{\1}', 'regexp': 1},
 \     {'start': '{\\\k\+\s\+', 'end': '}',
@@ -68,6 +68,8 @@ endfunction " }}}
 
 function! s:escape_n(str, mlist) " {{{
   let s = a:str
+  call s:log("s=" . s)
+  call s:log(a:mlist)
   if s =~ '\\[1-9]'
     for i in range(1, min([len(a:mlist)-1, 9]))
       let s = substitute(s, '\\' . i, '\=a:mlist[' . i . ']', 'g')
