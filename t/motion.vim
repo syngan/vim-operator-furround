@@ -59,8 +59,6 @@ describe 'motion'
     Expect getline(5) ==# g:str
   end
 
-
-
   it 'block'
     normal! 2Gft
     let @" = 'hoge('
@@ -72,5 +70,44 @@ describe 'motion'
     Expect getline(4) ==# ans
     Expect getline(5) ==# g:str
   end
+end
 
+
+describe 'block'
+  before
+    new
+  end
+
+  after
+    close!
+  end
+
+  it 'block$'
+    SKIP blockwise-operator does not work correctly
+	" CountSpace() in help:g@
+	1,$ delete _
+  	let long_str = g:str . "foooo"
+	  put =[
+	  \    g:str,
+	  \    g:str,
+	  \    long_str,
+	  \    g:str,
+	  \    g:str,
+	  \ ]
+	1 delete _
+	normal! 2Gft
+	let @" = 'hoge('
+    Expect line('$') == 5
+
+	execute 'normal' "\<C-v>jj$\<Plug>(operator-furround-append)"
+
+    let ans = substitute(g:str, '\(tako.*\)$', 'hoge(\1)', '')
+    let ans_2 = substitute(long_str, '\(tako.*\)$', 'hoge(\1)', '')
+
+    Expect getline(1) ==# g:str
+    Expect getline(2) ==# ans
+    Expect getline(3) ==# ans_2
+    Expect getline(4) ==# ans
+    Expect getline(5) ==# g:str
+  end
 end
