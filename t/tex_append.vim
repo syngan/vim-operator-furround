@@ -30,46 +30,6 @@ describe '<Plug>(operator-furround-append) tex-mode'
     unlet! g:operator#furround#config
   end
 
-  it 'begin-default'
-    normal! 1Gft
-    let @" = "\\begin{center}"
-    execute 'normal' "\<Plug>(operator-furround-append)iw"
-    let ans = substitute(g:str, "tako", '\\begin{center}tako\\end{center}', "")
-    Expect getline(1) ==# ans
-    Expect getline(2) ==# g:str2
-    Expect getline(3) ==# g:str3
-  end
-
-  it 'begin/begin'
-    normal! 1Gft
-    let @" = "\\begin{center}\\begin{foo}"
-    execute 'normal' "\<Plug>(operator-furround-append)iw"
-    let ans = substitute(g:str, "tako", '\\begin{center}\\begin{foo}tako\\end{foo}\\end{center}', "")
-    Expect getline(1) ==# ans
-    Expect getline(2) ==# g:str2
-    Expect getline(3) ==# g:str3
-  end
-
-  it 'begin/begin/end/begin'
-    normal! 1Gft
-    let @" = "\\begin{center}\\begin{foo}\\end{foo}\\begin{goo}"
-    execute 'normal' "\<Plug>(operator-furround-append)iw"
-    let ans = substitute(g:str, "tako", '\\begin{center}\\begin{foo}\\end{foo}\\begin{goo}tako\\end{goo}\\end{center}', "")
-    Expect getline(1) ==# ans
-    Expect getline(2) ==# g:str2
-    Expect getline(3) ==# g:str3
-  end
-
-  it 'begin/begin/end/begin with space'
-    normal! 1Gft
-    let @" = "\\begin{center}\\begin   {foo}\\end   {foo}\\begin  {goo}"
-    execute 'normal' "\<Plug>(operator-furround-append)iw"
-    let ans = substitute(g:str, "tako", '\\begin{center}\\begin   {foo}\\end   {foo}\\begin  {goo}tako\\end{goo}\\end{center}', "")
-    Expect getline(1) ==# ans
-    Expect getline(2) ==# g:str2
-    Expect getline(3) ==# g:str3
-  end
-
   it '{\bf '
     call setreg('"', '{\bf ', 'v')
     normal! 1Gft
@@ -120,6 +80,63 @@ describe '<Plug>(operator-furround-append) tex-mode'
     Expect getline(3) ==# g:str3
   end
 
+
+end
+
+describe 'begin/end'
+  before
+    new
+    set filetype=tex
+    unlet! g:operator#furround#config
+    call s:paste_code()
+  end
+
+  after
+    close!
+    unlet! g:operator#furround#config
+  end
+
+  it 'begin-default'
+    normal! 1Gft
+    let @" = "\\begin{center}"
+    execute 'normal' "\<Plug>(operator-furround-append)iw"
+    let ans = substitute(g:str, "tako", '\\begin{center}tako\\end{center}', "")
+    Expect getline(1) ==# ans
+    Expect getline(2) ==# g:str2
+    Expect getline(3) ==# g:str3
+  end
+
+  it 'begin/begin'
+    normal! 1Gft
+    let @" = "\\begin{center}\\begin{foo}"
+    execute 'normal' "\<Plug>(operator-furround-append)iw"
+    let ans = substitute(g:str, "tako", '\\begin{center}\\begin{foo}tako\\end{foo}\\end{center}', "")
+    Expect getline(1) ==# ans
+    Expect getline(2) ==# g:str2
+    Expect getline(3) ==# g:str3
+  end
+
+
+  it 'begin/begin/end/begin'
+    normal! 1Gft
+    let @" = "\\begin{center}\\begin{foo}\\end{foo}\\begin{goo}"
+    execute 'normal' "\<Plug>(operator-furround-append)iw"
+    let ans = substitute(g:str, "tako", '\\begin{center}\\begin{foo}\\end{foo}\\begin{goo}tako\\end{goo}\\end{center}', "")
+    Expect getline(1) ==# ans
+    Expect getline(2) ==# g:str2
+    Expect getline(3) ==# g:str3
+  end
+
+  it 'begin/begin/end/begin with space'
+    normal! 1Gft
+    let @" = "\\begin{center}\\begin   {foo}\\end   {foo}\\begin  {goo}"
+    execute 'normal' "\<Plug>(operator-furround-append)iw"
+    let ans = substitute(g:str, "tako", '\\begin{center}\\begin   {foo}\\end   {foo}\\begin  {goo}tako\\end{goo}\\end{center}', "")
+    Expect getline(1) ==# ans
+    Expect getline(2) ==# g:str2
+    Expect getline(3) ==# g:str3
+  end
+
   it 'begin/end V'
     call setreg('"', '\begin{center}', 'V')
     normal! 2G
@@ -143,7 +160,7 @@ describe '<Plug>(operator-furround-append) tex-mode'
     Expect getline(6) ==# g:str4
   end
 
-end
 
+end
 
 " vim:set et ts=2 sts=2 sw=2 tw=0 fdm=marker cms=\ "\ %s:
