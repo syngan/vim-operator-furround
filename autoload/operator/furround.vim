@@ -163,7 +163,7 @@ function! s:get_pair_rhs(str, stack, l, pair_idx) " {{{
   return [l, stack]
 endfunction " }}}
 
-function! s:get_pair(str, ...) " {{{
+function! s:get_pair(str) " {{{
   let blocks = s:get_conf()
   let stack = []
   let slen = len(a:str)
@@ -175,7 +175,6 @@ function! s:get_pair(str, ...) " {{{
     endif
 
     let [l, stack] = s:get_pair_rhs(a:str, stack, l, pair.index)
-
     if l > pair.index
       " 他の閉括弧で開括弧がつぶされた
       continue
@@ -201,9 +200,8 @@ endfunction " }}}
 " @vimlint(EVL103, 1, a:motion)
 function! s:get_block(motion, str) " {{{
 
-  let pair = s:get_pair(a:str, 1)
+  let pair = s:get_pair(a:str)
   if len(pair) == 0
-    " private.
     let pair = s:get_val('default_append_block', ['(', ')'])
   endif
 
