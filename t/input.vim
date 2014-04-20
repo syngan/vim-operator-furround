@@ -148,3 +148,161 @@ describe 'input'
   end
 
 end
+
+
+describe 'key'
+  before
+    new
+    call s:paste_code()
+
+    unlet! g:operator#furround#config
+    let g:operator#furround#config = {}
+	let g:operator#furround#config['-'] = {'key': {
+	\    'c' : ['hoge(', ')'],
+	\    'e' : ['goo<', '>'],
+	\ }}
+	let g:operator#furround#config['-']['block'] = s:conf
+	let g:operator#furround#config['foo'] = {'key': {
+	\    'c': ['HOGE(', ')'], 
+	\    'd': ['PAA[', ']'],
+	\ }}
+	let g:operator#furround#config['foo']['block'] = s:conf
+	" defined but dont have 'key'
+	let g:operator#furround#config['baa'] = {}
+	let g:operator#furround#config['baa']['block'] = s:conf
+  end
+
+  after
+    close!
+    unlet! g:operator#furround#config
+  end
+
+  it 'foo: c('
+    normal! 2Gft
+	set filetype=foo
+	call setreg('"', 'c(')
+    execute 'normal' "\<Plug>(operator-furround-append)iw"
+    let ans = substitute(g:str, "tako", "c(tako)", "")
+    Expect getline(1) ==# g:str
+    Expect getline(2) ==# ans
+    Expect getline(3) ==# g:str
+  end
+
+  it 'foo: c'
+    normal! 2Gft
+	set filetype=foo
+	call setreg('"', 'c')
+    execute 'normal' "\<Plug>(operator-furround-append)iw"
+    let ans = substitute(g:str, "tako", "HOGE(tako)", "")
+    Expect getline(1) ==# g:str
+    Expect getline(2) ==# ans
+    Expect getline(3) ==# g:str
+  end
+
+  it 'foo: c: merge=1'
+    normal! 2Gft
+	set filetype=foo
+	let g:operator#furround#config['foo']['merge_default_config_user'] = 1
+	call setreg('"', 'c')
+    execute 'normal' "\<Plug>(operator-furround-append)iw"
+    let ans = substitute(g:str, "tako", "HOGE(tako)", "")
+    Expect getline(1) ==# g:str
+    Expect getline(2) ==# ans
+    Expect getline(3) ==# g:str
+  end
+
+  it 'foo: d'
+    normal! 2Gft
+	set filetype=foo
+	call setreg('"', 'd')
+    execute 'normal' "\<Plug>(operator-furround-append)iw"
+    let ans = substitute(g:str, "tako", "PAA[tako]", "")
+    Expect getline(1) ==# g:str
+    Expect getline(2) ==# ans
+    Expect getline(3) ==# g:str
+  end
+
+  it 'foo: e: merge=0'
+    normal! 2Gft
+	set filetype=foo
+	call setreg('"', 'e')
+    execute 'normal' "\<Plug>(operator-furround-append)iw"
+    let ans = substitute(g:str, "tako", "e(tako)", "")
+    Expect getline(1) ==# g:str
+    Expect getline(2) ==# ans
+    Expect getline(3) ==# g:str
+  end
+
+  it 'foo: e: merge=1'
+    normal! 2Gft
+	set filetype=foo
+	let g:operator#furround#config['foo']['merge_default_config_user'] = 1
+	call setreg('"', 'e')
+    execute 'normal' "\<Plug>(operator-furround-append)iw"
+    let ans = substitute(g:str, "tako", "goo<tako>", "")
+    Expect getline(1) ==# g:str
+    Expect getline(2) ==# ans
+    Expect getline(3) ==# g:str
+  end
+
+  " undefined 'key'
+  it 'baa: c'
+    normal! 2Gft
+	set filetype=baa
+	call setreg('"', 'c')
+    execute 'normal' "\<Plug>(operator-furround-append)iw"
+    let ans = substitute(g:str, "tako", "c(tako)", "")
+    Expect getline(1) ==# g:str
+    Expect getline(2) ==# ans
+    Expect getline(3) ==# g:str
+  end
+
+  it 'baa: c: merge=1'
+    normal! 2Gft
+	set filetype=baa
+	let g:operator#furround#config['baa']['merge_default_config_user'] = 1
+	call setreg('"', 'c')
+    execute 'normal' "\<Plug>(operator-furround-append)iw"
+    let ans = substitute(g:str, "tako", "hoge(tako)", "")
+    Expect getline(1) ==# g:str
+    Expect getline(2) ==# ans
+    Expect getline(3) ==# g:str
+  end
+
+  it 'baa: d'
+    normal! 2Gft
+	set filetype=baa
+	call setreg('"', 'd')
+    execute 'normal' "\<Plug>(operator-furround-append)iw"
+    let ans = substitute(g:str, "tako", "d(tako)", "")
+    Expect getline(1) ==# g:str
+    Expect getline(2) ==# ans
+    Expect getline(3) ==# g:str
+  end
+
+  " undefined 'filetype'
+  it 'syngan: c'
+    normal! 2Gft
+	set filetype=syngan
+	call setreg('"', 'c')
+    execute 'normal' "\<Plug>(operator-furround-append)iw"
+    let ans = substitute(g:str, "tako", "hoge(tako)", "")
+    Expect getline(1) ==# g:str
+    Expect getline(2) ==# ans
+    Expect getline(3) ==# g:str
+  end
+
+  it 'syngan: d'
+    normal! 2Gft
+	set filetype=syngan
+	call setreg('"', 'd')
+    execute 'normal' "\<Plug>(operator-furround-append)iw"
+    let ans = substitute(g:str, "tako", "d(tako)", "")
+    Expect getline(1) ==# g:str
+    Expect getline(2) ==# ans
+    Expect getline(3) ==# g:str
+  end
+
+end
+
+
