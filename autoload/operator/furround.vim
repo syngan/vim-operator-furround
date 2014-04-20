@@ -205,9 +205,13 @@ function! s:get_pair_from_key(str) " {{{
 
   let blocks = g:operator#furround#config
   for ft in [&filetype, '-']
-    if has_key(blocks, ft) && has_key(blocks[ft], 'key')
-      if has_key(blocks[ft]['key'], a:str)
+    if has_key(blocks, ft) 
+      if has_key(blocks[ft], 'key') && has_key(blocks[ft]['key'], a:str)
         return blocks[ft]['key'][a:str]
+      endif
+
+      if !get(blocks[ft], 'merge_default_config_user', 0)
+        break
       endif
     endif
   endfor
