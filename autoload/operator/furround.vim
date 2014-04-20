@@ -197,10 +197,35 @@ function! s:get_pair(str) " {{{
   return ['', r]
 endfunction " }}}
 
+function! s:get_pair_from_key(str) " {{{
+  if !exists("g:operator#furround#config") ||
+  \ type(g:operator#furround#config) != type({})
+    return []
+  endif
+
+  let blocks = g:operator#furround#config
+  for ft in [&filetype, '-']
+    if has_key(blocks, ft) && has_key(blocks[ft], 'key')
+      if has_key(blocks[ft]['key'], a:str)
+        return blocks[ft]['key'][a:str]
+      endif
+    endif
+  endfor
+
+  return []
+endfunction " }}}
+
 " @vimlint(EVL103, 1, a:motion)
 function! s:get_block(motion, str) " {{{
 
   let pair = s:get_pair(a:str)
+  if len(pair) == 0
+    let pair = s:get_pair_from_key(a:str)
+    if len(pair) > 0
+      return pair
+    endif
+  endif
+
   if len(pair) == 0
     let pair = s:get_val('default_append_block', ['(', ')'])
   endif
