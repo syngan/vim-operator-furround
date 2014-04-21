@@ -36,6 +36,66 @@ describe 'motion'
     Expect getline(5) ==# g:str
   end
 
+  it 'char 0-'
+    normal! 2G0
+    let @" = 'hoge('
+    execute 'normal' "viw\<Plug>(operator-furround-append-reg)"
+    let ans = substitute(g:str, "koko", "hoge(koko)", "")
+    Expect getline(1) ==# g:str
+    Expect getline(2) ==# ans
+    Expect getline(3) ==# g:str
+    Expect getline(4) ==# g:str
+    Expect getline(5) ==# g:str
+  end
+
+  it 'char -$'
+    normal! 2G03fk
+    let @" = 'hoge('
+    execute 'normal' "v$\<Plug>(operator-furround-append-reg)"
+    let ans = substitute(g:str, "ka.", "hoge(ka.)", "")
+    Expect getline(1) ==# g:str
+    Expect getline(2) ==# ans
+    Expect getline(3) ==# g:str
+    Expect getline(4) ==# g:str
+    Expect getline(5) ==# g:str
+  end
+
+  it 'char -$.'
+    normal! 2G03fk
+    let @" = 'hoge('
+    execute 'normal' "vf.\<Plug>(operator-furround-append-reg)"
+    let ans = substitute(g:str, "ka.", "hoge(ka.)", "")
+    Expect getline(1) ==# g:str
+    Expect getline(2) ==# ans
+    Expect getline(3) ==# g:str
+    Expect getline(4) ==# g:str
+    Expect getline(5) ==# g:str
+  end
+
+  it 'char 0-$.'
+    normal! 2G0
+    let @" = 'hoge('
+    execute 'normal' "vf.\<Plug>(operator-furround-append-reg)"
+    let ans = "hoge(" . g:str . ")"
+    Expect getline(1) ==# g:str
+    Expect getline(2) ==# ans
+    Expect getline(3) ==# g:str
+    Expect getline(4) ==# g:str
+    Expect getline(5) ==# g:str
+  end
+
+  it 'char 0-$.'
+    normal! 2G0
+    let @" = 'hoge('
+    execute 'normal' "v$\<Plug>(operator-furround-append-reg)"
+    let ans = "hoge(" . g:str . ")"
+    Expect getline(1) ==# g:str
+    Expect getline(2) ==# ans
+    Expect getline(3) ==# g:str
+    Expect getline(4) ==# g:str
+    Expect getline(5) ==# g:str
+  end
+
   it 'line'
     normal! 2Gft
     let @" = 'hoge('
