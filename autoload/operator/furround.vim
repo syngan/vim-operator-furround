@@ -285,12 +285,12 @@ function! s:append_block.block(left, right) " {{{
   endfor
 endfunction " }}}
 
-function! s:append(motion, input_mode) " {{{
+function! s:get_inputstr(input_mode) " {{{
   let use_input = 1
   if a:input_mode
     let str = s:input()
     if str == ''
-      return 0
+      return ["", 0]
     endif
   elseif (v:register == '' || v:register == '"') &&
   \   s:get_val('use_input', 0)
@@ -303,9 +303,13 @@ function! s:append(motion, input_mode) " {{{
     let str = getreg(reg)
     let use_input = 0
   endif
-  if str ==# ""
-    return 0
-  endif
+
+  return [str, use_input]
+endfunction " }}}
+
+function! s:append(motion, input_mode) " {{{
+
+  let [str, use_input] = s:get_inputstr(a:input_mode)
 
   let [func, right] = s:get_block_append(str)
 
