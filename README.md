@@ -16,9 +16,10 @@ Related:
 - [tpope/vim-surround](https://github.com/tpope/vim-surround)
 
 mappings:
-- `<Plug>(operator-furround-append)`	(depend on `[bg]:operator_furround_use_input`)
-- `<Plug>(operator-furround-appendi)`	(use input always)
+- `<Plug>(operator-furround-append-input)`	(use input always)
+- `<Plug>(operator-furround-append-reg)`	(depend on `use_input` option)
 - `<Plug>(operator-furround-delete)`
+- `<Plug>(operator-furround-replace)`
 
 # Install
 
@@ -28,30 +29,32 @@ mappings:
 NeoBundleLazy 'syngan/vim-operator-furround', {
 \   'depends' : [ 'kana/vim-operator-user'],
 \   'autoload' : {
-\	'mappings' : ['<Plug>(operator-furround-appendi)',
-\                 '<Plug>(operator-furround-append)',
-\                 '<Plug>(operator-furround-delete)']},
+\	'mappings' : ['<Plug>(operator-furround-)']}
 \}
 ```
 
-## `<Plug>(opeartor-furround-append)`
+## `<Plug>(opeartor-furround-append-reg)`
 
-- `map H <Plug>(opeartor-furround-append)`
+- `map H <Plug>(opeartor-furround-append-input)`
 - original text is `tako`
-- yank `hoge` and do `Hiw` then `hoge(tako)`
-- yank `hoge[` and do `Hiw` then `hoge[tako]`
-- yank `hoge<` and do `Hiw` then `hoge<tako>`
-- yank `hoge|` and do `Hiw` then `hoge|tako|`
-- yank `hoge"` and do `Hiw` then `hoge"tako"`
+- note: `iw` is an `inner word`. see `:h iw`
+- default block: `[]`, `()`, `{}`, `<>`, `""`, `''`
 
-- yank `hoge["` and do `Hiw` then `hoge["tako"]`
-- yank `hoge(["` and do `Hiw` then `hoge(["tako"])`
-- yank `hoge()["` and do `Hiw` then `hoge()["tako"]`
-- yank `hoge(3, ` and do `Hiw` then `hoge(3, tako)`
-- yank `hoge(3, "` and do `Hiw` then `hoge(3, "tako")`
-- yank `{\bf ` and do `Hiw` then `{\bf tako}`
+|   input      |   result                 |   note       |
+|:------------:|:------------------------:|:-------------|
+| `(`          |   `(tako)`               |              |
+| `[`          |   `[tako]`               |              |
+| `"`          |   `"tako"`               |              |
+| `hoge`       | `hoge(tako)`             | default      |
+| `hoge(`      | `hoge(tako)`             |              |
+| `hoge<`      | `hoge<tako>`             |              |
+| `hoge["`     | `hoge["tako"]`           |              |
+| `hoge()["`   | `hoge()["tako"]`         |              |
+| `hoge(3, `   | `hoge(3, tako)`          |              |
+| `hoge(3, "`  | `hoge(3, "tako")`        |              |
+| `{\bf `      | `{\bf tako}`             | LaTeX        |
+| `\begin{ho}` | `\begin{ho}tako\end{ho}` | filetype=tex |
 
-- pair: `[]`, `()`, `{}`, `<>`, `||`, `""`, `''`
 
 ## `<Plug>(opeartor-furround-delete)`
 
