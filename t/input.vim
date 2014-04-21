@@ -42,7 +42,7 @@ describe 'input'
     normal! 2Gft
     let @" = 'hoge('
 
-    execute 'normal' "\<Plug>(operator-furround-append)iw"
+    execute 'normal' "\<Plug>(operator-furround-append-reg)iw"
     let ans = substitute(g:str, "tako", "hoge(tako)", "")
     Expect getline(1) ==# g:str
     Expect getline(2) ==# ans
@@ -55,7 +55,7 @@ describe 'input'
     normal! 2Gft
     let @" = 'hoge('
     let g:operator#furround#config['foo']['use_input'] = 1
-    execute 'normal' "\<Plug>(operator-furround-append)iwfoo[\<CR>"
+    execute 'normal' "\<Plug>(operator-furround-append-reg)iwfoo[\<CR>"
     let ans = substitute(g:str, "tako", "foo[tako]", "")
     Expect getline(1) ==# g:str
     Expect getline(2) ==# ans
@@ -68,7 +68,7 @@ describe 'input'
     normal! 2Gft
     let @" = 'hoge('
     let g:operator#furround#config['foo']['use_input'] = 0
-    execute 'normal' "\<Plug>(operator-furround-append)iw"
+    execute 'normal' "\<Plug>(operator-furround-append-reg)iw"
     let ans = substitute(g:str, "tako", "hoge(tako)", "")
     Expect getline(1) ==# g:str
     Expect getline(2) ==# ans
@@ -81,7 +81,7 @@ describe 'input'
     normal! 2Gft
     let @" = 'hoge('
     let g:operator#furround#config['-']['use_input'] =  1
-    execute 'normal' "\<Plug>(operator-furround-append)iwfoo[\<CR>"
+    execute 'normal' "\<Plug>(operator-furround-append-reg)iwfoo[\<CR>"
     let ans = substitute(g:str, "tako", "foo[tako]", "")
     Expect getline(1) ==# g:str
     Expect getline(2) ==# ans
@@ -94,7 +94,7 @@ describe 'input'
     normal! 2Gft
     let @" = 'hoge('
     let g:operator#furround#config['-']['use_input'] =  0
-    execute 'normal' "\<Plug>(operator-furround-append)iw"
+    execute 'normal' "\<Plug>(operator-furround-append-reg)iw"
     let ans = substitute(g:str, "tako", "hoge(tako)", "")
     Expect getline(1) ==# g:str
     Expect getline(2) ==# ans
@@ -108,7 +108,7 @@ describe 'input'
     let @" = 'hoge('
     let g:operator#furround#config['-']['use_input'] =  1
     let g:operator#furround#config['foo']['use_input'] = 0
-    execute 'normal' "\<Plug>(operator-furround-append)iwiaaa\<CR>"
+    execute 'normal' "\<Plug>(operator-furround-append-reg)iwiaaa\<CR>"
     let ans = substitute(g:str, "tako.*", "hogeaaa", "")
 	let ans2 = "(tako) desu ka."
     Expect getline(1) ==# g:str
@@ -124,7 +124,7 @@ describe 'input'
     let @" = 'hoge('
     let g:operator#furround#config['-']['use_input'] =  1
     let g:operator#furround#config['foo']['use_input'] = 1
-    execute 'normal' "\<Plug>(operator-furround-append)iwiaaa\<CR>"
+    execute 'normal' "\<Plug>(operator-furround-append-reg)iwiaaa\<CR>"
     let ans = substitute(g:str, "tako", "iaaa(tako)", "")
     Expect getline(1) ==# g:str
     Expect getline(2) ==# ans
@@ -138,7 +138,7 @@ describe 'input'
     let @" = 'hoge('
     let g:operator#furround#config['-']['use_input'] =  0
     let g:operator#furround#config['foo']['use_input'] = 1
-    execute 'normal' "\<Plug>(operator-furround-append)iwiaaa\<CR>"
+    execute 'normal' "\<Plug>(operator-furround-append-reg)iwiaaa\<CR>"
     let ans = substitute(g:str, "tako", "iaaa(tako)", "")
     Expect getline(1) ==# g:str
     Expect getline(2) ==# ans
@@ -181,7 +181,7 @@ describe 'key'
     normal! 2Gft
 	set filetype=foo
 	call setreg('"', 'c(')
-    execute 'normal' "\<Plug>(operator-furround-append)iw"
+    execute 'normal' "\<Plug>(operator-furround-append-reg)iw"
     let ans = substitute(g:str, "tako", "c(tako)", "")
     Expect getline(1) ==# g:str
     Expect getline(2) ==# ans
@@ -192,7 +192,7 @@ describe 'key'
     normal! 2Gft
 	set filetype=foo
 	call setreg('"', 'c')
-    execute 'normal' "\<Plug>(operator-furround-append)iw"
+    execute 'normal' "\<Plug>(operator-furround-append-reg)iw"
     let ans = substitute(g:str, "tako", "HOGE(tako)", "")
     Expect getline(1) ==# g:str
     Expect getline(2) ==# ans
@@ -204,7 +204,7 @@ describe 'key'
 	set filetype=foo
 	let g:operator#furround#config['foo']['merge_default_config_user'] = 1
 	call setreg('"', 'c')
-    execute 'normal' "\<Plug>(operator-furround-append)iw"
+    execute 'normal' "\<Plug>(operator-furround-append-reg)iw"
     let ans = substitute(g:str, "tako", "HOGE(tako)", "")
     Expect getline(1) ==# g:str
     Expect getline(2) ==# ans
@@ -215,7 +215,7 @@ describe 'key'
     normal! 2Gft
 	set filetype=foo
 	call setreg('"', 'd')
-    execute 'normal' "\<Plug>(operator-furround-append)iw"
+    execute 'normal' "\<Plug>(operator-furround-append-reg)iw"
     let ans = substitute(g:str, "tako", "PAA[tako]", "")
     Expect getline(1) ==# g:str
     Expect getline(2) ==# ans
@@ -226,7 +226,7 @@ describe 'key'
     normal! 2Gft
 	set filetype=foo
 	call setreg('"', 'e')
-    execute 'normal' "\<Plug>(operator-furround-append)iw"
+    execute 'normal' "\<Plug>(operator-furround-append-reg)iw"
     let ans = substitute(g:str, "tako", "e(tako)", "")
     Expect getline(1) ==# g:str
     Expect getline(2) ==# ans
@@ -238,7 +238,7 @@ describe 'key'
 	set filetype=foo
 	let g:operator#furround#config['foo']['merge_default_config_user'] = 1
 	call setreg('"', 'e')
-    execute 'normal' "\<Plug>(operator-furround-append)iw"
+    execute 'normal' "\<Plug>(operator-furround-append-reg)iw"
     let ans = substitute(g:str, "tako", "goo<tako>", "")
     Expect getline(1) ==# g:str
     Expect getline(2) ==# ans
@@ -250,7 +250,7 @@ describe 'key'
     normal! 2Gft
 	set filetype=baa
 	call setreg('"', 'c')
-    execute 'normal' "\<Plug>(operator-furround-append)iw"
+    execute 'normal' "\<Plug>(operator-furround-append-reg)iw"
     let ans = substitute(g:str, "tako", "c(tako)", "")
     Expect getline(1) ==# g:str
     Expect getline(2) ==# ans
@@ -262,7 +262,7 @@ describe 'key'
 	set filetype=baa
 	let g:operator#furround#config['baa']['merge_default_config_user'] = 1
 	call setreg('"', 'c')
-    execute 'normal' "\<Plug>(operator-furround-append)iw"
+    execute 'normal' "\<Plug>(operator-furround-append-reg)iw"
     let ans = substitute(g:str, "tako", "hoge(tako)", "")
     Expect getline(1) ==# g:str
     Expect getline(2) ==# ans
@@ -273,7 +273,7 @@ describe 'key'
     normal! 2Gft
 	set filetype=baa
 	call setreg('"', 'd')
-    execute 'normal' "\<Plug>(operator-furround-append)iw"
+    execute 'normal' "\<Plug>(operator-furround-append-reg)iw"
     let ans = substitute(g:str, "tako", "d(tako)", "")
     Expect getline(1) ==# g:str
     Expect getline(2) ==# ans
@@ -285,7 +285,7 @@ describe 'key'
     normal! 2Gft
 	set filetype=syngan
 	call setreg('"', 'c')
-    execute 'normal' "\<Plug>(operator-furround-append)iw"
+    execute 'normal' "\<Plug>(operator-furround-append-reg)iw"
     let ans = substitute(g:str, "tako", "hoge(tako)", "")
     Expect getline(1) ==# g:str
     Expect getline(2) ==# ans
@@ -296,7 +296,7 @@ describe 'key'
     normal! 2Gft
 	set filetype=syngan
 	call setreg('"', 'd')
-    execute 'normal' "\<Plug>(operator-furround-append)iw"
+    execute 'normal' "\<Plug>(operator-furround-append-reg)iw"
     let ans = substitute(g:str, "tako", "d(tako)", "")
     Expect getline(1) ==# g:str
     Expect getline(2) ==# ans

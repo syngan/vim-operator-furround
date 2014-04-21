@@ -16,7 +16,7 @@ function! s:paste_code()
   1 delete _
 endfunction
 
-describe '<Plug>(operator-furround-append) tex-mode'
+describe '<Plug>(operator-furround-append-reg) tex-mode'
 
   before
     new
@@ -33,7 +33,7 @@ describe '<Plug>(operator-furround-append) tex-mode'
   it '{\bf '
     call setreg('"', '{\bf ', 'v')
     normal! 1Gft
-    execute 'normal' "\<Plug>(operator-furround-append)iw"
+    execute 'normal' "\<Plug>(operator-furround-append-reg)iw"
     let ans = substitute(g:str, "tako", '{\\bf tako}', "")
     Expect getline(1) ==# ans
     Expect getline(2) ==# g:str2
@@ -43,7 +43,7 @@ describe '<Plug>(operator-furround-append) tex-mode'
   it '\( '
     call setreg('"', '\(', 'v')
     normal! 1Gft
-    execute 'normal' "\<Plug>(operator-furround-append)iw"
+    execute 'normal' "\<Plug>(operator-furround-append-reg)iw"
     let ans = substitute(g:str, "tako", '\\(tako\\)', "")
     Expect getline(1) ==# ans
     Expect getline(2) ==# g:str2
@@ -53,7 +53,7 @@ describe '<Plug>(operator-furround-append) tex-mode'
   it '\[ '
     call setreg('"', '\[ ', 'v')
     normal! 1Gft
-    execute 'normal' "\<Plug>(operator-furround-append)iw"
+    execute 'normal' "\<Plug>(operator-furround-append-reg)iw"
     let ans = substitute(g:str, "tako", '\\[ tako\\]', "")
     Expect getline(1) ==# ans
     Expect getline(2) ==# g:str2
@@ -63,7 +63,7 @@ describe '<Plug>(operator-furround-append) tex-mode'
   it '$'
     call setreg('"', '$', 'v')
     normal! 1Gft
-    execute 'normal' "\<Plug>(operator-furround-append)iw"
+    execute 'normal' "\<Plug>(operator-furround-append-reg)iw"
     let ans = substitute(g:str, "tako", '$tako$', "")
     Expect getline(1) ==# ans
     Expect getline(2) ==# g:str2
@@ -73,7 +73,7 @@ describe '<Plug>(operator-furround-append) tex-mode'
   it '$$'
     call setreg('"', '$$', 'v')
     normal! 1Gft
-    execute 'normal' "\<Plug>(operator-furround-append)iw"
+    execute 'normal' "\<Plug>(operator-furround-append-reg)iw"
     let ans = substitute(g:str, "tako", '$$tako$$', "")
     Expect getline(1) ==# ans
     Expect getline(2) ==# g:str2
@@ -99,7 +99,7 @@ describe 'begin/end'
   it 'begin-default'
     normal! 1Gft
     let @" = "\\begin{center}"
-    execute 'normal' "\<Plug>(operator-furround-append)iw"
+    execute 'normal' "\<Plug>(operator-furround-append-reg)iw"
     let ans = substitute(g:str, "tako", '\\begin{center}tako\\end{center}', "")
     Expect getline(1) ==# ans
     Expect getline(2) ==# g:str2
@@ -109,7 +109,7 @@ describe 'begin/end'
   it 'begin/begin'
     normal! 1Gft
     let @" = "\\begin{center}\\begin{foo}"
-    execute 'normal' "\<Plug>(operator-furround-append)iw"
+    execute 'normal' "\<Plug>(operator-furround-append-reg)iw"
     let ans = substitute(g:str, "tako", '\\begin{center}\\begin{foo}tako\\end{foo}\\end{center}', "")
     Expect getline(1) ==# ans
     Expect getline(2) ==# g:str2
@@ -120,7 +120,7 @@ describe 'begin/end'
   it 'begin/begin/end/begin'
     normal! 1Gft
     let @" = "\\begin{center}\\begin{foo}\\end{foo}\\begin{goo}"
-    execute 'normal' "\<Plug>(operator-furround-append)iw"
+    execute 'normal' "\<Plug>(operator-furround-append-reg)iw"
     let ans = substitute(g:str, "tako", '\\begin{center}\\begin{foo}\\end{foo}\\begin{goo}tako\\end{goo}\\end{center}', "")
     Expect getline(1) ==# ans
     Expect getline(2) ==# g:str2
@@ -130,7 +130,7 @@ describe 'begin/end'
   it 'begin/begin/end/begin with space'
     normal! 1Gft
     let @" = "\\begin{center}\\begin   {foo}\\end   {foo}\\begin  {goo}"
-    execute 'normal' "\<Plug>(operator-furround-append)iw"
+    execute 'normal' "\<Plug>(operator-furround-append-reg)iw"
     let ans = substitute(g:str, "tako", '\\begin{center}\\begin   {foo}\\end   {foo}\\begin  {goo}tako\\end{goo}\\end{center}', "")
     Expect getline(1) ==# ans
     Expect getline(2) ==# g:str2
@@ -140,7 +140,7 @@ describe 'begin/end'
   it 'begin/end V'
     call setreg('"', '\begin{center}', 'V')
     normal! 2G
-    execute 'normal' "V\<Plug>(operator-furround-append)"
+    execute 'normal' "V\<Plug>(operator-furround-append-reg)"
     Expect getline(1) ==# g:str
     Expect getline(2) ==# '\begin{center}'
     Expect getline(3) ==# g:str2
@@ -151,7 +151,7 @@ describe 'begin/end'
   it 'begin/end V2'
     call setreg('"', '\begin{center}', 'V')
     normal! 2G
-    execute 'normal' "Vj\<Plug>(operator-furround-append)"
+    execute 'normal' "Vj\<Plug>(operator-furround-append-reg)"
     Expect getline(1) ==# g:str
     Expect getline(2) ==# '\begin{center}'
     Expect getline(3) ==# g:str2

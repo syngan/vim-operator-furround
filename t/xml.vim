@@ -14,7 +14,7 @@ function! s:paste_code()
   endfor
 endfunction
 
-describe '<Plug>(operator-furround-append) xml-mode'
+describe '<Plug>(operator-furround-append-reg) xml-mode'
 
   before
     new
@@ -31,7 +31,7 @@ describe '<Plug>(operator-furround-append) xml-mode'
   it 'default 1'
     normal! 3Gft
     let @" = "<p>"
-    execute 'normal' "\<Plug>(operator-furround-append)iw"
+    execute 'normal' "\<Plug>(operator-furround-append-reg)iw"
     let ans = substitute(g:str[2], "tako", '<p>tako</p>', "")
     Expect getline(1) ==# g:str[0]
     Expect getline(2) ==# g:str[1]
@@ -43,7 +43,7 @@ describe '<Plug>(operator-furround-append) xml-mode'
     normal! 3Gft
     let str = "<hoge u=1><foo/><taa v=2/><r><p w=3></p></r><q x=5 y=3>"
     let @" = str
-    execute 'normal' "\<Plug>(operator-furround-append)iw"
+    execute 'normal' "\<Plug>(operator-furround-append-reg)iw"
     let ans = substitute(g:str[2], "tako", str . 'tako</q></taa></hoge>', "")
     Expect getline(1) ==# g:str[0]
     Expect getline(2) ==# g:str[1]
@@ -55,7 +55,7 @@ describe '<Plug>(operator-furround-append) xml-mode'
     let str = '<font color="#ffffff"><span style="background-color:black; color:white;">'
     let @" = str
     normal! 4Gfg
-    execute 'normal' "vl\<Plug>(operator-furround-append)"
+    execute 'normal' "vl\<Plug>(operator-furround-append-reg)"
     let ans = substitute(g:str[3], "ge", str . 'ge</span></font>', "")
     Expect getline(1) ==# g:str[0]
     Expect getline(2) ==# g:str[1]

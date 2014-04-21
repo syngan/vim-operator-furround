@@ -16,7 +16,7 @@ function! s:paste_code()
   1 delete _
 endfunction
 
-describe '<Plug>(operator-furround-append)'
+describe '<Plug>(operator-furround-append-reg)'
   before
     new
     set filetype=foo
@@ -32,7 +32,7 @@ describe '<Plug>(operator-furround-append)'
   it 'hoge'
     normal! 1Gft
     let @" = 'hoge'
-    execute 'normal' "\<Plug>(operator-furround-append)iw"
+    execute 'normal' "\<Plug>(operator-furround-append-reg)iw"
     let ans = substitute(g:str, "tako", "hoge(tako)", "")
     Expect getline(1) ==# ans
     Expect getline(2) ==# g:str2
@@ -44,7 +44,7 @@ describe '<Plug>(operator-furround-append)'
     let @" = 'hoge'
     let g:operator#furround#config = {}
     let g:operator#furround#config['-'] = {'default_append_block': ['<', '>']}
-    execute 'normal' "\<Plug>(operator-furround-append)iw"
+    execute 'normal' "\<Plug>(operator-furround-append-reg)iw"
     let ans = substitute(g:str, "tako", "hoge<tako>", "")
     Expect getline(1) ==# ans
     Expect getline(2) ==# g:str2
@@ -56,7 +56,7 @@ describe '<Plug>(operator-furround-append)'
     let @" = 'hoge'
     let g:operator#furround#config = {}
     let g:operator#furround#config['foo'] = {'default_append_block': ['<', '>']}
-    execute 'normal' "\<Plug>(operator-furround-append)iw"
+    execute 'normal' "\<Plug>(operator-furround-append-reg)iw"
     let ans = substitute(g:str, "tako", "hoge<tako>", "")
     Expect getline(1) ==# ans
     Expect getline(2) ==# g:str2
@@ -69,7 +69,7 @@ describe '<Plug>(operator-furround-append)'
     let g:operator#furround#config = {}
     let g:operator#furround#config['-'] = {'default_append_block': ['[', ']']}
     let g:operator#furround#config['foo'] = {'default_append_block': ['<', '>']}
-    execute 'normal' "\<Plug>(operator-furround-append)iw"
+    execute 'normal' "\<Plug>(operator-furround-append-reg)iw"
     let ans = substitute(g:str, "tako", "hoge<tako>", "")
     Expect getline(1) ==# ans
     Expect getline(2) ==# g:str2
@@ -81,7 +81,7 @@ describe '<Plug>(operator-furround-append)'
   it 'hoge('
     normal! 1Gft
     let @" = 'hoge('
-    execute 'normal' "\<Plug>(operator-furround-append)iw"
+    execute 'normal' "\<Plug>(operator-furround-append-reg)iw"
     let ans = substitute(g:str, "tako", "hoge(tako)", "")
     Expect getline(1) ==# ans
     Expect getline(2) ==# g:str2
@@ -91,7 +91,7 @@ describe '<Plug>(operator-furround-append)'
   it 'hoge['
     normal! 1Gft
     let @" = 'hoge['
-    execute 'normal' "\<Plug>(operator-furround-append)iw"
+    execute 'normal' "\<Plug>(operator-furround-append-reg)iw"
     let ans = substitute(g:str, "tako", "hoge[tako]", "")
     Expect getline(1) ==# ans
     Expect getline(2) ==# g:str2
@@ -101,7 +101,7 @@ describe '<Plug>(operator-furround-append)'
   it 'hoge<'
     normal! 1Gft
     let @" = 'hoge<'
-    execute 'normal' "\<Plug>(operator-furround-append)iw"
+    execute 'normal' "\<Plug>(operator-furround-append-reg)iw"
     let ans = substitute(g:str, "tako", "hoge<tako>", "")
     Expect getline(1) ==# ans
     Expect getline(2) ==# g:str2
@@ -111,7 +111,7 @@ describe '<Plug>(operator-furround-append)'
   it 'hoge"'
     normal! 1Gft
     let @" = 'hoge"'
-    execute 'normal' "\<Plug>(operator-furround-append)iw"
+    execute 'normal' "\<Plug>(operator-furround-append-reg)iw"
     let ans = substitute(g:str, "tako", 'hoge"tako"', "")
     Expect getline(1) ==# ans
     Expect getline(2) ==# g:str2
@@ -121,7 +121,7 @@ describe '<Plug>(operator-furround-append)'
   it 'hoge`'
     normal! 1Gft
     let @" = 'hoge`'
-    execute 'normal' "\<Plug>(operator-furround-append)iw"
+    execute 'normal' "\<Plug>(operator-furround-append-reg)iw"
     let ans = substitute(g:str, "tako", "hoge`tako`", "")
     Expect getline(1) ==# ans
     Expect getline(2) ==# g:str2
@@ -131,7 +131,7 @@ describe '<Plug>(operator-furround-append)'
   it 'hoge(3, '
     normal! 1Gft
     let @" = 'hoge(3, '
-    execute 'normal' "\<Plug>(operator-furround-append)iw"
+    execute 'normal' "\<Plug>(operator-furround-append-reg)iw"
     let ans = substitute(g:str, "tako", "hoge(3, tako)", "")
     Expect getline(1) ==# ans
     Expect getline(2) ==# g:str2
@@ -141,7 +141,7 @@ describe '<Plug>(operator-furround-append)'
   it 'hoge(3, foo(4, '
     normal! 1Gft
     let @" = 'hoge(3, foo(4, '
-    execute 'normal' "\<Plug>(operator-furround-append)iw"
+    execute 'normal' "\<Plug>(operator-furround-append-reg)iw"
     let ans = substitute(g:str, "tako", "hoge(3, foo(4, tako))", "")
     Expect getline(1) ==# ans
     Expect getline(2) ==# g:str2
@@ -151,7 +151,7 @@ describe '<Plug>(operator-furround-append)'
   it 'hoge()'
     normal! 1Gft
     let @" = 'hoge()'
-    execute 'normal' "\<Plug>(operator-furround-append)iw"
+    execute 'normal' "\<Plug>(operator-furround-append-reg)iw"
     let ans = substitute(g:str, "tako", "hoge()(tako)", "")
     Expect getline(1) ==# ans
     Expect getline(2) ==# g:str2
@@ -161,7 +161,7 @@ describe '<Plug>(operator-furround-append)'
   it 'hoge((a) + '
     normal! 1Gft
     let @" = 'hoge((a) + '
-    execute 'normal' "\<Plug>(operator-furround-append)iw"
+    execute 'normal' "\<Plug>(operator-furround-append-reg)iw"
     let ans = substitute(g:str, "tako", "hoge((a) + tako)", "")
     Expect getline(1) ==# ans
     Expect getline(2) ==# g:str2
@@ -171,7 +171,7 @@ describe '<Plug>(operator-furround-append)'
   it 'reg'
     normal! 1Gft
     let @o = 'hage('
-    execute 'normal' "\"o\<Plug>(operator-furround-append)iw"
+    execute 'normal' "\"o\<Plug>(operator-furround-append-reg)iw"
     let ans = substitute(g:str, "tako", "hage(tako)", "")
     Expect getline(1) ==# ans
     Expect getline(2) ==# g:str2
@@ -181,7 +181,7 @@ describe '<Plug>(operator-furround-append)'
   it 'V1'
     normal! 2G
     let @" = 'hoge('
-    execute 'normal' "V\<Plug>(operator-furround-append)"
+    execute 'normal' "V\<Plug>(operator-furround-append-reg)"
     Expect getline(1) ==# g:str
     Expect getline(2) ==# 'hoge(' . g:str2 . ')'
     Expect getline(3) ==# g:str3
@@ -190,7 +190,7 @@ describe '<Plug>(operator-furround-append)'
   it 'V2'
     normal! 2G
     let @" = 'hoge('
-    execute 'normal' "Vj\<Plug>(operator-furround-append)"
+    execute 'normal' "Vj\<Plug>(operator-furround-append-reg)"
     Expect getline(1) ==# g:str
     Expect getline(2) ==# 'hoge(' . g:str2
     Expect getline(3) ==# g:str3 . ')'

@@ -27,7 +27,7 @@ describe 'motion'
   it 'char'
     normal! 2Gft
     let @" = 'hoge('
-    execute 'normal' "viw\<Plug>(operator-furround-append)"
+    execute 'normal' "viw\<Plug>(operator-furround-append-reg)"
     let ans = substitute(g:str, "tako", "hoge(tako)", "")
     Expect getline(1) ==# g:str
     Expect getline(2) ==# ans
@@ -39,7 +39,7 @@ describe 'motion'
   it 'line'
     normal! 2Gft
     let @" = 'hoge('
-    execute 'normal' "V\<Plug>(operator-furround-append)"
+    execute 'normal' "V\<Plug>(operator-furround-append-reg)"
     let ans = 'hoge(' . g:str . ')'
     Expect getline(1) ==# g:str
     Expect getline(2) ==# ans
@@ -51,7 +51,7 @@ describe 'motion'
   it 'line'
     normal! 2Gft
     let @" = 'hoge('
-    execute 'normal' "Vj\<Plug>(operator-furround-append)"
+    execute 'normal' "Vj\<Plug>(operator-furround-append-reg)"
     Expect getline(1) ==# g:str
     Expect getline(2) ==# 'hoge(' . g:str
     Expect getline(3) ==# g:str . ')'
@@ -62,7 +62,7 @@ describe 'motion'
   it 'block'
     normal! 2Gft
     let @" = 'hoge('
-    execute 'normal' "\<c-v>eejj\<Plug>(operator-furround-append)"
+    execute 'normal' "\<c-v>eejj\<Plug>(operator-furround-append-reg)"
     let ans = substitute(g:str, "tako desu", "hoge(tako desu)", "")
     Expect getline(1) ==# g:str
     Expect getline(2) ==# ans
@@ -99,7 +99,7 @@ describe 'block'
 	let @" = 'hoge('
     Expect line('$') == 5
 
-	execute 'normal' "\<C-v>jj$\<Plug>(operator-furround-append)"
+	execute 'normal' "\<C-v>jj$\<Plug>(operator-furround-append-reg)"
 
     let ans = substitute(g:str, '\(tako.*\)$', 'hoge(\1)', '')
     let ans_2 = substitute(long_str, '\(tako.*\)$', 'hoge(\1)', '')
