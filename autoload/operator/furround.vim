@@ -68,8 +68,6 @@ endfunction " }}}
 
 function! s:escape_n(str, mlist) " {{{
   let s = a:str
-  call s:log("s=" . s)
-  call s:log(a:mlist)
   if s =~ '\\[1-9]'
     for i in range(1, min([len(a:mlist)-1, 9]))
       let s = substitute(s, '\\' . i, '\=a:mlist[' . i . ']', 'g')
@@ -219,11 +217,12 @@ function! s:get_pair_from_key(str) " {{{
   return []
 endfunction " }}}
 
-" @vimlint(EVL103, 1, a:motion)
-function! s:get_block(motion, str) " {{{
+function! s:get_block_append(str) " {{{
 
   let pair = s:get_pair(a:str)
+
   if len(pair) == 0
+    " 開括弧がなかった場合には key が登録されているか確認する
     let pair = s:get_pair_from_key(a:str)
     if len(pair) > 0
       return pair
@@ -231,12 +230,12 @@ function! s:get_block(motion, str) " {{{
   endif
 
   if len(pair) == 0
+    " 何もなかったらデフォルトの括弧を追加する
     let pair = s:get_val('default_append_block', ['(', ')'])
   endif
 
   return [a:str . pair[0], pair[1]]
 endfunction " }}}
-" @vimlint(EVL103, 0, a:motion)
 
 function! s:get_reg_rmcr(r) " {{{
   let str = getreg(a:r)
@@ -308,7 +307,7 @@ function! s:append(motion, input_mode) " {{{
     return 0
   endif
 
-  let [func, right] = s:get_block(a:motion, str)
+  let [func, right] = s:get_block_append(str)
 
   let reg = 'f'
   let regdic = {}
