@@ -262,21 +262,41 @@ function! s:knormal(s) " {{{
   execute 'keepjumps' 'silent' 'normal!' a:s
 endfunction " }}}
 
-let s:append_block = {}
-function! s:append_block.char(left, right) " {{{
-  call s:knormal("`[v`]\<Esc>")
-  call setreg('f', a:right, 'v')
-  call s:knormal('`>"fp')
-  call setreg('f', a:left, 'v')
-  call s:knormal('`<"fP')
+function! s:reg_save() " {{{
+  let reg = 'f'
+  let regdic = {}
+  for r in [reg, '"']
+    let regdic[r] = [getreg(r), getregtype(r)]
+  endfor
+
+  return [reg, regdic]
 endfunction " }}}
 
-function! s:append_block.line(left, right) " {{{
+function! s:reg_restore(reg) " {{{
+  let regdic = a:reg[1]
+  for r in keys(regdic)
+    call setreg(r, regdic[r][0], regdic[r][1])
+  endfor
+endfunction " }}}
+
+let s:append_block = {} " {{{
+function! s:append_block.char(left, right, reg) " {{{
+  call s:knormal("`[v`]\<Esc>")
+  call setreg(a:reg, a:right, 'v')
+  call s:knormal('`>"' . a:reg . 'p')
+  call setreg(a:reg, a:left, 'v')
+  call s:knormal('`<"' . a:reg . 'P')
+endfunction " }}}
+
+" @vimlint(EVL103, 1, a:reg)
+function! s:append_block.line(left, right, reg) " {{{
   call s:knormal(printf("%dGA%s\<Esc>%dGgI%s\<Esc>",
         \ getpos("']")[1], a:right, getpos("'[")[1], a:left))
 endfunction " }}}
+" @vimlint(EVL103, 0, a:reg)
 
-function! s:append_block.block(left, right) " {{{
+" @vimlint(EVL103, 1, a:reg)
+function! s:append_block.block(left, right, reg) " {{{
   let [l1, c1] = getpos("'[")[1 : 2]
   let [l2, c2] = getpos("']")[1 : 2]
   for lnum in range(l1, l2)
@@ -284,6 +304,8 @@ function! s:append_block.block(left, right) " {{{
     \ lnum, c2, a:right, c1, a:left))
   endfor
 endfunction " }}}
+" @vimlint(EVL103, 0, a:reg)
+" }}}
 
 function! s:get_inputstr(input_mode) " {{{
   let use_input = 1
@@ -313,18 +335,11 @@ function! s:append(motion, input_mode) " {{{
 
   let [func, right] = s:get_block_append(str)
 
-  let reg = 'f'
-  let regdic = {}
-  for r in [reg, '"']
-    let regdic[r] = [getreg(r), getregtype(r)]
-  endfor
-
+  let regdata = s:reg_save()
   try
-    call s:append_block[a:motion](func, right)
+    call s:append_block[a:motion](func, right, regdata[0])
   finally
-    for r in keys(regdic)
-      call setreg(r, regdic[r][0], regdic[r][1])
-    endfor
+    call s:reg_restore(regdata)
   endtry
 
   if use_input
@@ -464,13 +479,10 @@ function! operator#furround#delete(motion) " {{{
 
   let pos = getpos(".")
 
-  let reg = 'f'
-  let regdic = {}
-  for r in [reg, '"']
-    let regdic[r] = [getreg(r), getregtype(r)]
-  endfor
+  let regdata = s:reg_save()
 
   try
+    let reg = regdata[0]
     call setreg(reg, '', 'v')
     let v = func.v
     call s:knormal(printf('`[%s`]"%sy', v, reg))
@@ -486,9 +498,7 @@ function! operator#furround#delete(motion) " {{{
 
     call s:knormal(printf('`[%s`]"_d%s', v, p))
   finally
-    for r in keys(regdic)
-      call setreg(r, regdic[r][0], regdic[r][1])
-    endfor
+    call s:reg_restore(regdata)
     call setpos(".", pos)
   endtry
 endfunction " }}}
