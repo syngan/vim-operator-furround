@@ -297,6 +297,7 @@ endfunction " }}}
 
 " @vimlint(EVL103, 1, a:reg)
 function! s:append_block.block(left, right, reg) " {{{
+  " FIXME <C-v>$ に対応できていない
   let [l1, c1] = getpos("'[")[1 : 2]
   let [l2, c2] = getpos("']")[1 : 2]
   for lnum in range(l1, l2)
@@ -332,6 +333,9 @@ endfunction " }}}
 function! s:append(motion, input_mode) " {{{
 
   let [str, use_input] = s:get_inputstr(a:input_mode)
+  if str ==# ""
+    return 0
+  endif
 
   let [func, right] = s:get_block_append(str)
 
