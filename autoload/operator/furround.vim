@@ -284,8 +284,12 @@ function! s:reg_restore(reg) " {{{
   endfor
 endfunction " }}}
 
-let s:append_block = {} " {{{
-function! s:append_block.char(left, right, reg) " {{{
+let s:funcs_motion = {} " {{{
+let s:funcs_motion.char = {'v' : 'v'}
+let s:funcs_motion.line = {'v' : 'V'}
+let s:funcs_motion.block = {'v' : "\<C-v>"}
+
+function! s:funcs_motion.char.append(left, right, reg) " {{{
   call s:knormal("`[v`]\<Esc>")
   call setreg(a:reg, a:right, 'v')
   call s:knormal('`>"' . a:reg . 'p')
@@ -294,14 +298,14 @@ function! s:append_block.char(left, right, reg) " {{{
 endfunction " }}}
 
 " @vimlint(EVL103, 1, a:reg)
-function! s:append_block.line(left, right, reg) " {{{
+function! s:funcs_motion.line.append(left, right, reg) " {{{
   call s:knormal(printf("%dGA%s\<Esc>%dGgI%s\<Esc>",
         \ getpos("']")[1], a:right, getpos("'[")[1], a:left))
 endfunction " }}}
 " @vimlint(EVL103, 0, a:reg)
 
 " @vimlint(EVL103, 1, a:reg)
-function! s:append_block.block(left, right, reg) " {{{
+function! s:funcs_motion.block.append(left, right, reg) " {{{
   " FIXME <C-v>$ に対応できていない
   let [l1, c1] = getpos("'[")[1 : 2]
   let [l2, c2] = getpos("']")[1 : 2]
@@ -346,7 +350,7 @@ function! s:append(motion, input_mode) " {{{
 
   let regdata = s:reg_save()
   try
-    call s:append_block[a:motion](func, right, regdata[0])
+    call s:funcs_motion[a:motion].append(func, right, regdata[0])
   finally
     call s:reg_restore(regdata)
   endtry
@@ -453,19 +457,15 @@ function! s:get_block_del(str) " {{{
   return ''
 endfunction " }}}
 
-let s:del_funcs = {}
-let s:del_funcs.char = {'v' : 'v'}
-let s:del_funcs.line = {'v' : 'V'}
-
 " @vimlint(EVL103, 1, a:spos)
-function! s:del_funcs.char.paste(reg, spos, epos) " {{{
+function! s:funcs_motion.char.paste(reg, spos, epos) " {{{
   let eline = getline(a:epos[1])
   let p = (len(eline) == a:epos[2]) ? 'p' : 'P'
   return '"' . a:reg . p
 endfunction " }}}
 " @vimlint(EVL103, 0, a:spos)
 
-function! s:del_funcs.line.paste(reg, spos, epos) " {{{
+function! s:funcs_motion.line.paste(reg, spos, epos) " {{{
   if a:epos[1] == line('$')
     if a:spos[1] == 1
       let ret = 'PG"_dd'
@@ -478,13 +478,15 @@ function! s:del_funcs.line.paste(reg, spos, epos) " {{{
   return '"' . a:reg . ret
 endfunction " }}}
 
-
 function! operator#furround#delete(motion) " {{{
-  if !has_key(s:del_funcs, a:motion)
+  if !has_key(s:funcs_motion, a:motion)
     return
   endif
 
-  let func = s:del_funcs[a:motion]
+  let func = s:funcs_motion[a:motion]
+  if !has_key(func, 'paste')
+    return
+  endif
 
   let pos = getpos(".")
 
