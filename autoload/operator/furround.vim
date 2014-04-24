@@ -254,13 +254,29 @@ function! operator#furround#complete_reg(...) " {{{
   return  join(list, "\n")
 endfunction " }}}
 
-function! s:input(motion) " {{{
-  if get(g:, 'operator#furround#debug', 0)
-    let str = 'furround-block-' . a:motion . ': '
+:highlight furround_hl_group ctermfg=Blue ctermbg=LightRed
+function! s:input(motion, reg) " {{{
+
+  if get(g:, 'operator#furround#highlight', 1)
+    call s:knormal(printf('`[%s`]"%sy', s:funcs_motion[a:motion].v, a:reg))
+    let mids = s:funcs_motion[a:motion].highlight(getpos("'["), getpos("']"))
+    :redraw
   else
-    let str = 'furround-block: '
+    let mids = []
   endif
-  return input(str, '', "custom,operator#furround#complete_reg")
+
+  try
+    if get(g:, 'operator#furround#debug', 0)
+      let str = 'furround-block-' . a:motion . ': '
+    else
+      let str = 'furround-block: '
+    endif
+    return input(str, '', "custom,operator#furround#complete_reg")
+  finally
+    for m in mids
+      silent! call matchdelete(m)
+    endfor
+  endtry
 endfunction " }}}
 
 function! s:knormal(s) " {{{
@@ -315,19 +331,40 @@ function! s:funcs_motion.block.append(left, right, reg) " {{{
   endfor
 endfunction " }}}
 " @vimlint(EVL103, 0, a:reg)
+
+let s:hlgroup = "furround_hl_group"
+function! s:funcs_motion.char.highlight(begin, end)
+  if a:begin[1] == a:end[1]
+    return [matchadd(s:hlgroup,
+    \ printf('\%%%dl\%%>%dc\%%<%dc', a:begin[1], a:begin[2]-1, a:end[2]+1))]
+  else
+    return [
+    \ matchadd(s:hlgroup, printf('\%%%dl\%%>%dc', a:begin[1], a:begin[2]-1)),
+    \ matchadd(s:hlgroup, printf('\%%%dl\%%<%dc', a:end[1], a:end[2]+1)),
+    \ matchadd(s:hlgroup, printf('\%%>%dl\%%<%dl', a:begin[1], a:end[1]))]
+  endif
+endfunction
+function! s:funcs_motion.line.highlight(begin, end)
+  return [matchadd(s:hlgroup, printf('\%%>%dl\%%<%dl', a:begin[1]-1, a:end[1]+1))]
+endfunction
+function! s:funcs_motion.block.highlight(begin, end)
+  return [matchadd(s:hlgroup,
+        \ printf('\%%>%dl\%%<%dl\%%>%dc\%%<%dc',
+        \ a:begin[1]-1, a:end[1]+1, a:begin[2]-1, a:end[2]+1))]
+endfunction
+
 " }}}
 
-function! s:get_inputstr(motion, input_mode) " {{{
-
+function! s:get_inputstr(motion, input_mode, reg) " {{{
   let use_input = 1
   if a:input_mode
-    let str = s:input(a:motion)
+    let str = s:input(a:motion, a:reg)
     if str == ''
       return ["", 0]
     endif
   elseif (v:register == '' || v:register == '"') &&
   \   s:get_val('use_input', 0)
-    let str = s:input(a:motion)
+    let str = s:input(a:motion, a:reg)
   else
     let str = ''
   endif
@@ -341,15 +378,17 @@ function! s:get_inputstr(motion, input_mode) " {{{
 endfunction " }}}
 
 function! s:append(motion, input_mode) " {{{
-  let [str, use_input] = s:get_inputstr(a:motion, a:input_mode)
-  if str ==# ""
-    return 0
-  endif
-
-  let [func, right] = s:get_block_append(str)
 
   let regdata = s:reg_save()
+
   try
+    let [str, use_input] = s:get_inputstr(a:motion, a:input_mode, regdata[0])
+    if str ==# ""
+      return 0
+    endif
+
+    let [func, right] = s:get_block_append(str)
+
     call s:funcs_motion[a:motion].append(func, right, regdata[0])
   finally
     call s:reg_restore(regdata)
