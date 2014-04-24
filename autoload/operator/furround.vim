@@ -458,14 +458,14 @@ let s:del_funcs.char = {'v' : 'v'}
 let s:del_funcs.line = {'v' : 'V'}
 
 " @vimlint(EVL103, 1, a:spos)
-function! s:del_funcs.char.paste(reg, spos, epos, eline) " {{{
-  let p = (len(a:eline) == a:epos[2]) ? 'p' : 'P'
+function! s:del_funcs.char.paste(reg, spos, epos) " {{{
+  let eline = getline(a:epos[1])
+  let p = (len(eline) == a:epos[2]) ? 'p' : 'P'
   return '"' . a:reg . p
 endfunction " }}}
 " @vimlint(EVL103, 0, a:spos)
 
-" @vimlint(EVL103, 1, a:eline)
-function! s:del_funcs.line.paste(reg, spos, epos, eline) " {{{
+function! s:del_funcs.line.paste(reg, spos, epos) " {{{
   if a:epos[1] == line('$')
     if a:spos[1] == 1
       let ret = 'PG"_dd'
@@ -477,7 +477,7 @@ function! s:del_funcs.line.paste(reg, spos, epos, eline) " {{{
   endif
   return '"' . a:reg . ret
 endfunction " }}}
-" @vimlint(EVL103, 0, a:eline)
+
 
 function! operator#furround#delete(motion) " {{{
   if !has_key(s:del_funcs, a:motion)
@@ -503,7 +503,7 @@ function! operator#furround#delete(motion) " {{{
 
     call setreg(reg, str, v)
 
-    let p = func.paste(reg, getpos("'["), getpos("']"), getline("']"))
+    let p = func.paste(reg, getpos("'["), getpos("']"))
 
     call s:knormal(printf('`[%s`]"_d%s', v, p))
   finally
