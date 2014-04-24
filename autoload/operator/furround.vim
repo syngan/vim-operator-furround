@@ -254,8 +254,13 @@ function! operator#furround#complete_reg(...) " {{{
   return  join(list, "\n")
 endfunction " }}}
 
-function! s:input() " {{{
-  return input('furround-block: ', '', "custom,operator#furround#complete_reg")
+function! s:input(motion) " {{{
+  if get(g:, 'operator#furround#debug', 0)
+    let str = 'furround-block-' . a:motion . ': '
+  else
+    let str = 'furround-block: '
+  endif
+  return input(str, '', "custom,operator#furround#complete_reg")
 endfunction " }}}
 
 function! s:knormal(s) " {{{
@@ -308,16 +313,17 @@ endfunction " }}}
 " @vimlint(EVL103, 0, a:reg)
 " }}}
 
-function! s:get_inputstr(input_mode) " {{{
+function! s:get_inputstr(motion, input_mode) " {{{
+
   let use_input = 1
   if a:input_mode
-    let str = s:input()
+    let str = s:input(a:motion)
     if str == ''
       return ["", 0]
     endif
   elseif (v:register == '' || v:register == '"') &&
   \   s:get_val('use_input', 0)
-    let str = s:input()
+    let str = s:input(a:motion)
   else
     let str = ''
   endif
@@ -331,8 +337,7 @@ function! s:get_inputstr(input_mode) " {{{
 endfunction " }}}
 
 function! s:append(motion, input_mode) " {{{
-
-  let [str, use_input] = s:get_inputstr(a:input_mode)
+  let [str, use_input] = s:get_inputstr(a:motion, a:input_mode)
   if str ==# ""
     return 0
   endif
