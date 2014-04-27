@@ -94,6 +94,10 @@ function! s:get_val(key, val) " {{{
   return a:val
 endfunction " }}}
 
+function! s:get(key, val) " {{{
+  return get(g:, 'operator#furround#' . a:key, a:val)
+endfunction " }}}
+
 function! s:get_pair_lhs(str, blocks, idx, slen) " {{{
   let min = a:slen
   let bmin = {}
@@ -257,7 +261,7 @@ endfunction " }}}
 :highlight furround_hl_group ctermfg=Blue ctermbg=LightRed
 function! s:input(motion, reg) " {{{
 
-  if get(g:, 'operator#furround#highlight', 1)
+  if s:get('highlight', 1)
     call s:knormal(printf('`[%s`]"%sy', s:funcs_motion[a:motion].v, a:reg))
     let mids = s:funcs_motion[a:motion].highlight(getpos("'["), getpos("']"))
     :redraw
@@ -266,7 +270,7 @@ function! s:input(motion, reg) " {{{
   endif
 
   try
-    if get(g:, 'operator#furround#debug', 0)
+    if s:get('debug', 0)
       let str = 'furround-block-' . a:motion . ': '
     else
       let str = 'furround-block: '
