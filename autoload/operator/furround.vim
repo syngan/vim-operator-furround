@@ -263,7 +263,8 @@ function! s:input(motion, reg) " {{{
 
   if s:get('highlight', 1)
     call s:knormal(printf('`[%s`]"%sy', s:funcs_motion[a:motion].v, a:reg))
-    let mids = s:funcs_motion[a:motion].highlight(getpos("'["), getpos("']"))
+    let hlgroup = s:get('hlgroup', 'furround_hl_group')
+    let mids = s:funcs_motion[a:motion].highlight(getpos("'["), getpos("']"), hlgroup)
     :redraw
   else
     let mids = []
@@ -336,26 +337,27 @@ function! s:funcs_motion.block.append(left, right, reg) " {{{
 endfunction " }}}
 " @vimlint(EVL103, 0, a:reg)
 
-let s:hlgroup = "furround_hl_group"
-function! s:funcs_motion.char.highlight(begin, end)
+function! s:funcs_motion.char.highlight(begin, end, hlgroup) " {{{
   if a:begin[1] == a:end[1]
-    return [matchadd(s:hlgroup,
+    return [matchadd(a:hlgroup,
     \ printf('\%%%dl\%%>%dc\%%<%dc', a:begin[1], a:begin[2]-1, a:end[2]+1))]
   else
     return [
-    \ matchadd(s:hlgroup, printf('\%%%dl\%%>%dc', a:begin[1], a:begin[2]-1)),
-    \ matchadd(s:hlgroup, printf('\%%%dl\%%<%dc', a:end[1], a:end[2]+1)),
-    \ matchadd(s:hlgroup, printf('\%%>%dl\%%<%dl', a:begin[1], a:end[1]))]
+    \ matchadd(a:hlgroup, printf('\%%%dl\%%>%dc', a:begin[1], a:begin[2]-1)),
+    \ matchadd(a:hlgroup, printf('\%%%dl\%%<%dc', a:end[1], a:end[2]+1)),
+    \ matchadd(a:hlgroup, printf('\%%>%dl\%%<%dl', a:begin[1], a:end[1]))]
   endif
-endfunction
-function! s:funcs_motion.line.highlight(begin, end)
-  return [matchadd(s:hlgroup, printf('\%%>%dl\%%<%dl', a:begin[1]-1, a:end[1]+1))]
-endfunction
-function! s:funcs_motion.block.highlight(begin, end)
-  return [matchadd(s:hlgroup,
+endfunction " }}}
+
+function! s:funcs_motion.line.highlight(begin, end, hlgroup) " {{{
+  return [matchadd(a:hlgroup, printf('\%%>%dl\%%<%dl', a:begin[1]-1, a:end[1]+1))]
+endfunction " }}}
+
+function! s:funcs_motion.block.highlight(begin, end, hlgroup) " {{{
+  return [matchadd(a:hlgroup,
         \ printf('\%%>%dl\%%<%dl\%%>%dc\%%<%dc',
         \ a:begin[1]-1, a:end[1]+1, a:begin[2]-1, a:end[2]+1))]
-endfunction
+endfunction " }}}
 
 " }}}
 
