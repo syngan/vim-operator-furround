@@ -523,6 +523,15 @@ function! s:funcs_motion.line.paste(reg, spos, epos) " {{{
   return '"' . a:reg . ret
 endfunction " }}}
 
+function! s:delete_str(reg, motion) " {{{
+  let func = s:funcs_motion[a:motion]
+  call setreg(a:reg, '', 'v')
+  call s:knormal(printf('`[%s`]"%sy', func.v, a:reg))
+  let str = getreg(a:reg)
+  let str = s:get_block_del(str)
+  return str
+endfunction " }}}
+
 function! operator#furround#delete(motion) " {{{
   if !has_key(s:funcs_motion, a:motion)
     return
@@ -539,20 +548,17 @@ function! operator#furround#delete(motion) " {{{
 
   try
     let reg = regdata[0]
-    call setreg(reg, '', 'v')
-    let v = func.v
-    call s:knormal(printf('`[%s`]"%sy', v, reg))
-    let str = getreg(reg)
-    let str = s:get_block_del(str)
+
+    let str = s:delete_str(reg, a:motion)
     if len(str) == ''
       return 0
     endif
 
-    call setreg(reg, str, v)
+    call setreg(reg, str, func.v)
 
     let p = func.paste(reg, getpos("'["), getpos("']"))
 
-    call s:knormal(printf('`[%s`]"_d%s', v, p))
+    call s:knormal(printf('`[%s`]"_d%s', func.v, p))
   finally
     call s:reg_restore(regdata)
     call setpos(".", pos)
@@ -575,11 +581,8 @@ function! s:replace(motion, input_mode) " {{{
 
   try
     let reg = regdata[0]
-    call setreg(reg, '', 'v')
-    let v = func.v
-    call s:knormal(printf('`[%s`]"%sy', v, reg))
-    let str = getreg(reg)
-    let str = s:get_block_del(str)
+
+    let str = s:delete_str(reg, a:motion)
     if len(str) == ''
       return 0
     endif
@@ -589,10 +592,10 @@ function! s:replace(motion, input_mode) " {{{
       return 0
     endif
 
-    call setreg(reg, str, v)
+    call setreg(reg, str, func.v)
     let p = func.paste(reg, getpos("'["), getpos("']"))
 
-    call s:knormal(printf('`[%s`]"_d%s', v, p))
+    call s:knormal(printf('`[%s`]"_d%s', func.v, p))
 
     let [ifunc, right] = s:get_block_append(istr)
 
