@@ -559,6 +559,64 @@ function! operator#furround#delete(motion) " {{{
   endtry
 endfunction " }}}
 
+function! s:replace(motion, input_mode) " {{{
+  if !has_key(s:funcs_motion, a:motion)
+    return
+  endif
+
+  let func = s:funcs_motion[a:motion]
+  if !has_key(func, 'paste')
+    return
+  endif
+
+  let pos = getpos(".")
+
+  let regdata = s:reg_save()
+
+  try
+    let reg = regdata[0]
+    call setreg(reg, '', 'v')
+    let v = func.v
+    call s:knormal(printf('`[%s`]"%sy', v, reg))
+    let str = getreg(reg)
+    let str = s:get_block_del(str)
+    if len(str) == ''
+      return 0
+    endif
+
+    let [istr, use_input] = s:get_inputstr(a:motion, a:input_mode, regdata[0])
+    if istr ==# ""
+      return 0
+    endif
+
+    call setreg(reg, str, v)
+    let p = func.paste(reg, getpos("'["), getpos("']"))
+
+    call s:knormal(printf('`[%s`]"_d%s', v, p))
+
+    let [ifunc, right] = s:get_block_append(istr)
+
+    call func.append(ifunc, right, regdata[0])
+
+  finally
+    call s:reg_restore(regdata)
+    call setpos(".", pos)
+  endtry
+
+  if use_input
+    call s:repeat_set(str)
+  endif
+endfunction " }}}
+
+function! operator#furround#replace(motion) " {{{
+  return s:replace(a:motion, 0)
+endfunction " }}}
+
+function! operator#furround#replacei(motion) " {{{
+  echo "called?"
+  return s:replace(a:motion, 1)
+endfunction " }}}
+
 function! s:repeat_set(str) " {{{
   silent! call repeat#set("\<Plug>(operator-furround-repeat)".a:str."\<CR>", 1)
 endfunction " }}}
