@@ -15,7 +15,7 @@ Related:
 - [rhysd/vim-operator-surround](https://github.com/rhysd/vim-operator-surround)
 - [tpope/vim-surround](https://github.com/tpope/vim-surround)
 
-mappings:
+Mappings:
 - `<Plug>(operator-furround-append-input)`	(use input always)
 - `<Plug>(operator-furround-append-reg)`	(depend on `use_input` option)
 - `<Plug>(operator-furround-delete)`
@@ -33,12 +33,12 @@ NeoBundleLazy 'syngan/vim-operator-furround', {
 \}
 ```
 
-## `<Plug>(opeartor-furround-append-reg)`
+## `<Plug>(opeartor-furround-append-input)`
 
 - `map H <Plug>(opeartor-furround-append-input)`
 - original text is `tako`
+- type `Hiw` and input xxx
 - note: `iw` is an `inner word`. see `:h iw`
-- default block: `[]`, `()`, `{}`, `<>`, `""`, `''`
 
 |   input      |   result                 |   note       |
 |:------------:|:------------------------:|:-------------|
@@ -55,14 +55,18 @@ NeoBundleLazy 'syngan/vim-operator-furround', {
 | `{\bf `      | `{\bf tako}`             | LaTeX        |
 | `\begin{ho}` | `\begin{ho}tako\end{ho}` | filetype=tex |
 
+- default block: `[]`, `()`, `{}`, `<>`, `""`, `''`
 
 ## `<Plug>(opeartor-furround-delete)`
 
 - `map D <Plug>(opeartor-furround-delete)`
-- text is `hoge(tako)` and do `Df)` then `tako`
-- text is `hoge[tako]` and do `Df]` then `tako`
-- text is `hoge(tako(foo))` and do `Df)` then `foo)`
-- text is `hoge(tako(foo))` and do `D2f)` then `tako(foo)`
+
+| text                 | type     | result         | note       |
+|:---------------------|:---------|:---------------|:-----------|
+| `hoge(tako)`         | `Df)`    | `tako`         |            |
+| `hoge[tako]`         | `Df]`    | `tako`         |            |
+| `tako(hoge[tako])`   | `Df)`    | `hoge[tako]`   |            |
+| `{\bf foo}`          | `Da}`    | `foo`          | ft=tex     |
 
 ## vim-textobj-postexpr
 
@@ -74,26 +78,8 @@ NeoBundleLazy 'syngan/vim-operator-furround', {
 
 # Customize
 
-## [bg]:operator_furround_latex
+## g:operator#furround#config
 
-- default `1`
-- original text is `tako`
-- yank `\begin{center}` and do `Hiw` then `\begin{center}tako\end{center}`
-
-## [bg]:operator_furround_xml
-
-- default `0`
-- original text is `tako`
-- yank `<p>` and do `Hiw` then `<p>tako</p>`
-- yank `<p><q>` and do `Hiw` then `<p><q>tako</q></p>`
-
-## [bg]:operator_furround_use_input
-
-- default `0`
-- original text is `tako`
-- do `Hiw` and type `hoge(` then `hoge(tako)`
-- do `Hiw` and type `<CR>` (an empty string) then use register `"`
-- do `"fHiw` then use register `f`
 
 # Blog in Japanese
 
