@@ -301,8 +301,12 @@ endfunction " }}}
 function! s:reg_restore(reg) " {{{
   let regdic = a:reg[1]
   for r in keys(regdic)
-    call setreg(r, regdic[r][0], regdic[r][1])
+    if r != '"'
+      call setreg(r, regdic[r][0], regdic[r][1])
+    endif
   endfor
+  let r = '"'
+  call setreg(r, regdic[r][0], regdic[r][1])
 endfunction " }}}
 
 let s:funcs_motion = {} " {{{
@@ -361,7 +365,8 @@ endfunction " }}}
 
 " }}}
 
-function! s:get_inputstr(motion, input_mode, reg) " {{{
+function! s:get_inputstr(motion, input_mode, vreg, reg) " {{{
+  " @param reg 作業レジスタ
   let use_input = 1
   if a:input_mode
     let str = s:input(a:motion, a:reg)
@@ -375,7 +380,7 @@ function! s:get_inputstr(motion, input_mode, reg) " {{{
     let str = ''
   endif
   if str == ''
-    let reg = v:register == '' ? '"' : v:register
+    let reg = a:vreg == '' ? '"' : a:vreg
     let str = getreg(reg)
     let use_input = 0
   endif
@@ -388,7 +393,7 @@ function! s:append(motion, input_mode) " {{{
   let regdata = s:reg_save()
 
   try
-    let [str, use_input] = s:get_inputstr(a:motion, a:input_mode, regdata[0])
+    let [str, use_input] = s:get_inputstr(a:motion, a:input_mode, v:register, regdata[0])
     if str ==# ""
       return 0
     endif
@@ -580,8 +585,9 @@ function! s:replace(motion, input_mode) " {{{
   endif
 
   let pos = getpos(".")
-
   let regdata = s:reg_save()
+
+  let vreg = v:register
 
   try
     let reg = regdata[0]
@@ -591,7 +597,8 @@ function! s:replace(motion, input_mode) " {{{
       return 0
     endif
 
-    let [istr, use_input] = s:get_inputstr(a:motion, a:input_mode, regdata[0])
+    call s:reg_restore(regdata)
+    let [istr, use_input] = s:get_inputstr(a:motion, a:input_mode, vreg, reg)
     if istr ==# ""
       return 0
     endif
