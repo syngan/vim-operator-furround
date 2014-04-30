@@ -532,6 +532,13 @@ function! s:delete_str(reg, motion) " {{{
   return str
 endfunction " }}}
 
+function! s:paste(reg, str, motion) " {{{
+  let func = s:funcs_motion[a:motion]
+  call setreg(a:reg, a:str, func.v)
+  let p = func.paste(a:reg, getpos("'["), getpos("']"))
+  call s:knormal(printf('`[%s`]"_d%s', func.v, p))
+endfunction " }}}
+
 function! operator#furround#delete(motion) " {{{
   if !has_key(s:funcs_motion, a:motion)
     return
@@ -554,11 +561,8 @@ function! operator#furround#delete(motion) " {{{
       return 0
     endif
 
-    call setreg(reg, str, func.v)
+    call s:paste(reg, str, a:motion)
 
-    let p = func.paste(reg, getpos("'["), getpos("']"))
-
-    call s:knormal(printf('`[%s`]"_d%s', func.v, p))
   finally
     call s:reg_restore(regdata)
     call setpos(".", pos)
@@ -592,10 +596,7 @@ function! s:replace(motion, input_mode) " {{{
       return 0
     endif
 
-    call setreg(reg, str, func.v)
-    let p = func.paste(reg, getpos("'["), getpos("']"))
-
-    call s:knormal(printf('`[%s`]"_d%s', func.v, p))
+    call s:paste(reg, str, a:motion)
 
     let [ifunc, right] = s:get_block_append(istr)
 
@@ -616,7 +617,6 @@ function! operator#furround#replace(motion) " {{{
 endfunction " }}}
 
 function! operator#furround#replacei(motion) " {{{
-  echo "called?"
   return s:replace(a:motion, 1)
 endfunction " }}}
 
