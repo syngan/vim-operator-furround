@@ -74,12 +74,38 @@ describe 'tex-pair'
   end
 
   it '\begin{figure}[htbp]'
-  call s:paste_code(['\begin{figure}[htbp]', 'tako', '\end{figure}'])
+    call s:paste_code(['\begin{figure}[htbp]', 'tako', '\end{figure}'])
     normal! gg0
     execute 'normal' "V2j\<Plug>(operator-furround-delete)"
     Expect getline(1) == 'tako'
     Expect line('$') == 1
   end
+
+  it '\begin{figure*}1'
+    call s:paste_code([
+    \ '\begin{figure*}[tb] % {{{',
+    \ 'hoge',
+    \ '\end{figure*}'])  " }}}
+
+    normal! gg0
+    execute 'normal' "V2j\<Plug>(operator-furround-delete)"
+    Expect getline(1) == 'hoge'
+    Expect line('$') == 1
+  end
+
+  it '\begin{figure*}'
+    call s:paste_code([
+    \ '\begin{figure*}[tb] % {{{',
+    \ 'hoge',
+    \ '\end{figure*} %}}}'])
+
+    normal! gg0
+    execute 'normal' "V2j\<Plug>(operator-furround-delete)"
+    Expect getline(1) == 'hoge'
+    Expect line('$') == 1
+  end
+
 end
+
 
 " vim:set et ts=2 sts=2 sw=2 tw=0 fdm=marker:

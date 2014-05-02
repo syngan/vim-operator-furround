@@ -10,7 +10,8 @@ function! s:log(_) " {{{
 endfunction " }}}
 
 " default block {{{
-let s:ws_tex = '\%(\s*\%(%.*\)*\n\)\='
+let s:ws_tex = '\%(\s*\%(%[^\n]*\)\=\n\=\)\='
+"let s:ws_tex = '\s*\n\='
 let s:prm_tex = '\%(\[[^\]]\+\]\|{[^}]\+}\)*'
 let s:default_config = {
 \ '-' : {
@@ -28,7 +29,7 @@ let s:default_config = {
 \   'merge_default_config' : 1,
 \   'block' : [
 \     {'start': '\\begin\s*{\(\k\+\*\=\)}' . s:prm_tex . s:ws_tex,
-\      'end_expr': '\\end\s*{\1}',
+\      'end_expr': '\\end\s*{\1}' . s:ws_tex,
 \      'end': '\end{\1}', 'regexp': 1},
 \     {'start': '{\\\k\+\s\+', 'end': '}',
 \      'regexp': 1, 'comment' : '{\bf xxx}'},
@@ -66,11 +67,15 @@ function! s:escape(pattern) " {{{
     return escape(a:pattern, '\~ .*^[''$')
 endfunction " }}}
 
-function! s:escape_n(str, mlist) " {{{
+function! s:escape_n(str, mlist, conv) " {{{
   let s = a:str
   if s =~ '\\[1-9]'
     for i in range(1, min([len(a:mlist)-1, 9]))
-      let s = substitute(s, '\\' . i, '\=a:mlist[' . i . ']', 'g')
+      if a:conv
+        let s = substitute(s, '\\' . i, '\=s:escape(a:mlist[' . i . '])', 'g')
+      else
+        let s = substitute(s, '\\' . i, '\=a:mlist[' . i . ']', 'g')
+      endif
     endfor
   endif
 
@@ -125,13 +130,13 @@ function! s:get_pair_lhs(str, blocks, idx, slen) " {{{
   let mlist = matchlist(a:str, bmin.start, min)
 "  let regexp = get(bmin, 'regexp', 0)
 
-  let pe = s:escape_n(bmin.end, mlist)
+  let pe = s:escape_n(bmin.end, mlist, 0)
   if mlist[0] =~ '\n$'
     let pe = "\n" . pe
   endif
 
   if has_key(bmin, 'end_expr')
-    let pee = s:escape_n(bmin.end_expr, mlist)
+    let pee = s:escape_n(bmin.end_expr, mlist, 1)
   else
     let pee = s:escape(pe)
   endif
@@ -175,6 +180,7 @@ function! s:get_pair(str) " {{{
     if len(pair) == 0
       break
     endif
+    call s:log(pair)
 
     let [l, stack] = s:get_pair_rhs(a:str, stack, l, pair.index)
     if l > pair.index
@@ -467,11 +473,13 @@ function! s:block_del_pair(str, pair) " {{{
   let ps = regexp ? a:pair.start : s:escape(a:pair.start)
 
   let m = match(a:str, ps)
+
+  call s:log("m=" . m . ",=" . string(a:pair))
   if m < -1
     return ''
   endif
 
-  if m > 0 && a:str[0 : m-1] !~ '\m^\s*$'
+  if m > 0 && a:str[0 : m-1] !~ '^\_s*$'
     return ''
   endif
 
@@ -480,15 +488,26 @@ function! s:block_del_pair(str, pair) " {{{
     return ''
   endif
   let s = len(ms[0]) + m
+  call s:log("ms[0]=" . ms[0])
+  call s:log(printf("s=%d,m=%d\n", s, m))
 
   let pe = a:pair.end
-  if regexp && pe =~ '\\[1-9]'
-    for i in range(1, min([len(ms)-1, 9]))
-      let pe = substitute(pe, '\\' . i, '\=ms[' . i . ']', 'g')
-    endfor
+  let pe = s:escape_n(pe, ms, 0)
+
+  call s:log("str=" . a:str)
+  call s:log("pe=" . s:escape(pe))
+
+  if has_key(a:pair, 'end_expr')
+    let pee = s:escape_n(a:pair.end_expr, ms, 1)
+  else
+    let pee = s:escape(pe)
   endif
 
-  let me = match(a:str, s:escape(pe) . '\m\(\s\|\n\)*$', s)
+  call s:log("pee=" . pee)
+
+  let me = match(a:str, pee . '\_s*$', s)
+  call s:log("me=" . me . ",s=" . s)
+  call s:log("me=" . match(a:str, s:escape(pe)))
   if me < 0
     return ''
   endif
