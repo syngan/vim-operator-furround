@@ -10,8 +10,8 @@ function! s:log(_) " {{{
 endfunction " }}}
 
 " default block {{{
-let s:ws_tex = '\%(\s*\%(%[^\n]*\)\=\n\=\)\='
-"let s:ws_tex = '\s*\n\='
+let s:wsc_tex = '\%(\s*\%(%[^\n]*\)\=\n\=\)\='  " white space with comment
+let s:ws_tex = '\s*\n\='
 let s:prm_tex = '\%(\[[^\]]\+\]\|{[^}]\+}\)*'
 let s:default_config = {
 \ '-' : {
@@ -29,7 +29,10 @@ let s:default_config = {
 \   'merge_default_config' : 1,
 \   'block' : [
 \     {'start': '\\begin\s*{\(\k\+\*\=\)}' . s:prm_tex . s:ws_tex,
-\      'end_expr': '\\end\s*{\1}' . s:ws_tex,
+\      'end_expr': '\\end\s*{\1}',
+\      'end': '\end{\1}', 'regexp': 1},
+\     {'start': '\\begin\s*{\(\k\+\*\=\)}' . s:prm_tex . s:wsc_tex,
+\      'end_expr': '\\end\s*{\1}' . s:wsc_tex,
 \      'end': '\end{\1}', 'regexp': 1},
 \     {'start': '{\\\k\+\s\+', 'end': '}',
 \      'regexp': 1, 'comment' : '{\bf xxx}'},

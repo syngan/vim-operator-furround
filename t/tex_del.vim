@@ -89,8 +89,10 @@ describe 'tex-pair'
 
     normal! gg0
     execute 'normal' "V2j\<Plug>(operator-furround-delete)"
-    Expect getline(1) == 'hoge'
-    Expect line('$') == 1
+    Expect getline(1) == '% {{{'
+    " }}}
+    Expect getline(2) == 'hoge'
+    Expect line('$') == 2
   end
 
   it '\begin{figure*}'
