@@ -10,9 +10,11 @@ function! s:log(_) " {{{
 endfunction " }}}
 
 " default block {{{
-let s:wsc_tex = '\%(\s*\%(%[^\n]*\)\=\n\=\)\='  " white space with comment
-let s:ws_tex = '\s*\n\='
-let s:prm_tex = '\%(\[[^\]]\+\]\|{[^}]\+}\)*'
+" vim 7.3 では '[^\n]' ではだめらしい.
+let s:CR = "\n"
+let s:wsc_tex = '\s*\%(%[^' . s:CR . ']*\)\=\n\='  " white space with comment 
+let s:ws_tex = '\s*\n\='  " white spece
+let s:prm_tex = '\%(\[[^' .s:CR. '\]]\+\]\|{[^' .s:CR. '}]\+}\)*' " parameters [] or {}
 let s:default_config = {
 \ '-' : {
 \   'merge_default_config' : 0,
