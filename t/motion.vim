@@ -14,7 +14,7 @@ function! s:paste_code()
   1 delete _
 endfunction
 
-describe 'motion'
+describe 'motion-append'
   before
     new
     call s:paste_code()
@@ -119,7 +119,19 @@ describe 'motion'
     Expect getline(5) ==# g:str
   end
 
-  it 'block'
+  it 'block-input'
+    normal! 2Gft
+    let @" = 'foo('
+    execute 'normal' "\<c-v>eejj\<Plug>(operator-furround-append-input)hoge(\<CR>"
+    let ans = substitute(g:str, "tako desu", "hoge(tako desu)", "")
+    Expect getline(1) ==# g:str
+    Expect getline(2) ==# ans
+    Expect getline(3) ==# ans
+    Expect getline(4) ==# ans
+    Expect getline(5) ==# g:str
+  end
+
+  it 'block-reg'
     normal! 2Gft
     let @" = 'hoge('
     execute 'normal' "\<c-v>eejj\<Plug>(operator-furround-append-reg)"
