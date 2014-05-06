@@ -639,7 +639,7 @@ function! s:replace(motion, input_mode) " {{{
   endtry
 
   if use_input
-    call s:repeat_set(str)
+    call s:repeat_set(istr)
   endif
 endfunction " }}}
 
