@@ -59,6 +59,12 @@ let s:default_config = {
 \     {'start': '\([vgslabwt]:\)\?[A-Za-z_][0-9A-Za-z_#.]*\[',
 \      'end': ']', 'regexp': 1},
 \   ]},
+\ 'help' : {
+\   'merge_default_config' : 1,
+\   'block' : [
+\     {'start': '*', 'end': '*'},
+\     {'start': '|', 'end': '|'},
+\   ]},
 \ 'html' : {
 \   'merge_default_config' : 1,
 \   'block' : [
