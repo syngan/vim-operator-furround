@@ -514,10 +514,7 @@ function! s:block_del_pair(str, pair) " {{{
     let pee = s:escape(pe)
   endif
 
-  call s:log("pee=" . pee)
-
   let me = match(a:str, pee . '\_s*$', s)
-  call s:log("me=" . me . ",s=" . s)
   call s:log("me=" . match(a:str, s:escape(pe)))
   if me < 0
     return ''
@@ -541,21 +538,23 @@ endfunction " }}}
 function! s:funcs_motion.char.paste(reg, spos, epos) " {{{
   let eline = getline(a:epos[1])
   let p = (len(eline) == a:epos[2]) ? 'p' : 'P'
-  return '"' . a:reg . p
+  return ['"' . a:reg . p, 0]
 endfunction " }}}
 " @vimlint(EVL103, 0, a:spos)
 
 function! s:funcs_motion.line.paste(reg, spos, epos) " {{{
+  let n = 0
   if a:epos[1] == line('$')
     if a:spos[1] == 1
       let ret = 'PG"_dd'
+      let n = 1
     else
       let ret = 'p'
     endif
   else
     let ret = 'P'
   endif
-  return '"' . a:reg . ret
+  return ['"' . a:reg . ret, n]
 endfunction " }}}
 
 function! s:delete_str(reg, motion) " {{{
@@ -571,7 +570,11 @@ function! s:paste(reg, str, motion) " {{{
   let func = s:funcs_motion[a:motion]
   call setreg(a:reg, a:str, func.v)
   let p = func.paste(a:reg, getpos("'["), getpos("']"))
-  call s:knormal(printf('`[%s`]"_d%s', func.v, p))
+  call s:knormal(printf('`[%s`]"_d%s', func.v, p[0]))
+  if p[1]
+    " ファイル全体
+    call s:knormal(printf('ggVG"%sy', a:reg))
+  endif
 endfunction " }}}
 
 function! operator#furround#delete(motion) " {{{
@@ -585,7 +588,6 @@ function! operator#furround#delete(motion) " {{{
   endif
 
   let pos = getpos(".")
-
   let regdata = s:reg_save()
 
   try
