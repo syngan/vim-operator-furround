@@ -8,7 +8,6 @@ function! s:log(_) " {{{
     silent! call vimconsole#log(a:_)
   endif
 endfunction " }}}
-
 " default block {{{
 " vim 7.3 では '[^\n]' ではだめらしい.
 let s:CR = "\n"
@@ -423,7 +422,7 @@ function! s:append(motion, input_mode) " {{{
   endtry
 
   if use_input
-    call s:repeat_set(str)
+    call s:repeat_set(str, v:count)
   endif
 endfunction " }}}
 
@@ -643,7 +642,7 @@ function! s:replace(motion, input_mode) " {{{
   endtry
 
   if use_input
-    call s:repeat_set(istr)
+    call s:repeat_set(istr, v:count)
   endif
 endfunction " }}}
 
@@ -655,8 +654,8 @@ function! operator#furround#replacei(motion) " {{{
   return s:replace(a:motion, 1)
 endfunction " }}}
 
-function! s:repeat_set(str) " {{{
-  silent! call repeat#set("\<Plug>(operator-furround-repeat)".a:str."\<CR>", 1)
+function! s:repeat_set(str, count) " {{{
+  silent! call repeat#set("\<Plug>(operator-furround-repeat)".a:str."\<CR>", a:count)
 endfunction " }}}
 
 let &cpo = s:save_cpo
