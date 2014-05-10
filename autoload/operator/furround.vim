@@ -92,10 +92,15 @@ function! s:escape_n(str, mlist, conv) " {{{
   return s
 endfunction " }}}
 
+function! s:is_valid_config() " {{{
+  return  exists("g:operator#furround#config") &&
+  \ type(g:operator#furround#config) == type({})
+endfunction " }}}
+
 function! s:get_val(key, val) " {{{
+  " g:operator#furround#config から
   " default 値付きの値取得.
-  " b: があったらそれ, なければ g: をみる.
-  if ! exists("g:operator#furround#config")
+  if !s:is_valid_config()
     return a:val
   endif
 
@@ -216,8 +221,7 @@ function! s:get_pair(str) " {{{
 endfunction " }}}
 
 function! s:get_pair_from_key(str) " {{{
-  if !exists("g:operator#furround#config") ||
-  \ type(g:operator#furround#config) != type({})
+  if !s:is_valid_config()
     return []
   endif
 
@@ -432,11 +436,10 @@ function! operator#furround#appendi(motion) " {{{
 endfunction " }}}
 
 function! s:get_conf() " {{{
-  let blocks = exists("g:operator#furround#config") ?
-        \ g:operator#furround#config : 0
-  if type(blocks) != type({})
-    unlet blocks
+  if !s:is_valid_config()
     let blocks = {}
+  else
+    let blocks = g:operator#furround#config
   endif
 
   if has_key(blocks, &filetype)
