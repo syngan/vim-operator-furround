@@ -239,16 +239,13 @@ endfunction " }}}
 
 function! s:get_block_append(str) " {{{
 
-  let pair = s:get_pair(a:str)
-
-  if len(pair) == 0
-    " 開括弧がなかった場合には key が登録されているか確認する
-    let pair = s:get_pair_from_key(a:str)
-    if len(pair) > 0
-      return pair
-    endif
+  " 開括弧がなかった場合には key が登録されているか確認する
+  let pair = s:get_pair_from_key(a:str)
+  if len(pair) > 0
+    return pair
   endif
 
+  let pair = s:get_pair(a:str)
   if len(pair) == 0
     " 何もなかったらデフォルトの括弧を追加する
     let pair = s:get_val('default_append_block', ['(', ')'])
