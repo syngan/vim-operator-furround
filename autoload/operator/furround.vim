@@ -270,7 +270,7 @@ function! s:get_reg_rmcr(r) " {{{
 endfunction " }}}
 
 function! operator#furround#complete_reg(...) " {{{
-  let regs = '"0123456789abcdefghijklmnopqrstuvwxyz-*+.:%#/'
+  let regs = '"0123456789-*+.:%#/'
   let list = map(split(regs, '.\zs'), 's:get_reg_rmcr(v:val)')
   let list = filter(list, 'v:val !~ ''^\s*$'' && v:val !~ ''\n''')
   return  join(list, "\n")
