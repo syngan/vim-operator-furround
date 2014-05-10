@@ -221,6 +221,7 @@ function! s:get_pair(str) " {{{
 endfunction " }}}
 
 function! s:get_pair_from_key(str) " {{{
+  " #conig[&filetype][key] に a:str があればそれを block とする
   if !s:is_valid_config()
     return []
   endif
@@ -385,13 +386,17 @@ endfunction " }}}
 function! s:get_inputstr(motion, input_mode, vreg, reg) " {{{
   " @param reg 作業レジスタ
   let use_input = 1
-  if a:input_mode
+  if (a:vreg != '' && a:vreg != '"')
+    " レジスタが指定されていたはモードにかかわらずレジスタを利用
+    let str = getreg(a:vreg)
+    let use_input = 0
+  elseif a:input_mode
+    " レジスタは利用しないので, 即復帰
     let str = s:input(a:motion, a:reg)
     if str == ''
       return ["", 0]
     endif
-  elseif (v:register == '' || v:register == '"') &&
-  \   s:get_val('use_input', 0)
+  elseif s:get_val('use_input', 0)
     let str = s:input(a:motion, a:reg)
   else
     let str = ''
