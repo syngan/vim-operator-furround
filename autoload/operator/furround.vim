@@ -412,6 +412,7 @@ function! s:append(motion, input_mode) " {{{
   try
     let [str, use_input] = s:get_inputstr(a:motion, a:input_mode, v:register, regdata[0])
     if str ==# ""
+      redraw | echo 'furround-block: canceled'
       return 0
     endif
 
@@ -460,6 +461,7 @@ function! s:get_conf() " {{{
       let block_ft += [s:default_config[&filetype]]
       let merge = get(s:default_config[&filetype], 'merge_default_config')
   endif
+
   if exists('block_user_def')
       let block_ft += [block_user_def]
   endif
@@ -627,6 +629,7 @@ function! s:replace(motion, input_mode) " {{{
     call s:reg_restore(regdata)
     let [istr, use_input] = s:get_inputstr(a:motion, a:input_mode, vreg, reg)
     if istr ==# ""
+      redraw | echo 'furround-block: canceled'
       return 0
     endif
 
