@@ -639,9 +639,9 @@ function! s:replace(motion, input_mode) " {{{
     endif
 
     call s:paste(reg, str, a:motion)
-
+    " なぜここで undo が分離される？
+    undoj
     let [ifunc, right] = s:get_block_append(istr)
-
     call func.append(ifunc, right, regdata[0])
 
   finally
