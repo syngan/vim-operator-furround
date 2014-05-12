@@ -1,0 +1,196 @@
+*operator-furround.txt*	 テキストを囲うオペレータ
+
+
+==============================================================================
+概要						*operator-furround-introduction*
+
+
+*operator-furround* は (), [], {} のような括弧や，引用符などテキストを囲
+う操作を行います。また，囲われているテキストに対して，囲いを削除・変更すること
+ともできます。
+
+>
+	map sa <Plug>(opeartor-furround-append-input)
+<
+と定義している場合に，以下のような動作をします。
+ここで、_ は半角スペースを表しています。
+|iw| は "inner word" を表します。
+
+ old text  |  command     |  new text
+-----------+--------------+---------------
+ foo       |  saiw(       |  (foo)
+ foo       |  saiw"       |  "foo"
+ foo       |  saiw([      |  ([foo])
+ foo       |  saiwhoge(   |  hoge(foo)
+ foo       |  saiw{\bf_   |  {\bf foo}
+
+|operator#furround#config| をカスタマイズすることで，様々な囲う操作に対応できます。
+
+このプラグインを使用する場合は kana 氏が作成された |operator-user| が必要になり
+ます。
+
+- kana/vim-operator-user
+  - https://github.com/kana/vim-operator-user
+
+単発繰り返しのために以下のプラグインを推奨します。
+- tpope/vim-repeat
+  - https://github.com/tpope/vim-repeat
+
+連携する textobj として、以下のプラグインを推奨します。
+- osyo-manga/vim-textobj-multiblock
+  - https://github.com/osyo-manga/vim-textobj-multiblock
+
+
+==============================================================================
+設定例						*operator-furround-customizing*
+
+>
+    let g:operator#furround#config = {
+    \ '-' : {
+    \   'merge_default_config' : 0,
+    \   'block' : [
+    \     {'start': '(', 'end': ')'},
+    \     {'start': '{', 'end': '}'},
+    \     {'start': '[', 'end': ']'},
+    \     {'start': '<', 'end': '>'},
+    \     {'start': '"', 'end': '"'},
+    \     {'start': "'", 'end': "'"},
+    \     {'start': "`", 'end': "`"},
+    \   ]},
+    \ 'vim' : {
+    \   'merge_default_config' : 1,
+    \   'block' : [
+    \     {'start': '\([vgslabwt]:\)\?[A-Za-z_][0-9A-Za-z_#.]*(',
+    \      'end': ')', 'regexp': 1},
+    \     {'start': '\([vgslabwt]:\)\?[A-Za-z_][0-9A-Za-z_#.]*\[',
+    \      'end': ']', 'regexp': 1},
+    \   ],
+    \   'key' : {
+    \      's' : ['string(', ')'],
+    \   }},
+    \ 'help' : {
+    \   'merge_default_config' : 1,
+    \   'block' : [
+    \     {'start': '*', 'end': '*'},
+    \     {'start': '|', 'end': '|'},
+    \   ]},
+    \ 'html' : {
+    \   'merge_default_config' : 1,
+    \   'block' : [
+    \     {'start': '<\(\k\+\)\%(\s\+[^>]\+\)*>\(\s\|\n\)*',
+    \      'end': '</\1>', 'regexp': 1},
+    \   ]},
+    \ }
+
+    " c.f. https://github.com/rhysd/vim-operator-surround
+    map sf <Plug>(operator-furround-append-reg)
+    map sa <Plug>(operator-furround-append-input)
+    map sr <Plug>(operator-furround-replace-input)
+    map sd <Plug>(operator-furround-delete)
+
+    " osyo-manga/vim-textobj-multiblock との連携
+    nmap srr <Plug>(operator-furround-replace-input)<Plug>(textobj-multiblock-a)
+    nmap sdd <Plug>(operator-furround-delete)<Plug>(textobj-multiblock-a)
+<
+
+
+==============================================================================
+設定						*operator-furround-setting*
+
+------------------------------------------------------------------------------
+operator-furround の変数			*operator-furround-variables*
+
+g:operator#furround#config  			*g:operator#furround#config*
+
+	block: List of dictionaries
+		start  (必須)
+		end    (必須)
+		end_expr  (任意)
+			指定されていた場合, delete 時の match に利用する.
+		regexp    (任意) デフォルト 0
+
+	merge_default_config_user (0)
+		g:operator#furround#config["-"] の内容をマージするか
+
+	merge_default_config (0)
+		furround のデフォルトのキー設定をマージするか.
+		filetype=foo を設定でこの値を真にした場合,
+
+		  g:operator#furround#config["foo"]
+		  furround のデフォルトの "foo" の設定
+		  g:operator#furround#config["-"]
+		  furround のデフォルトの "-" の設定 
+
+		現在, 以下のファイルタイプをサポートしています。
+		  c, help, tex, vim
+
+	key: Dictionary
+		{key : [start, end]}
+		入力したものが key にマッチした場合, start と end で囲う
+		良く使う block に対して, 短い key
+		を割り当てることでタイプ数を削減することを想定しています。
+	use_input (0)
+		input-reg の場合、かつ
+		レジスタを指定しない(無名レジスタ)場合、かつ
+		use_input が真の場合には input として動作し、
+		空文字を入力した場合のみ無名レジスタを使用する
+
+
+	complete: |List| or |Funcref|
+		input 時の補完文字列 or 関数.
+		デフォルトはレジスタの内容
+		List 指定時は, List + レジスタ
+		Funcref 時は Funcref のみが候補となる.
+
+	default_append_block ('(')
+
+g:operator#furround#hilight  			*g:operator#furround#hilight*
+	入力待機中に追加・変更の対象部分をハイライトするかを数値で設定します。
+	非ゼロの場合に、ハイライトを行います。デフォルトは 1 です。
+
+g:operator#furround#hlgroup  			*g:operator#furround#hlgroup*
+	入力待機中のハイライトを行う場合使用するハイライトグループを設定します。
+	デフォルトでは "furround_hl_group" を使用します。
+
+==============================================================================
+インターフェース				*operator-furround-interface*
+
+------------------------------------------------------------------------------
+マッピング					*operator-furround-mapping*
+
+<Plug>(operator-furround-append-input)	*<Plug>(operator-furround-append-input)*
+	無名レジスタ以外のレジスタを指定した場合にはそれを使用する
+	それ以外の場合には input を利用して、囲む
+	空文字が入力された場合には cancel メッセージを出力し終了します。
+
+<Plug>(operator-furround-append-reg)	*<Plug>(operator-furround-append-reg)*
+	レジスタの内容を利用して囲う。
+	|g:operator#furround#config| で use_input
+	に真の値が指定されている場合、無名レジスタの場合には input
+	を待機し、空文字が入力された場合には無名レジスタを利用する
+
+<Plug>(operator-furround-delete)	*<Plug>(operator-furround-delete)*
+	削除する
+
+<Plug>(operator-furround-replace-input)	*<Plug>(operator-furround-replace-input)*
+	削除して追加する.
+
+<Plug>(operator-furround-replace-reg)	*<Plug>(operator-furround-replace-reg)*
+	削除して追加する.
+
+==============================================================================
+類似するプラグイン			 *operator-furround-similar-plugins*
+
+同様のプラグインとしては以下のようなものがあります.
+- vim-surround:          https://github.com/tpope/vim-surround
+- vim-operator-surround: https://github.com/rhysd/vim-operator-surround
+
+vim-operator-surround との大きな違いは、
+1) レジスタを使用したオペレーションをサポート
+   - 改行を含んだ surround 操作が実現可能
+2) 入力時に <CR> を要求する
+3) 複数の括弧を同時に入力できる
+
+
+==============================================================================
+vim:tw=78:fo=tcq2mM:ts=8:ft=help:norl
