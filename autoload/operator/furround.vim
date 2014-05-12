@@ -187,7 +187,7 @@ function! s:get_pair_rhs(str, stack, l, pair_idx) " {{{
 endfunction " }}}
 
 function! s:get_pair(str) " {{{
-  let blocks = s:get_conf()
+  let blocks = s:concat(s:get_conf("block", []))
   let stack = []
   let slen = len(a:str)
   let l = 0
@@ -223,20 +223,9 @@ endfunction " }}}
 
 function! s:get_pair_from_key(str) " {{{
   " #conig[&filetype][key] に a:str があればそれを block とする
-  if !s:is_valid_config()
-    return []
-  endif
-
-  let blocks = g:operator#furround#config
-  for ft in [&filetype, '-']
-    if has_key(blocks, ft) 
-      if has_key(blocks[ft], 'key') && has_key(blocks[ft]['key'], a:str)
-        return blocks[ft]['key'][a:str]
-      endif
-
-      if !get(blocks[ft], 'merge_default_config_user', 0)
-        break
-      endif
+  for dic in s:get_conf('key', {})
+    if has_key(dic, a:str)
+      return dic[a:str]
     endif
   endfor
 
@@ -452,7 +441,9 @@ function! operator#furround#appendi(motion) " {{{
   return s:append(a:motion, 1)
 endfunction " }}}
 
-function! s:get_conf() " {{{
+function! s:get_conf(key, def) " {{{
+  " g:operator#furround#config から List 形式で返す.
+  " [user[&ft], default[&ft], user[-], default[-]]
   if !s:is_valid_config()
     let blocks = {}
   else
@@ -486,10 +477,12 @@ function! s:get_conf() " {{{
   endif
 
   " block_bf is a list of dictionaries
-  let bs = map(block_ft, 'has_key(v:val, "block") ? v:val.block : []')
+  return map(block_ft, 'has_key(v:val, a:key) ? v:val[a:key] : a:def')
+endfunction " }}}
 
+function! s:concat(bs) " {{{
   let r = []
-  for b in bs
+  for b in a:bs
     let r += b
   endfor
 
@@ -541,7 +534,8 @@ function! s:block_del_pair(str, pair) " {{{
 endfunction " }}}
 
 function! s:get_block_del(str) " {{{
-  for pair in s:get_conf()
+
+  for pair in s:concat(s:get_conf("block", []))
     let c = s:block_del_pair(a:str, pair)
     if c != ''
       return c
