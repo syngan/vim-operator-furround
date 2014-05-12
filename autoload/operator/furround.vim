@@ -8,6 +8,7 @@ function! s:log(_) " {{{
     silent! call vimconsole#log(a:_)
   endif
 endfunction " }}}
+
 " default block {{{
 " vim 7.3 では '[^\n]' ではだめらしい.
 let s:CR = "\n"
@@ -269,11 +270,21 @@ function! s:get_reg_rmcr(r) " {{{
   return str
 endfunction " }}}
 
-function! operator#furround#complete_reg(...) " {{{
+function! operator#furround#complete_reg(A, L, P) " {{{
+  let fn = s:get_val('complete', 0)
+  if type(fn) == type(function('tr'))
+    return fn(a:A, a:L, a:P)
+  endif
+  if type(fn) == type([])
+    let l = fn
+  else
+    let l = []
+  endif
+
   let regs = '"0123456789-*+.:%#/'
   let list = map(split(regs, '.\zs'), 's:get_reg_rmcr(v:val)')
   let list = filter(list, 'v:val !~ ''^\s*$'' && v:val !~ ''\n''')
-  return  join(list, "\n")
+  return  join(l + list, "\n")
 endfunction " }}}
 
 :highlight furround_hl_group ctermfg=Blue ctermbg=LightRed
