@@ -124,8 +124,7 @@ function! s:get(key, val) " {{{
 endfunction " }}}
 
 function! s:get_pair_lhs(str, blocks, idx, slen) " {{{
-  let min = a:slen
-  let bmin = {}
+  let [min, bmin] = [a:slen, {}]
   for b in a:blocks
     let i = match(a:str, b.start, a:idx)
     if i < 0
@@ -133,9 +132,7 @@ function! s:get_pair_lhs(str, blocks, idx, slen) " {{{
     endif
 
     if i < min
-      let min = i
-      let bmin = b
-
+      let [min, bmin] = [i, b]
       if min == a:idx
         break
       endif
@@ -268,11 +265,7 @@ function! operator#furround#complete_reg(A, L, P) " {{{
   if type(fn) == type(function('tr'))
     return fn(a:A, a:L, a:P)
   endif
-  if type(fn) == type([])
-    let l = fn
-  else
-    let l = []
-  endif
+  let l =  type(fn) == type([]) ? fn : []
 
   let regs = '"0123456789-*+.:%#/'
   let list = map(split(regs, '.\zs'), 's:get_reg_rmcr(v:val)')
@@ -457,11 +450,7 @@ endfunction " }}}
 function! s:get_conf(key, def) " {{{
   " g:operator#furround#config から List 形式で返す.
   " [user[&ft], default[&ft], user[-], default[-]]
-  if !s:is_valid_config()
-    let blocks = {}
-  else
-    let blocks = g:operator#furround#config
-  endif
+  let blocks = s:is_valid_config() ? g:operator#furround#config : {}
 
   if has_key(blocks, &filetype)
     let block_ft = [blocks[&filetype]]
@@ -478,12 +467,12 @@ function! s:get_conf(key, def) " {{{
   endif
 
   if merge && has_key(s:default_config, &filetype)
-      let block_ft += [s:default_config[&filetype]]
-      let merge = get(s:default_config[&filetype], 'merge_default_config')
+    let block_ft += [s:default_config[&filetype]]
+    let merge = get(s:default_config[&filetype], 'merge_default_config')
   endif
 
   if exists('block_user_def')
-      let block_ft += [block_user_def]
+    let block_ft += [block_user_def]
   endif
   if merge
     let block_ft += [s:default_config['-']]
@@ -522,14 +511,8 @@ function! s:block_del_pair(str, pair) " {{{
     return ''
   endif
   let s = len(ms[0]) + m
-  call s:log("ms[0]=" . ms[0])
-  call s:log(printf("s=%d,m=%d\n", s, m))
 
-  let pe = a:pair.end
-  let pe = s:escape_n(pe, ms, 0)
-
-  call s:log("str=" . a:str)
-  call s:log("pe=" . s:escape(pe))
+  let pe = s:escape_n(a:pair.end, ms, 0)
 
   if has_key(a:pair, 'end_expr')
     let pee = s:escape_n(a:pair.end_expr, ms, 1)
