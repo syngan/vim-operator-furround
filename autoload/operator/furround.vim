@@ -12,7 +12,7 @@ endfunction " }}}
 " default block {{{
 " vim 7.3 では '[^\n]' ではだめらしい.
 let s:CR = "\n"
-let s:wsc_tex = '\s*\%(%[^' . s:CR . ']*\)\=\n\='  " white space with comment 
+let s:wsc_tex = '\s*\%(%[^' . s:CR . ']*\)\=\n\='  " white space with comment
 let s:ws_tex = '\s*\n\='  " white spece
 let s:prm_tex = '\%(\[[^' .s:CR. '\]]\+\]\|{[^' .s:CR. '}]\+}\)*' " parameters [] or {}
 let s:default_config = {
@@ -91,6 +91,10 @@ function! s:escape_n(str, mlist, conv) " {{{
   endif
 
   return s
+endfunction " }}}
+
+function! s:echo(msg) " {{{
+  redraw | echo 'furround: ' . a:msg
 endfunction " }}}
 
 function! s:is_valid_config() " {{{
@@ -328,9 +332,18 @@ function! s:reg_restore(reg) " {{{
 endfunction " }}}
 
 let s:funcs_motion = {} " {{{
-let s:funcs_motion.char = {'v' : 'v'}
-let s:funcs_motion.line = {'v' : 'V'}
-let s:funcs_motion.block = {'v' : "\<C-v>"}
+let s:funcs_motion.char = {
+  \ 'v': 'v',
+  \ 'support_delete':  1,
+  \ 'support_replace': 1}
+let s:funcs_motion.line = {
+  \ 'v': 'V',
+  \ 'support_delete':  1,
+  \ 'support_replace': 1}
+let s:funcs_motion.block = {
+  \ 'v': "\<C-v>",
+  \ 'support_delete':  0,
+  \ 'support_replace': 0}
 
 function! s:funcs_motion.char.append(left, right, reg) " {{{
   call s:knormal("`[v`]\<Esc>")
@@ -417,7 +430,7 @@ function! s:append(motion, input_mode) " {{{
   try
     let [str, use_input] = s:get_inputstr(a:motion, a:input_mode, v:register, regdata[0])
     if str ==# ""
-      redraw | echo 'furround-block: canceled'
+      call s:echo('canceled')
       return 0
     endif
 
@@ -590,7 +603,8 @@ function! operator#furround#delete(motion) " {{{
   endif
 
   let func = s:funcs_motion[a:motion]
-  if !has_key(func, 'paste')
+  if !func.support_delete
+    call s:echo('not support motion=' . a:motion)
     return
   endif
 
@@ -619,7 +633,8 @@ function! s:replace(motion, input_mode) " {{{
   endif
 
   let func = s:funcs_motion[a:motion]
-  if !has_key(func, 'paste')
+  if !func.support_replace
+    call s:echo('not support motion=' . a:motion)
     return
   endif
 
@@ -639,7 +654,7 @@ function! s:replace(motion, input_mode) " {{{
     call s:reg_restore(regdata)
     let [istr, use_input] = s:get_inputstr(a:motion, a:input_mode, vreg, reg)
     if istr ==# ""
-      redraw | echo 'furround-block: canceled'
+      call s:echo('canceled')
       return 0
     endif
 
