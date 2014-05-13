@@ -111,8 +111,15 @@ function! s:get_val(key, val) " {{{
 
   let dic = g:operator#furround#config
   for ft in [&filetype, '-']
-    if has_key(dic, ft) && has_key(dic[ft], a:key)
-      return dic[ft][a:key]
+    if has_key(dic, ft)
+      if has_key(dic[ft], a:key)
+        return dic[ft][a:key]
+      else
+        " ファイルタイプの設定があって
+        " キーがない場合はデフォルトを設定する.
+        " '-' はみにいかない
+        return a:val
+      endif
     endif
   endfor
 
