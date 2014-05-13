@@ -398,33 +398,33 @@ endfunction " }}}
 
 function! s:get_inputstr(motion, input_mode, vreg, reg) " {{{
   " @param reg 作業レジスタ
-  let use_input = 1
+  " @param vreg オペレータ実行時に指定された v:register
   if (a:vreg != '' && a:vreg != '"')
     " レジスタが指定されていたはモードにかかわらずレジスタを利用
     let str = getreg(a:vreg)
-    let use_input = 0
+    return [str, 0]
   elseif a:input_mode
     " レジスタは利用しないので, 即復帰
     let str = s:input(a:motion, a:reg)
-    if str == ''
-      return ["", 0]
-    endif
-  elseif s:get_val('use_input', 0)
-    let str = s:input(a:motion, a:reg)
-  else
-    let str = ''
-  endif
-  if str == ''
-    let reg = a:vreg == '' ? '"' : a:vreg
-    let str = getreg(reg)
-    let use_input = 0
+    return [str, 1]
   endif
 
-  return [str, use_input]
+  " s:input() で更新されるため
+  " この段階で reg の内容を取得
+  let rstr = getreg(a:vreg == '' ? '"' : a:vreg)
+  if s:get_val('use_input', 0)
+    let str = s:input(a:motion, a:reg)
+    if str != ''
+      return [str, 1]
+    endif
+  endif
+
+  return [rstr, 0]
 endfunction " }}}
 
 function! s:append(motion, input_mode) " {{{
 
+  call s:log("call append(" . a:motion . "," . a:input_mode . ")")
   let regdata = s:reg_save()
 
   try
@@ -588,6 +588,7 @@ function! s:paste(reg, str, motion) " {{{
 endfunction " }}}
 
 function! operator#furround#delete(motion) " {{{
+  call s:log("call delete(" . a:motion . ")")
   if !has_key(s:funcs_motion, a:motion)
     return
   endif
@@ -618,6 +619,7 @@ function! operator#furround#delete(motion) " {{{
 endfunction " }}}
 
 function! s:replace(motion, input_mode) " {{{
+  call s:log("call replace(" . a:motion . "," . a:input_mode . ")")
   if !has_key(s:funcs_motion, a:motion)
     return
   endif
