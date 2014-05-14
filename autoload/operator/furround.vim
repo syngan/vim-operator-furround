@@ -4,7 +4,7 @@ set cpo&vim
 scriptencoding utf-8
 
 function! s:log(_) " {{{
-  if get(g:, 'operator#furround#debug', 0)
+  if s:get('debug', 0)
     silent! call vimconsole#log(a:_)
   endif
 endfunction " }}}
@@ -98,7 +98,7 @@ function! s:echo(msg) " {{{
 endfunction " }}}
 
 function! s:is_valid_config() " {{{
-  return  exists("g:operator#furround#config") &&
+  return exists("g:operator#furround#config") &&
   \ type(g:operator#furround#config) == type({})
 endfunction " }}}
 
