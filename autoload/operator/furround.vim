@@ -241,7 +241,6 @@ function! s:get_pair_from_key(str) " {{{
 endfunction " }}}
 
 function! s:get_block_append(str) " {{{
-
   " 開括弧がなかった場合には key が登録されているか確認する
   let pair = s:get_pair_from_key(a:str)
   if len(pair) > 0
@@ -322,13 +321,9 @@ endfunction " }}}
 
 function! s:reg_restore(reg) " {{{
   let regdic = a:reg[1]
-  for r in keys(regdic)
-    if r != '"'
-      call setreg(r, regdic[r][0], regdic[r][1])
-    endif
+  for r in [a:reg[0], '"']
+    call setreg(r, regdic[r][0], regdic[r][1])
   endfor
-  let r = '"'
-  call setreg(r, regdic[r][0], regdic[r][1])
 endfunction " }}}
 
 let s:funcs_motion = {} " {{{
