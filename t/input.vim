@@ -78,11 +78,12 @@ describe 'input'
   end
 
   it 'g=1'
+	" b の指定があるので, デフォルトで動作する
     normal! 2Gft
     let @" = 'hoge('
     let g:operator#furround#config['-']['use_input'] =  1
-    execute 'normal' "\<Plug>(operator-furround-append-reg)iwfoo[\<CR>"
-    let ans = substitute(g:str, "tako", "foo[tako]", "")
+    execute 'normal' "\<Plug>(operator-furround-append-reg)iww<CR>"
+    let ans = substitute(g:str, "tako", "hoge(tako)", "")
     Expect getline(1) ==# g:str
     Expect getline(2) ==# ans
     Expect getline(3) ==# g:str
