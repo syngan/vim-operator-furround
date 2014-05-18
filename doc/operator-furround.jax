@@ -111,6 +111,7 @@ g:operator#furround#config  			*g:operator#furround#config*
 
 	merge_default_config_user (0)
 		g:operator#furround#config["-"] の内容をマージするか
+		key, block にのみ影響あり
 
 	merge_default_config (0)
 		furround のデフォルトのキー設定をマージするか.
@@ -123,6 +124,7 @@ g:operator#furround#config  			*g:operator#furround#config*
 
 		現在, 以下のファイルタイプをサポートしています。
 		  c, help, tex, vim
+		block にのみ影響あり
 
 	key: Dictionary
 		{key : [start, end]}
