@@ -42,11 +42,21 @@ describe '<Plug>(operator-furround-replace-input) tex-mode'
   it '\sc{} -> {\bf }'
     call s:paste_code(['\hoge{foo}'])
     normal! 1G
-    call setreg('"', '{\bf ')
-    execute 'normal' "V\<Plug>(operator-furround-replace-reg)"
+    call setreg('"', '{\sf ')
+    execute 'normal' "V\<Plug>(operator-furround-replace-input){\\bf \<CR>"
     Expect getline(1) ==# '{\bf foo}'
     Expect line('$') == 1
   end
+
+  it '{\bf hoge} -> \baa{hoge}'
+    call s:paste_code(['{\bf hoge}'])
+    normal! 1G
+    call setreg('"', '\baa{')
+    execute 'normal' "\<Plug>(operator-furround-replace-reg)a{"
+    Expect getline(1) ==# '\baa{hoge}'
+    Expect line('$') == 1
+  end
+
 end
 
 " vim:set et ts=2 sts=2 sw=2 tw=0 fdm=marker cms=\ "\ %s:
