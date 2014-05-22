@@ -131,12 +131,12 @@ g:operator#furround#config  			*g:operator#furround#config*
 		入力したものが key にマッチした場合, start と end で囲う
 		良く使う block に対して, 短い key
 		を割り当てることでタイプ数を削減することを想定しています。
+
 	use_input (0)
 		input-reg の場合、かつ
 		レジスタを指定しない(無名レジスタ)場合、かつ
 		use_input が真の場合には input として動作し、
 		空文字を入力した場合のみ無名レジスタを使用する
-
 
 	complete: |List| or |Funcref|
 		input 時の補完文字列 or 関数.
@@ -145,6 +145,8 @@ g:operator#furround#config  			*g:operator#furround#config*
 		Funcref 時は Funcref のみが候補となる.
 
 	default_append_block ('(')
+		block.start にマッチするものがなかった場合に使用します.
+
 
 g:operator#furround#hilight  			*g:operator#furround#hilight*
 	入力待機中に追加・変更の対象部分をハイライトするかを数値で設定します。
