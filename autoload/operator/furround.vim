@@ -456,13 +456,13 @@ function! s:get_conf(key, def) " {{{
 
   if has_key(blocks, &filetype)
     let block_ft = [blocks[&filetype]]
-    if get(block_ft[0], 'merge_default_config_user', 0) && has_key(blocks, '-')
+    if get(block_ft[0], 'merge_default_config_user', 1) && has_key(blocks, '-')
       let block_user_def = blocks['-']
     endif
-    let merge = get(block_ft[0], 'merge_default_config', 0)
+    let merge = get(block_ft[0], 'merge_default_config', 1)
   elseif has_key(blocks, '-')
     let block_ft = [blocks['-']]
-    let merge = get(block_ft[0], 'merge_default_config', 0)
+    let merge = get(block_ft[0], 'merge_default_config', 1)
   else
     let block_ft = []
     let merge = 1
@@ -470,7 +470,7 @@ function! s:get_conf(key, def) " {{{
 
   if merge && has_key(s:default_config, &filetype)
     let block_ft += [s:default_config[&filetype]]
-    let merge = get(s:default_config[&filetype], 'merge_default_config')
+    let merge = get(s:default_config[&filetype], 'merge_default_config', 1)
   endif
 
   if exists('block_user_def')

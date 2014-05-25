@@ -109,11 +109,11 @@ g:operator#furround#config  			*g:operator#furround#config*
 			指定されていた場合, delete 時の match に利用する.
 		regexp    (任意) デフォルト 0
 
-	merge_default_config_user (0)
+	merge_default_config_user (1)
 		g:operator#furround#config["-"] の内容をマージするか
 		key, block にのみ影響あり
 
-	merge_default_config (0)
+	merge_default_config (1)
 		furround のデフォルトのキー設定をマージするか.
 		filetype=foo を設定でこの値を真にした場合,
 
