@@ -227,6 +227,7 @@ describe 'key'
     normal! 2Gft
 	set filetype=foo
 	call setreg('"', 'e')
+	let g:operator#furround#config['foo']['merge_default_config_user'] = 0
     execute 'normal' "\<Plug>(operator-furround-append-reg)iw"
     let ans = substitute(g:str, "tako", "e(tako)", "")
     Expect getline(1) ==# g:str
@@ -250,6 +251,7 @@ describe 'key'
   it 'baa: c'
     normal! 2Gft
 	set filetype=baa
+	let g:operator#furround#config['baa']['merge_default_config_user'] = 0
 	call setreg('"', 'c')
     execute 'normal' "\<Plug>(operator-furround-append-reg)iw"
     let ans = substitute(g:str, "tako", "c(tako)", "")
