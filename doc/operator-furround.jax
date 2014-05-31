@@ -106,8 +106,17 @@ g:operator#furround#config  			*g:operator#furround#config*
 		start  (必須)
 		end    (必須)
 		end_expr  (任意)
-			指定されていた場合, delete 時の match に利用する.
+			指定されていた場合, match に利用する.
+			挿入には end の情報を利用する.
 		regexp    (任意) デフォルト 0
+			start/end に正規表現を利用する場合には 1 を指定する
+
+		次の例は, \begin{hoge} と \end{hoge} のペアを表すが,
+		終了括弧の場合には \end と {hoge} の間にスペースを許す． >
+		          {'start': '\\begin\s*{\(\k\+\*\=\)}',
+		    \      'end_expr': '\\end\s*{\1}',
+		    \      'end': '\end{\1}', 'regexp': 1},
+<
 
 	merge_default_config_user (1)
 		g:operator#furround#config["-"] の内容をマージするか
@@ -144,7 +153,7 @@ g:operator#furround#config  			*g:operator#furround#config*
 		List 指定時は, List + レジスタ
 		Funcref 時は Funcref のみが候補となる.
 
-	default_append_block ('(')
+	default_append_block (['(', ')'])
 		block.start にマッチするものがなかった場合に使用します.
 
 
@@ -170,7 +179,7 @@ g:operator#furround#hlgroup  			*g:operator#furround#hlgroup*
 <Plug>(operator-furround-append-reg)	*<Plug>(operator-furround-append-reg)*
 	レジスタの内容を利用して囲う。
 	|g:operator#furround#config| で use_input
-	に真の値が指定されている場合、無名レジスタの場合には input
+	に真の値が指定されていて、かつ無名レジスタの場合には input
 	を待機し、空文字が入力された場合には無名レジスタを利用する
 
 <Plug>(operator-furround-delete)	*<Plug>(operator-furround-delete)*
