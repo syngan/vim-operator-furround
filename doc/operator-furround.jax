@@ -8,6 +8,8 @@
 *operator-furround* は (), [], {} のような括弧や，引用符などテキストを囲
 う操作を行います。また，囲われているテキストに対して，囲いを削除・変更すること
 ともできます。
+motion が char または line の場合のみサポートしています。
+つまり，|CTRL-V| で作成した矩形に対しては動作しないことに注意してください。
 
 >
 	map sa <Plug>(opeartor-furround-append-input)
@@ -172,24 +174,30 @@ g:operator#furround#hlgroup  			*g:operator#furround#hlgroup*
 マッピング					*operator-furround-mapping*
 
 <Plug>(operator-furround-append-input)	*<Plug>(operator-furround-append-input)*
-	無名レジスタ以外のレジスタを指定した場合にはそれを使用する
-	それ以外の場合には input を利用して、囲む
+	無名レジスタ以外のレジスタを指定した場合にはそれを使用する。
+	それ以外の場合には input を利用して、囲む。
 	空文字が入力された場合には cancel メッセージを出力し終了します。
 
 <Plug>(operator-furround-append-reg)	*<Plug>(operator-furround-append-reg)*
 	レジスタの内容を利用して囲う。
 	|g:operator#furround#config| で use_input
 	に真の値が指定されていて、かつ無名レジスタの場合には input
-	を待機し、空文字が入力された場合には無名レジスタを利用する
+	を待機し、空文字が入力された場合には無名レジスタを利用する。
 
 <Plug>(operator-furround-delete)	*<Plug>(operator-furround-delete)*
-	削除する
+	一番外側にあるブロックを削除する。
 
 <Plug>(operator-furround-replace-input)	*<Plug>(operator-furround-replace-input)*
-	削除して追加する.
+	一番外側にあるブロックを削除して，指定されたブロックで囲う。
+	削除動作に関しては，|<Plug>(operator-furround-delete)| を，
+	追加動作に関しては，|<Plug>(operator-furround-append-input)|
+	を参照してください。
 
 <Plug>(operator-furround-replace-reg)	*<Plug>(operator-furround-replace-reg)*
-	削除して追加する.
+	一番外側にあるブロックを削除して，指定されたブロックで囲う。
+	削除動作に関しては，|<Plug>(operator-furround-delete)| を，
+	追加動作に関しては，|<Plug>(operator-furround-append-reg)|
+	を参照してください。
 
 ==============================================================================
 類似するプラグイン			 *operator-furround-similar-plugins*
@@ -202,7 +210,7 @@ vim-operator-surround との大きな違いは、
 1) レジスタを使用したオペレーションをサポート
    - 改行を含んだ surround 操作が実現可能
 2) 入力時に <CR> を要求する
-3) 複数の括弧を同時に入力できる
+3) 追加動作で複数の括弧を同時に入力できる
 
 
 ==============================================================================
