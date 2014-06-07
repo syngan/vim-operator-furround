@@ -329,14 +329,17 @@ endfunction " }}}
 let s:funcs_motion = {} " {{{
 let s:funcs_motion.char = {
   \ 'v': 'v',
+  \ 'support_append':  1,
   \ 'support_delete':  1,
   \ 'support_replace': 1}
 let s:funcs_motion.line = {
   \ 'v': 'V',
+  \ 'support_append':  1,
   \ 'support_delete':  1,
   \ 'support_replace': 1}
 let s:funcs_motion.block = {
   \ 'v': "\<C-v>",
+  \ 'support_append':  0,
   \ 'support_delete':  0,
   \ 'support_replace': 0}
 
@@ -421,6 +424,11 @@ function! s:append(motion, input_mode) " {{{
 
   call s:log("call append(" . a:motion . "," . a:input_mode . ")")
   let regdata = s:reg_save()
+
+  if !s:funcs_motion[a:motion].support_append
+    call s:echo('not support motion=' . a:motion)
+    return
+  endif
 
   try
     let [str, use_input] = s:get_inputstr(a:motion, a:input_mode, v:register, regdata[0])
