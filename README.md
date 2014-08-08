@@ -19,7 +19,8 @@ Mappings:
 - `<Plug>(operator-furround-append-input)`	(use input always)
 - `<Plug>(operator-furround-append-reg)`	(depend on `use_input` option)
 - `<Plug>(operator-furround-delete)`
-- `<Plug>(operator-furround-replace)`
+- `<Plug>(operator-furround-replace-input)`
+- `<Plug>(operator-furround-replace-reg)`
 
 # Install
 
@@ -29,16 +30,16 @@ Mappings:
 NeoBundleLazy 'syngan/vim-operator-furround', {
 \   'depends' : [ 'kana/vim-operator-user'],
 \   'autoload' : {
-\	'mappings' : ['<Plug>(operator-furround-)']}
+\	'mappings' : ['<Plug>(operator-furround-']}
 \}
 ```
 
 ## `<Plug>(opeartor-furround-append-input)`
 
-- `map H <Plug>(opeartor-furround-append-input)`
+- `map sa <Plug>(opeartor-furround-append-input)`
 - original text is `tako`
-- type `Hiw` and input xxx
-- note: `iw` is an `inner word`. see `:h iw`
+- type `saiw` and input xxx
+   - note: `iw` is an `inner word`. see `:h iw`
 
 |   input      |   result                 |   note       |
 |:------------:|:------------------------:|:-------------|
@@ -75,10 +76,6 @@ NeoBundleLazy 'syngan/vim-operator-furround', {
 
 - `omap iv <Plug>(textobj-postexpr-i)`
 - text is `hoge(tako(foo))` and do `Div` then `tako(foo)`
-
-# Customize
-
-## g:operator#furround#config
 
 
 # Blog in Japanese
