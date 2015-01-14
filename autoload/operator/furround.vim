@@ -65,6 +65,17 @@ let s:default_config = {
 \     {'start': '\k\+(', 'end': ')', 'regexp': 1},
 \     {'start': '\k\+\[', 'end': ']', 'regexp': 1},
 \   ]},
+\ 'lisp' : {
+\   'merge_default_config' : 0,
+\   'block' : [
+\     {'start': '(\k\+', 'end': ')', 'regexp': 1},
+\   ]},
+\ 'go' : {
+\   'merge_default_config' : 1,
+\   'block' : [
+\     {'start': '\k\+(', 'end': ')', 'regexp': 1},
+\     {'start': '\k\+\[', 'end': ']', 'regexp': 1},
+\   ]},
 \ 'help' : {
 \   'merge_default_config' : 1,
 \   'block' : [
