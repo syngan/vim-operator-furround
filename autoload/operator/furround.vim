@@ -188,6 +188,7 @@ function! s:get_pair_lhs(str, blocks, idx, slen) abort " {{{
   \ 'start_len' : len(mlist[0]),
   \ 'end_str' : pe,
   \ 'end_expr' : pee,
+  \ 'indent' : get(bmin, 'indent', 0),
   \ }
 endfunction " }}}
 
@@ -240,10 +241,12 @@ function! s:get_pair(str) abort " {{{
   endif
 
   let r = ''
+  let indent = 0
   for i in range(len(stack)-1, 0, -1)
     let r .= stack[i].end_str
+    let indent = indent || stack[i].indent
   endfor
-  return ['', r]
+  return ['', r, indent]
 endfunction " }}}
 
 function! s:get_pair_from_key(str) abort " {{{
@@ -261,16 +264,19 @@ function! s:get_block_append(str) abort " {{{
   " 開括弧がなかった場合には key が登録されているか確認する
   let pair = s:get_pair_from_key(a:str)
   if len(pair) > 0
+    if len(pair) == 2
+      let pair += [0]
+    endif
     return pair
   endif
 
   let pair = s:get_pair(a:str)
   if len(pair) == 0
     " 何もなかったらデフォルトの括弧を追加する
-    let pair = s:get_val('default_append_block', ['(', ')'])
+    let pair = s:get_val('default_append_block', ['(', ')', 0])
   endif
 
-  return [a:str . pair[0], pair[1]]
+  return [a:str . pair[0], pair[1], pair[2]]
 endfunction " }}}
 
 function! s:get_reg_rmcr(r) abort " {{{
@@ -324,6 +330,11 @@ endfunction " }}}
 
 function! s:knormal(s) abort " {{{
   execute 'keepjumps' 'silent' 'normal!' a:s
+endfunction " }}}
+
+function! s:indent(motion) abort " {{{
+  let func = s:funcs_motion[a:motion]
+  call s:knormal(printf('`[%s`]=', func.v))
 endfunction " }}}
 
 function! s:reg_save() abort " {{{
@@ -454,9 +465,12 @@ function! s:append(motion, input_mode) abort " {{{
       return 0
     endif
 
-    let [func, right] = s:get_block_append(str)
+    let [func, right, indent] = s:get_block_append(str)
 
     call s:funcs_motion[a:motion].append(func, right, regdata[0])
+    if indent
+      call s:indent(a:motion)
+    endif
   finally
     call s:reg_restore(regdata)
   endtry
@@ -526,16 +540,18 @@ function! s:block_del_pair(str, pair) abort " {{{
 
   call s:log('m=' . m . ',=' . string(a:pair))
   if m < -1
-    return ''
+    return {}
   endif
 
   if m > 0 && a:str[0 : m-1] !~# '^\_s*$'
-    return ''
+    return {}
   endif
 
   let ms = matchlist(a:str, a:pair.start, m)
   if len(ms) == 0
-    return ''
+    call s:log('ms=')
+    call s:log(ms)
+    return {}
   endif
   let s = len(ms[0]) + m
 
@@ -543,29 +559,34 @@ function! s:block_del_pair(str, pair) abort " {{{
 
   if has_key(a:pair, 'end_expr')
     let pee = s:escape_n(a:pair.end_expr, ms, 1)
+  elseif regexp
+    let pee = pe
   else
     let pee = s:escape(pe)
   endif
 
   let me = match(a:str, pee . '\_s*$', s)
-  call s:log('me=' . match(a:str, s:escape(pe)))
+  call s:log('me=' . me)
+  call s:log('a:str[s:]=' . a:str[s : len(a:str)-1])
   if me < 0
-    return ''
+    return {}
   endif
 
-  return a:str[s : me - 1]
+  call s:log('pair=')
+  call s:log(a:pair)
+  return {'str': a:str[s : me - 1], 'indent': get(a:pair, 'indent', 0)}
 endfunction " }}}
 
 function! s:get_block_del(str) abort " {{{
 
   for pair in s:concat(s:get_conf('block', []))
     let c = s:block_del_pair(a:str, pair)
-    if c !=# ''
+    if c != {}
       return c
     endif
   endfor
 
-  return ''
+  return {}
 endfunction " }}}
 
 " @vimlint(EVL103, 1, a:spos)
@@ -596,8 +617,7 @@ function! s:delete_str(reg, motion) abort " {{{
   call setreg(a:reg, '', 'v')
   call s:knormal(printf('`[%s`]"%sy', func.v, a:reg))
   let str = getreg(a:reg)
-  let str = s:get_block_del(str)
-  return str
+  return s:get_block_del(str)
 endfunction " }}}
 
 function! s:paste(reg, str, motion) abort " {{{
@@ -625,13 +645,16 @@ function! operator#furround#delete(motion) abort " {{{
   try
     let reg = regdata[0]
 
-    let str = s:delete_str(reg, a:motion)
-    if len(str) ==# ''
+    let dict = s:delete_str(reg, a:motion)
+    if dict == {}
       return 0
     endif
 
-    call s:paste(reg, str, a:motion)
-
+    call s:paste(reg, dict.str, a:motion)
+    call s:log(printf('[=%s, ]=%s\n', string(getpos("'[")), string(getpos("']"))))
+    if dict.indent
+      call s:indent(a:motion)
+    endif
   finally
     call s:reg_restore(regdata)
     call setpos('.', pos)
@@ -658,8 +681,8 @@ function! s:replace(motion, input_mode) abort " {{{
   try
     let reg = regdata[0]
 
-    let str = s:delete_str(reg, a:motion)
-    if len(str) ==# ''
+    let dict = s:delete_str(reg, a:motion)
+    if dict == {}
       return 0
     endif
 
@@ -670,11 +693,15 @@ function! s:replace(motion, input_mode) abort " {{{
       return 0
     endif
 
-    call s:paste(reg, str, a:motion)
+    call s:paste(reg, dict.str, a:motion)
     " なぜここで undo が分離される？
     undoj
-    let [ifunc, right] = s:get_block_append(istr)
+    let [ifunc, right, indent] = s:get_block_append(istr)
     call func.append(ifunc, right, regdata[0])
+
+    if indent || dict.indent
+      call s:indent(a:motion)
+    endif
 
   finally
     call s:reg_restore(regdata)
