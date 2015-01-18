@@ -113,6 +113,8 @@ g:operator#furround#config  			*g:operator#furround#config*
 			挿入には end の情報を利用する.
 		regexp    (任意) デフォルト 0
 			start/end に正規表現を利用する場合には 1 を指定する
+		indent	 (任意) デフォルト 0
+			処理完了後に |=| によるインデント修正を行う．
 
 		次の例は, \begin{hoge} と \end{hoge} のペアを表すが,
 		終了括弧の場合には \end と {hoge} の間にスペースを許す． >
@@ -139,7 +141,7 @@ g:operator#furround#config  			*g:operator#furround#config*
 		block にのみ影響あり
 
 	key: Dictionary
-		{key : [start, end]}
+		{key : [start, end [, indent]]}
 		入力したものが key にマッチした場合, start と end で囲う
 		良く使う block に対して, 短い key
 		を割り当てることでタイプ数を削減することを想定しています。
@@ -156,7 +158,7 @@ g:operator#furround#config  			*g:operator#furround#config*
 		List 指定時は, List + レジスタ
 		Funcref 時は Funcref のみが候補となる.
 
-	default_append_block (['(', ')'])
+	default_append_block (['(', ')', 0])
 		block.start にマッチするものがなかった場合に使用します.
 
 
