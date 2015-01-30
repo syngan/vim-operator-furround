@@ -42,9 +42,8 @@ let s:default_config = {
 \      'regexp': 1, 'comment' : '\hoge[xxx]{yyy}'},
 \     {'start': '\\verb\*\=\(.\)', 'end': '\1', 'regexp': 1},
 \     {'start': '\(\$\$\=\)', 'end': '\1', 'regexp': 1},
-\     {'start': '\[', 'end': '\]'},
-\     {'start': '\(', 'end': '\)'},
-\     {'start': '\{', 'end': '\}'},
+\     {'start': '\\[', 'end': '\]', 'regexp': 1},
+\     {'start': '\\(', 'end': '\)', 'regexp': 1},
 \   ]},
 \ 'c' : {
 \   'merge_default_config' : 1,
