@@ -275,8 +275,8 @@ function! s:get_block_append(str) abort " {{{
     " 何もなかったらデフォルトの括弧を追加する
     let pair = s:get_val('default_append_block', ['(', ')', 0])
   endif
-
-  return [a:str . pair[0], pair[1], pair[2]]
+  let indent = len(pair) < 3 ? 0 : pair[2]
+  return [a:str . pair[0], pair[1], indent]
 endfunction " }}}
 
 function! s:get_reg_rmcr(r) abort " {{{
