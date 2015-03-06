@@ -64,6 +64,7 @@ let s:default_config = {
 \   'block' : [
 \     {'start': '\k\+(', 'end': ')', 'regexp': 1},
 \     {'start': '\k\+\[', 'end': ']', 'regexp': 1},
+\     {'start': '"""', 'end': '"""'},
 \   ]},
 \ 'lisp' : {
 \   'merge_default_config' : 0,
@@ -75,6 +76,11 @@ let s:default_config = {
 \   'block' : [
 \     {'start': '\k\+(', 'end': ')', 'regexp': 1},
 \     {'start': '\k\+\[', 'end': ']', 'regexp': 1},
+\   ]},
+\ 'markdown' : {
+\   'merge_default_config' : 1,
+\   'block' : [
+\     {'start': '```\k*', 'end': '```', 'regexp': 1},
 \   ]},
 \ 'help' : {
 \   'merge_default_config' : 1,
