@@ -471,7 +471,7 @@ function! s:append(motion, input_mode) abort " {{{
   endif
 
   try
-    let [str, use_input] = s:get_inputstr(a:motion, a:input_mode, v:register, regdata[0])
+    let [str, use_input] = s:get_inputstr(a:motion, a:input_mode, operator#user#register(), regdata[0])
     if str ==# ''
       call s:echo('canceled')
       return 0
@@ -688,7 +688,7 @@ function! s:replace(motion, input_mode) abort " {{{
   let pos = getpos('.')
   let regdata = s:reg_save()
 
-  let vreg = v:register
+  let vreg = operator#user#register()
 
   try
     let reg = regdata[0]
