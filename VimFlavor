@@ -1,1 +1,1 @@
-flavor 'kana/vim-operator-user', '~> 0.0.7'
+flavor 'kana/vim-operator-user', '~> 0.1.0'
