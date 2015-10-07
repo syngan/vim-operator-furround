@@ -343,10 +343,16 @@ function! s:indent(motion) abort " {{{
   call s:knormal(printf('`[%s`]=', func.v))
 endfunction " }}}
 
+function! s:get_default_reg() abort " {{{
+  return
+    \ &clipboard =~# 'unnamedplus' ? '+' :
+    \ &clipboard =~# 'unnamed' ? '*' : '"'
+endfunction " }}}
+
 function! s:reg_save() abort " {{{
   let reg = 'f'
   let regdic = {}
-  for r in [reg, '"']
+  for r in [reg, s:get_default_reg()]
     let regdic[r] = [getreg(r), getregtype(r)]
   endfor
 
@@ -355,7 +361,7 @@ endfunction " }}}
 
 function! s:reg_restore(reg) abort " {{{
   let regdic = a:reg[1]
-  for r in [a:reg[0], '"']
+  for r in [a:reg[0], s:get_default_reg()]
     call setreg(r, regdic[r][0], regdic[r][1])
   endfor
 endfunction " }}}
@@ -431,7 +437,7 @@ endfunction " }}}
 function! s:get_inputstr(motion, input_mode, vreg, reg) abort " {{{
   " @param reg 作業レジスタ
   " @param vreg オペレータ実行時に指定された v:register
-  if (a:vreg !=# '' && a:vreg !=# '"')
+  if (a:vreg !=# '' && a:vreg !=# s:get_default_reg())
     " レジスタが指定されていたはモードにかかわらずレジスタを利用
     let str = getreg(a:vreg)
     return [str, 0]
@@ -443,7 +449,7 @@ function! s:get_inputstr(motion, input_mode, vreg, reg) abort " {{{
 
   " s:input() で更新されるため
   " この段階で reg の内容を取得
-  let rstr = getreg(a:vreg ==# '' ? '"' : a:vreg)
+  let rstr = getreg(a:vreg ==# '' ? s:get_default_reg() : a:vreg)
   if s:get_val('use_input', 0)
     let str = s:input(a:motion, a:reg)
     if str !=# ''
@@ -465,7 +471,7 @@ function! s:append(motion, input_mode) abort " {{{
   endif
 
   try
-    let [str, use_input] = s:get_inputstr(a:motion, a:input_mode, v:register, regdata[0])
+    let [str, use_input] = s:get_inputstr(a:motion, a:input_mode, operator#user#register(), regdata[0])
     if str ==# ''
       call s:echo('canceled')
       return 0
@@ -682,7 +688,7 @@ function! s:replace(motion, input_mode) abort " {{{
   let pos = getpos('.')
   let regdata = s:reg_save()
 
-  let vreg = v:register
+  let vreg = operator#user#register()
 
   try
     let reg = regdata[0]
