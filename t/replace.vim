@@ -58,6 +58,23 @@ describe 'replace'
     Expect getline(1) == 'tako(hoge)'
     Expect line('$') == 1
   end
+
+  it '"" -> {}'
+    call s:paste_code(['""'])
+    normal! gg0
+    execute 'normal' "\<Plug>(operator-furround-replace-input)a\"{\<CR>"
+    Expect getline(1) == '{}'
+    Expect line('$') == 1
+  end
+
+  it '"foo " -> {foo }'
+    call s:paste_code(['"foo "'])
+    normal! gg0
+    execute 'normal' "\<Plug>(operator-furround-replace-input)a\"{\<CR>"
+    Expect getline(1) == '{foo }'
+    Expect line('$') == 1
+  end
+
 end
 
 function! s:rep(pre, suf, input, input_mode)
