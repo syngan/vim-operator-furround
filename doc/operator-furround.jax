@@ -12,7 +12,7 @@ motion が char または line の場合のみサポートしています。
 つまり，|CTRL-V| で作成した矩形に対しては動作しないことに注意してください。
 
 >
-	map sa <Plug>(opeartor-furround-append-input)
+	map sa <Plug>(operator-furround-append-input)
 <
 と定義している場合に，以下のような動作をします。
 ここで、_ は半角スペースを表しています。
