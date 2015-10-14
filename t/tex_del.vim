@@ -81,6 +81,22 @@ describe 'tex-pair'
     Expect line('$') == 1
   end
 
+  it '$'
+    call s:paste_code(['$hoge$'])
+    normal! gg0
+    execute 'normal' "V\<Plug>(operator-furround-delete)"
+    Expect getline(1) == 'hoge'
+    Expect line('$') == 1
+  end
+
+  it '$$'
+    call s:paste_code(['$$hoge$$'])
+    normal! gg0
+    execute 'normal' "V\<Plug>(operator-furround-delete)"
+    Expect getline(1) == 'hoge'
+    Expect line('$') == 1
+  end
+
   it '\begin{figure*}1'
     call s:paste_code([
     \ '\begin{figure*}[tb] % {{{',
