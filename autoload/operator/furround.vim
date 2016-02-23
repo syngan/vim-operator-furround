@@ -349,23 +349,6 @@ function! s:get_default_reg() abort " {{{
     \ &clipboard =~# 'unnamed' ? '*' : '"'
 endfunction " }}}
 
-function! s:reg_save() abort " {{{
-  let reg = 'f'
-  let regdic = {}
-  for r in [reg, s:get_default_reg()]
-    let regdic[r] = [getreg(r), getregtype(r)]
-  endfor
-
-  return [reg, regdic]
-endfunction " }}}
-
-function! s:reg_restore(reg) abort " {{{
-  let regdic = a:reg[1]
-  for r in [a:reg[0], s:get_default_reg()]
-    call setreg(r, regdic[r][0], regdic[r][1])
-  endfor
-endfunction " }}}
-
 let s:funcs_motion = {} " {{{
 let s:funcs_motion.char = {
   \ 'support_append':  1,
