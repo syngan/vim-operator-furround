@@ -3,6 +3,8 @@ set cpo&vim
 
 scriptencoding utf-8
 
+let s:opmo = vital#of('operator_furround').import('Opmo')
+
 function! s:log(_) abort " {{{
   if s:get('debug', 0)
     silent! call vimconsole#log(a:_)
@@ -309,12 +311,11 @@ function! operator#furround#complete_reg(A, L, P) abort " {{{
 endfunction " }}}
 
 :highlight furround_hl_group ctermfg=Blue ctermbg=LightRed
-function! s:input(motion, reg) abort " {{{
+function! s:input(motion) abort " {{{
 
   if s:get('highlight', 1)
-    call s:knormal(printf('`[%s`]"%sy', s:funcs_motion[a:motion].v, a:reg))
     let hlgroup = s:get('hlgroup', 'furround_hl_group')
-    let mids = s:funcs_motion[a:motion].highlight(getpos("'["), getpos("']"), hlgroup)
+    let mids = s:opmo.highlight(a:motion, hlgroup)
     :redraw
   else
     let mids = []
@@ -338,9 +339,8 @@ function! s:knormal(s) abort " {{{
   execute 'keepjumps' 'silent' 'normal!' a:s
 endfunction " }}}
 
-function! s:indent(motion) abort " {{{
-  let func = s:funcs_motion[a:motion]
-  call s:knormal(printf('`[%s`]=', func.v))
+function! s:indent() abort " {{{
+  call s:knormal('`[V`]=')
 endfunction " }}}
 
 function! s:get_default_reg() abort " {{{
@@ -349,92 +349,22 @@ function! s:get_default_reg() abort " {{{
     \ &clipboard =~# 'unnamed' ? '*' : '"'
 endfunction " }}}
 
-function! s:reg_save() abort " {{{
-  let reg = 'f'
-  let regdic = {}
-  for r in [reg, s:get_default_reg()]
-    let regdic[r] = [getreg(r), getregtype(r)]
-  endfor
-
-  return [reg, regdic]
-endfunction " }}}
-
-function! s:reg_restore(reg) abort " {{{
-  let regdic = a:reg[1]
-  for r in [a:reg[0], s:get_default_reg()]
-    call setreg(r, regdic[r][0], regdic[r][1])
-  endfor
-endfunction " }}}
-
 let s:funcs_motion = {} " {{{
 let s:funcs_motion.char = {
-  \ 'v': 'v',
   \ 'support_append':  1,
   \ 'support_delete':  1,
   \ 'support_replace': 1}
 let s:funcs_motion.line = {
-  \ 'v': 'V',
   \ 'support_append':  1,
   \ 'support_delete':  1,
   \ 'support_replace': 1}
 let s:funcs_motion.block = {
-  \ 'v': "\<C-v>",
   \ 'support_append':  0,
   \ 'support_delete':  0,
   \ 'support_replace': 0}
-
-function! s:funcs_motion.char.append(left, right, reg) abort " {{{
-  call s:knormal("`[v`]\<Esc>")
-  call setreg(a:reg, a:right, 'v')
-  call s:knormal('`>"' . a:reg . 'p')
-  call setreg(a:reg, a:left, 'v')
-  call s:knormal('`<"' . a:reg . 'P')
-endfunction " }}}
-
-" @vimlint(EVL103, 1, a:reg)
-function! s:funcs_motion.line.append(left, right, reg) abort " {{{
-  call s:knormal(printf("%dGA%s\<Esc>%dGgI%s\<Esc>",
-        \ getpos("']")[1], a:right, getpos("'[")[1], a:left))
-endfunction " }}}
-" @vimlint(EVL103, 0, a:reg)
-
-" @vimlint(EVL103, 1, a:reg)
-function! s:funcs_motion.block.append(left, right, reg) abort " {{{
-  " FIXME <C-v>$ に対応できていない
-  let [l1, c1] = getpos("'[")[1 : 2]
-  let [l2, c2] = getpos("']")[1 : 2]
-  for lnum in range(l1, l2)
-    call s:knormal(printf("%dG%d|a%s\<Esc>%d|i%s\<Esc>",
-    \ lnum, c2, a:right, c1, a:left))
-  endfor
-endfunction " }}}
-" @vimlint(EVL103, 0, a:reg)
-
-function! s:funcs_motion.char.highlight(begin, end, hlgroup) abort " {{{
-  if a:begin[1] == a:end[1]
-    return [matchadd(a:hlgroup,
-    \ printf('\%%%dl\%%>%dc\%%<%dc', a:begin[1], a:begin[2]-1, a:end[2]+1))]
-  else
-    return [
-    \ matchadd(a:hlgroup, printf('\%%%dl\%%>%dc', a:begin[1], a:begin[2]-1)),
-    \ matchadd(a:hlgroup, printf('\%%%dl\%%<%dc', a:end[1], a:end[2]+1)),
-    \ matchadd(a:hlgroup, printf('\%%>%dl\%%<%dl', a:begin[1], a:end[1]))]
-  endif
-endfunction " }}}
-
-function! s:funcs_motion.line.highlight(begin, end, hlgroup) abort " {{{
-  return [matchadd(a:hlgroup, printf('\%%>%dl\%%<%dl', a:begin[1]-1, a:end[1]+1))]
-endfunction " }}}
-
-function! s:funcs_motion.block.highlight(begin, end, hlgroup) abort " {{{
-  return [matchadd(a:hlgroup,
-        \ printf('\%%>%dl\%%<%dl\%%>%dc\%%<%dc',
-        \ a:begin[1]-1, a:end[1]+1, a:begin[2]-1, a:end[2]+1))]
-endfunction " }}}
-
 " }}}
 
-function! s:get_inputstr(motion, input_mode, vreg, reg) abort " {{{
+function! s:get_inputstr(motion, input_mode, vreg) abort " {{{
   " @param reg 作業レジスタ
   " @param vreg オペレータ実行時に指定された v:register
   if (a:vreg !=# '' && a:vreg !=# s:get_default_reg())
@@ -443,7 +373,7 @@ function! s:get_inputstr(motion, input_mode, vreg, reg) abort " {{{
     return [str, 0]
   elseif a:input_mode
     " レジスタは利用しないので, 即復帰
-    let str = s:input(a:motion, a:reg)
+    let str = s:input(a:motion)
     return [str, 1]
   endif
 
@@ -451,7 +381,7 @@ function! s:get_inputstr(motion, input_mode, vreg, reg) abort " {{{
   " この段階で reg の内容を取得
   let rstr = getreg(a:vreg ==# '' ? s:get_default_reg() : a:vreg)
   if s:get_val('use_input', 0)
-    let str = s:input(a:motion, a:reg)
+    let str = s:input(a:motion)
     if str !=# ''
       return [str, 1]
     endif
@@ -463,7 +393,6 @@ endfunction " }}}
 function! s:append(motion, input_mode) abort " {{{
 
   call s:log('call append(' . a:motion . ',' . a:input_mode . ')')
-  let regdata = s:reg_save()
 
   if !s:funcs_motion[a:motion].support_append
     call s:echo('not support motion=' . a:motion)
@@ -471,7 +400,7 @@ function! s:append(motion, input_mode) abort " {{{
   endif
 
   try
-    let [str, use_input] = s:get_inputstr(a:motion, a:input_mode, operator#user#register(), regdata[0])
+    let [str, use_input] = s:get_inputstr(a:motion, a:input_mode, operator#user#register())
     if str ==# ''
       call s:echo('canceled')
       return 0
@@ -479,12 +408,11 @@ function! s:append(motion, input_mode) abort " {{{
 
     let [func, right, indent] = s:get_block_append(str)
 
-    call s:funcs_motion[a:motion].append(func, right, regdata[0])
+    call s:opmo.wrap(a:motion, func, right)
     if indent
-      call s:indent(a:motion)
+      call s:indent()
     endif
   finally
-    call s:reg_restore(regdata)
   endtry
 
   if use_input
@@ -601,42 +529,9 @@ function! s:get_block_del(str) abort " {{{
   return {}
 endfunction " }}}
 
-" @vimlint(EVL103, 1, a:spos)
-function! s:funcs_motion.char.paste(reg, spos, epos) abort " {{{
-  let eline = getline(a:epos[1])
-  let p = (len(eline) == a:epos[2]) ? 'p' : 'P'
-  return '"' . a:reg . p
-endfunction " }}}
-" @vimlint(EVL103, 0, a:spos)
-
-function! s:funcs_motion.line.paste(reg, spos, epos) abort " {{{
-  if a:epos[1] == line('$')
-    if a:spos[1] == 1
-      " ファイル全体を消してしまったので,
-      " もう一度 yank しなおして, '[, '] を設定しなおす
-      let ret = 'PG"_ddggVG"' . a:reg . 'y'
-    else
-      let ret = 'p'
-    endif
-  else
-    let ret = 'P'
-  endif
-  return '"' . a:reg . ret
-endfunction " }}}
-
-function! s:delete_str(reg, motion) abort " {{{
-  let func = s:funcs_motion[a:motion]
-  call setreg(a:reg, '', 'v')
-  call s:knormal(printf('`[%s`]"%sy', func.v, a:reg))
-  let str = getreg(a:reg)
+function! s:delete_str(motion) abort " {{{
+  let str = s:opmo.gettext(a:motion)
   return s:get_block_del(str)
-endfunction " }}}
-
-function! s:paste(reg, str, motion) abort " {{{
-  let func = s:funcs_motion[a:motion]
-  call setreg(a:reg, a:str, func.v)
-  let p = func.paste(a:reg, getpos("'["), getpos("']"))
-  call s:knormal(printf('`[%s`]"_d%s', func.v, p))
 endfunction " }}}
 
 function! operator#furround#delete(motion) abort " {{{
@@ -652,23 +547,19 @@ function! operator#furround#delete(motion) abort " {{{
   endif
 
   let pos = getpos('.')
-  let regdata = s:reg_save()
 
   try
-    let reg = regdata[0]
-
-    let dict = s:delete_str(reg, a:motion)
+    let dict = s:delete_str(a:motion)
+    call writefile(['del', string(dict)], '/tmp/furround', 'a')
     if dict == {}
       return 0
     endif
 
-    call s:paste(reg, dict.str, a:motion)
-    call s:log(printf('[=%s, ]=%s\n', string(getpos("'[")), string(getpos("']"))))
+    call s:opmo.replace(a:motion, dict.str)
     if dict.indent
-      call s:indent(a:motion)
+      call s:indent()
     endif
   finally
-    call s:reg_restore(regdata)
     call setpos('.', pos)
   endtry
 endfunction " }}}
@@ -686,37 +577,31 @@ function! s:replace(motion, input_mode) abort " {{{
   endif
 
   let pos = getpos('.')
-  let regdata = s:reg_save()
-
   let vreg = operator#user#register()
 
   try
-    let reg = regdata[0]
-
-    let dict = s:delete_str(reg, a:motion)
+    let dict = s:delete_str(a:motion)
     if dict == {}
       return 0
     endif
 
-    call s:reg_restore(regdata)
-    let [istr, use_input] = s:get_inputstr(a:motion, a:input_mode, vreg, reg)
+    let [istr, use_input] = s:get_inputstr(a:motion, a:input_mode, vreg)
     if istr ==# ''
       call s:echo('canceled')
       return 0
     endif
 
-    call s:paste(reg, dict.str, a:motion)
+    call s:opmo.replace(a:motion, dict.str)
     " なぜここで undo が分離される？
     undoj
     let [ifunc, right, indent] = s:get_block_append(istr)
-    call func.append(ifunc, right, regdata[0])
+    call s:opmo.wrap(a:motion, ifunc, right)
 
     if indent || dict.indent
       call s:indent(a:motion)
     endif
 
   finally
-    call s:reg_restore(regdata)
     call setpos('.', pos)
   endtry
 
